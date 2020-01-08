@@ -31,6 +31,7 @@ class UserAdmin(BaseUserAdmin):
 
     def reset_players(self, request):
         Player.reset()
+        self.message_user(request, "Resetted player codes, targets")
         return HttpResponseRedirect('../')
         
 admin.site.unregister(User)

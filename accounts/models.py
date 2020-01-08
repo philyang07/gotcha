@@ -2,12 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from random import randint, choice
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     secret_code = models.IntegerField('secret code', null=True, blank=True, unique=True)
-    target = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=False)
+    target = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
     alive = models.BooleanField('alive', default=True)
     last_active = models.DateTimeField('last active', null=True, blank=True) # the last time the player eliminated someone
     kills = models.IntegerField('eliminations', default=0)
@@ -53,3 +55,9 @@ class Player(models.Model):
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
+
+    @receiver(post_save, sender=User)
+    def save_player(sender, instance, **kwargs):
+        player = Player(user=instance)
+        player.save()
+        instance.player = player

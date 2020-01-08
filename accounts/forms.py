@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from .models import Player
 
 class RegistrationForm(forms.Form):
     first_name = forms.CharField(label="First name", max_length=100)
@@ -29,7 +30,7 @@ class RegistrationForm(forms.Form):
         last_name = self.cleaned_data['last_name']
         user = User.objects.create_user(email, email, password, 
                                         first_name=first_name,
-                                        last_name=last_name)
+                                        last_name=last_name, player=Player())
 
 class AssignmentForm(forms.Form):
     def __init__(self, *args, **kwargs): # to pass in the request object
