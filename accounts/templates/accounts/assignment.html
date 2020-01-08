@@ -1,0 +1,8 @@
+<form action="{% url 'accounts:assignment' %}" method="post">
+    <table>
+    {% csrf_token %}
+    {{ form }}
+    </table>
+    <input type="submit" value="Submit">
+</form>
+

@@ -1,0 +1,7 @@
+<form action="{% url 'accounts:register' %}" method="post">
+    <table>
+        {% csrf_token %}
+        {{ form }}
+    </table>
+    <input type="submit" value="Register">
+</form>

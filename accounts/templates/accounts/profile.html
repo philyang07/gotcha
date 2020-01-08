@@ -1,0 +1,15 @@
+{% if user.is_authenticated %}
+<p>Welcome {{ user.first_name }}!</p>
+<p>Your email is {{ user.email }}</p>
+{% if user.player.secret_code %}
+<p>Your secret code is {{ user.player.secret_code }}</p>
+{% endif %}
+{% if user.player.target %}
+<p>Your target is {{ user.player.target }}</p>
+{% endif %}
+<p>You have {{ user.player.kills }} kills.</p>
+<a href="{% url 'accounts:assignment' %}">Assignment</a>
+<a href="{% url 'accounts:logout' %}">Logout</a>
+{% else %}
+<p>You aren't authorised to visit this page.</p>
+{% endif %}

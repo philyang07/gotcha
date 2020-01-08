@@ -1,0 +1,17 @@
+<form action="{% url 'accounts:login' %}" method="post">
+    {% if just_logged_out %}
+    <p>You have just logged out.</p>
+    {% endif %}
+    {% if next %}
+    <p>Invalid login.</p>
+    {% endif %}
+
+    <table>
+    {% csrf_token %}
+    {{ form }}
+    </table>
+    <input type="submit" value = "Submit">
+    <input type="hidden" name="next" value="{% url 'accounts:profile' %}">
+
+
+</form>
