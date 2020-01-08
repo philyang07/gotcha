@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from .forms import RegistrationForm, AssignmentForm
+from .models import Player
 
 # Create your views here.
 def register(request):
