@@ -22,7 +22,7 @@ class Player(models.Model):
                 candidate_code = randint(100, 999)
             player.secret_code = candidate_code
 
-            # select target
+            # select target for player
 
             while Player.objects.filter(target=candidate_target)
             
