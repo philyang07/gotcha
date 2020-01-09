@@ -66,6 +66,10 @@ class Player(models.Model):
 
     @property
     def inactivity_duration(self):
+        if not self.alive:
+            return "Eliminated"
+        if not self.last_active:
+            return "Not in game"
         duration = timezone.now() - self.last_active
         minutes = int(divmod(duration.total_seconds(), 3600)[1]/60)
         hours = int(duration.total_seconds()/3600)
@@ -75,10 +79,12 @@ class Player(models.Model):
 
     @property
     def is_open(self):
+        if not self.last_active:
+            return None
         return timezone.now() - self.last_active > timedelta(hours=24)
 
     def target_ordering():
-        players = Player.objects.filter(user__is_staff=False)
+        players = Player.objects.filter(user__is_staff=False, alive=True)
         if not players:
             return None
         counted_players = [players[0]]
