@@ -79,6 +79,8 @@ class Player(models.Model):
 
     def target_ordering():
         players = Player.objects.filter(user__is_staff=False)
+        if not players:
+            return None
         counted_players = [players[0]]
         while len(counted_players) < len(players):
             counted_players.append(counted_players[-1].target)
