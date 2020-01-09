@@ -1,3 +1,4 @@
+{% if players %}
 <h2>Player list</h2>
 <table>
     <tr>
@@ -29,6 +30,4 @@
 <h2>Target ordering</h2>
 <p>{{ target_ordering|linebreaks }}</p>
 {% endif %}
-<script>
-
-</script>
+{% endif %}
