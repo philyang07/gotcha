@@ -1,0 +1,34 @@
+<h2>Player list</h2>
+<table>
+    <tr>
+        <th>Player</th>
+        <th>Eliminations</th>
+        <th>Last active</th>
+        {% if user.is_staff %}
+        <th>Secret code</th>
+        <th>Target</th>
+        {% endif %}
+        <th>Open</th>
+    </tr>
+    {% for player in players %}
+    <tr>
+        <td>{{ player }}</td>
+        <td>{{ player.kills }}</td>
+        <td>{{ player.inactivity_duration }}</td>
+        {% if user.is_staff %}
+        <td>{{ player.secret_code }}</td>
+        <td>{{ player.target }}</td>
+        {% endif %}
+        {% if player.is_open == True %}
+        <td>OPEN</td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table st>
+{% if user.is_staff %}
+<h2>Target ordering</h2>
+<p>{{ target_ordering|linebreaks }}</p>
+{% endif %}
+<script>
+
+</script>

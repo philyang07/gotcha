@@ -30,7 +30,7 @@ class RegistrationForm(forms.Form):
         last_name = self.cleaned_data['last_name']
         user = User.objects.create_user(email, email, password, 
                                         first_name=first_name,
-                                        last_name=last_name, player=Player())
+                                        last_name=last_name)
 
 class AssignmentForm(forms.Form):
     def __init__(self, *args, **kwargs): # to pass in the request object

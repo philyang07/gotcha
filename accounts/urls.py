@@ -10,4 +10,5 @@ urlpatterns = [
     path('profile/', views.profile, name="profile"),
     path('logout/', views.logout, name="logout"),
     path('assignment/', views.assignment, name="assignment"),
+    path('players/', views.player_list, name="player_list"),
 ]

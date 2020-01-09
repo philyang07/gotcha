@@ -4,6 +4,7 @@ from django.utils import timezone
 from random import randint, choice
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import timedelta
 
 # Create your models here.
 class Player(models.Model):
@@ -12,18 +13,18 @@ class Player(models.Model):
     target = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
     alive = models.BooleanField('alive', default=True)
     last_active = models.DateTimeField('last active', null=True, blank=True) # the last time the player eliminated someone
-    kills = models.IntegerField('eliminations', default=0)
+    kills = models.IntegerField('eliminations', default=0, null=True, blank=True)
 
     def reset(): # reset codes, 
-        players = Player.objects.filter(user__is_staff=False)
-
         # clear everything
-        for player in players:
-            player.alive = True
-            player.secret_code = None
-            player.target = None
-            player.save()
+        for user in User.objects.all():
+            if hasattr(user, 'player'):
+                user.player.delete()
+            if not user.is_staff: # don't give the superuser a player
+                blank_player = Player(user=user)
+                blank_player.save()
 
+        players = Player.objects.filter(user__is_staff=False)
         for player in players:
             player.last_active = timezone.now()
             candidate_code = randint(100, 999)
@@ -58,6 +59,28 @@ class Player(models.Model):
 
     @receiver(post_save, sender=User)
     def save_player(sender, instance, **kwargs):
-        player = Player(user=instance)
-        player.save()
-        instance.player = player
+        if not Player.objects.filter(user=instance):
+            player = Player(user=instance)
+            player.save()
+            instance.player = player
+
+    @property
+    def inactivity_duration(self):
+        duration = timezone.now() - self.last_active
+        minutes = int(divmod(duration.total_seconds(), 3600)[1]/60)
+        hours = int(duration.total_seconds()/3600)
+        hr_str = "hr" if hours == 1 else "hrs"
+        min_str = "min" if minutes == 1 else "mins"
+        return f"{hours} {hr_str}, {minutes} {min_str}"
+
+    @property
+    def is_open(self):
+        return timezone.now() - self.last_active > timedelta(hours=24)
+
+    def target_ordering():
+        players = Player.objects.filter(user__is_staff=False)
+        counted_players = [players[0]]
+        while len(counted_players) < len(players):
+            counted_players.append(counted_players[-1].target)
+        
+        return " -->\n".join([str(counted_players.index(p)+1) + ". " + str(p) for p in counted_players]) + " -->"

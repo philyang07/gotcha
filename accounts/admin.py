@@ -17,10 +17,21 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
                     (
                         None, 
-                        {'fields': ('username', 'first_name', 'last_name', 'email', 'password'), 
+                        {'fields': ('first_name', 'last_name', 'email', 'password'), 
                         }
                     ),
                 )
+
+    add_fieldsets = (
+        (None, {
+            'fields': ('first_name', 'last_name', 'email', 'password1', 'password2')
+
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        obj.username = form.cleaned_data['email']
+        super().save_model(request, obj, form, change)
 
     def get_urls(self):
         urls = super().get_urls()
@@ -33,6 +44,7 @@ class UserAdmin(BaseUserAdmin):
         Player.reset()
         self.message_user(request, "Resetted player codes, targets")
         return HttpResponseRedirect('../')
+
         
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
