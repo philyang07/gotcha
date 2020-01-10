@@ -104,7 +104,7 @@ def player_list(request):
     template_name = 'accounts/player_list.html'
 
     current_game = None
-    if Game.objects.get(admin=request.user):
+    if Game.objects.filter(admin=request.user):
         current_game = Game.objects.get(admin=request.user)
     else:
         current_game = request.user.player.game
@@ -113,7 +113,7 @@ def player_list(request):
 
     context = {
         'players': all_players,
-        'target_ordering': Player.target_ordering(current_game),
+        'target_ordering': current_game.target_ordering(),
         }
 
     return render(request, template_name, context)

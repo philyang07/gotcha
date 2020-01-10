@@ -1,0 +1,19 @@
+.is_open {
+    background-color: red;
+}
+
+.dead {
+    background-color: lightgray;
+}
+
+table.player_list {
+    border-collapse: collapse;
+    border-color: white;
+}
+
+
+.player_list td, .player_list th {
+    text-align: center;
+    border: 1px solid black;
+    padding: 2px;
+}

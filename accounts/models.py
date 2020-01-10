@@ -53,8 +53,8 @@ class Game(models.Model):
         # 5. repeat step 4 until all players apart from the 'first' target have a target
         # 6. set the first player's target to the last player to have a target assigned to them
 
-        # if len(players) == 1:
-        #     return
+        if len(players) == 1:
+            return
 
         first_target = last_target = choice(players)
         last_killer = choice(Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk))
@@ -66,6 +66,16 @@ class Game(models.Model):
                 last_killer = choice(Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk))
         first_target.target = last_killer
         first_target.save()
+
+    def target_ordering(self):
+        players = Player.objects.filter(game=self, user__is_staff=False, alive=True)
+        if not players:
+            return None
+        counted_players = [players[0]]
+        while len(counted_players) < len(players):
+            counted_players.append(counted_players[-1].target)
+        
+        return " -->\n".join([str(counted_players.index(p)+1) + ". " + str(p) for p in counted_players]) + " -->"
 
 class Player(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
@@ -109,12 +119,4 @@ class Player(models.Model):
             return None
         return timezone.now() - self.last_active > timedelta(hours=24)
 
-    def target_ordering(game):
-        players = Player.objects.filter(game=game, user__is_staff=False, alive=True)
-        if not players:
-            return None
-        counted_players = [players[0]]
-        while len(counted_players) < len(players):
-            counted_players.append(counted_players[-1].target)
-        
-        return " -->\n".join([str(counted_players.index(p)+1) + ". " + str(p) for p in counted_players]) + " -->"
+ 

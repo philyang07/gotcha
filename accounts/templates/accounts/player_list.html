@@ -1,10 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
 {% if players %}
 <h2>Player list</h2>
-<table>
+<table class="player_list">
     <tr>
         <th>Player</th>
         <th>Eliminations</th>
-        <th>Last active</th>
+        <th>Time since last assignment</th>
         {% if user.is_staff %}
         <th>Secret code</th>
         <th>Target</th>
@@ -12,7 +15,7 @@
         <th>Open</th>
     </tr>
     {% for player in players %}
-    <tr>
+    <tr class="{% if player.is_open == True %}is_open{% elif player.alive == False %}dead{% endif %}">
         <td>{{ player }}</td>
         <td>{{ player.kills }}</td>
         <td>{{ player.inactivity_duration }}</td>
@@ -20,14 +23,13 @@
         <td>{{ player.secret_code }}</td>
         <td>{{ player.target }}</td>
         {% endif %}
-        {% if player.is_open == True %}
-        <td>OPEN</td>
-        {% endif %}
+        <td>{% if player.is_open == True %}OPEN{% endif %}</td>
     </tr>
     {% endfor %}
-</table st>
-{% if user.is_staff %}
+</table>
+{% if not user.is_staff %}
 <h2>Target ordering</h2>
 <p>{{ target_ordering|linebreaks }}</p>
 {% endif %}
 {% endif %}
+{% endblock %}
