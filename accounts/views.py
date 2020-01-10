@@ -1,25 +1,48 @@
 from django.shortcuts import render, reverse
 from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
-from .forms import RegistrationForm, AssignmentForm
-from .models import Player
+from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm
+from .models import Player, Game
 from datetime import timedelta
 from django.utils import timezone
 
 # Create your views here.
 def register(request):
+    form = PlayerRegistrationForm(request.POST)
+    if request.method == "POST":
+        if form.is_valid():
+            email = self.cleaned_data['email']
+            password = self.cleaned_data['password1']
+            first_name = self.cleaned_data['first_name']
+            last_name = self.cleaned_data['last_name']
+            user = User.objects.create_user(email, email, password, 
+                                            first_name=first_name,
+                                            last_name=last_name)
+            login(request, user)
+            return HttpResponseRedirect(reverse('accounts:profile'))
+    else:
+        form = PlayerRegistrationForm()
+
+    return render(request, 'accounts/register.html', {'form': form})
+
+def create_game(request):
     form = RegistrationForm(request.POST)
     if request.method == "POST":
         if form.is_valid():
-            form.save()
-            user = authenticate(request, username=form.cleaned_data['email'], password=form.cleaned_data['password1'])
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
+            user = User.objects.create_user(email, email, password)
+            game = Game(admin=user, access_code=Game.generate_access_code())
+            game.save()
             login(request, user)
+
             return HttpResponseRedirect(reverse('accounts:profile'))
     else:
         form = RegistrationForm()
 
-    return render(request, 'accounts/register.html', {'form': form})
+    return render(request, 'accounts/create_game.html', {'form': form})
 
 @login_required(login_url="accounts:login")
 def profile(request):

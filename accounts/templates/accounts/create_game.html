@@ -1,0 +1,7 @@
+<form action="{% url 'accounts:create_game' %}" method="post">
+    <table>
+        {% csrf_token %}
+        {{ form }}
+    </table>
+    <input type="submit" value="Create game">
+</form>

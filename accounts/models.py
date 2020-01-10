@@ -5,9 +5,22 @@ from random import randint, choice
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import timedelta
+import string
 
 # Create your models here.
+class Game(models.Model):
+    access_code = models.CharField('access_code', max_length=4, unique=True)
+    admin = models.OneToOneField(User, on_delete=models.CASCADE)
+    
+    def generate_access_code():
+        existing_access_codes = [g.access_code for g in Game.objects.all()]
+        candidate_code = "".join([choice(string.ascii_uppercase) for i in range(4)])
+        while candidate_code in existing_access_codes:
+            candidate_code = "".join([choice(string.ascii_uppercase) for i in range(4)])
+        return candidate_code
+
 class Player(models.Model):
+    # game = models.ForeignKey(Game, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     secret_code = models.IntegerField('secret code', null=True, blank=True, unique=True)
     target = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
