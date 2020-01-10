@@ -19,16 +19,19 @@ class Game(models.Model):
             candidate_code = "".join([choice(string.ascii_uppercase) for i in range(4)])
         return candidate_code
 
+    def __str__(self):
+        return self.access_code + " - " + self.admin.email
+
 class Player(models.Model):
-    # game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     secret_code = models.IntegerField('secret code', null=True, blank=True, unique=True)
     target = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
-    alive = models.BooleanField('alive', default=True)
+    alive = models.BooleanField('alive', default=False)
     last_active = models.DateTimeField('last active', null=True, blank=True) # the last time the player eliminated someone
     kills = models.IntegerField('eliminations', default=0, null=True, blank=True)
 
-    def reset(): # reset codes, 
+    def reset(game): # reset codes, 
         # clear everything
         for user in User.objects.all():
             if hasattr(user, 'player'):
@@ -37,12 +40,12 @@ class Player(models.Model):
                 blank_player = Player(user=user)
                 blank_player.save()
 
-        players = Player.objects.filter(user__is_staff=False)
+        players = Player.objects.filter(game=game, user__is_staff=False)
         for player in players:
             player.last_active = timezone.now()
             candidate_code = randint(100, 999)
 
-            while Player.objects.filter(secret_code=candidate_code):
+            while Player.objects.filter(game=game, secret_code=candidate_code):
                 candidate_code = randint(100, 999)
             player.secret_code = candidate_code
 
@@ -57,13 +60,13 @@ class Player(models.Model):
         # 6. set the first player's target to the last player to have a target assigned to them
 
         first_target = last_target = choice(players)
-        last_killer = choice(Player.objects.filter(target=None).exclude(pk=first_target.pk))
-        while Player.objects.filter(target=None).exclude(pk=first_target.pk):
+        last_killer = choice(Player.objects.filter(game=game, target=None).exclude(pk=first_target.pk))
+        while Player.objects.filter(game=game, target=None).exclude(pk=first_target.pk):
             last_killer.target = last_target
             last_killer.save()
             last_target = last_killer
-            if Player.objects.filter(target=None).exclude(pk=first_target.pk):
-                last_killer = choice(Player.objects.filter(target=None).exclude(pk=first_target.pk))
+            if Player.objects.filter(game=game, target=None).exclude(pk=first_target.pk):
+                last_killer = choice(Player.objects.filter(game=game, target=None).exclude(pk=first_target.pk))
         first_target.target = last_killer
         first_target.save()
 
@@ -79,15 +82,17 @@ class Player(models.Model):
 
     @property
     def inactivity_duration(self):
-        if not self.alive:
-            return "Eliminated"
         if not self.last_active:
             return "Not in game"
+    
+
         duration = timezone.now() - self.last_active
         minutes = int(divmod(duration.total_seconds(), 3600)[1]/60)
         hours = int(duration.total_seconds()/3600)
         hr_str = "hr" if hours == 1 else "hrs"
         min_str = "min" if minutes == 1 else "mins"
+        if not self.alive:
+            return f"Dead for {hours} {hr_str}, {minutes} {min_str}"
         return f"{hours} {hr_str}, {minutes} {min_str}"
 
     @property
@@ -97,7 +102,7 @@ class Player(models.Model):
         return timezone.now() - self.last_active > timedelta(hours=24)
 
     def target_ordering(game):
-        players = Player.objects.filter(user__is_staff=False, alive=True, game=game)
+        players = Player.objects.filter(game=game, user__is_staff=False, alive=True)
         if not players:
             return None
         counted_players = [players[0]]

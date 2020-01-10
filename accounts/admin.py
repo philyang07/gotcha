@@ -12,7 +12,6 @@ class PlayerInline(admin.StackedInline):
     verbose_name_plural = 'Player'
 
 class UserAdmin(BaseUserAdmin):
-    change_list_template = 'accounts/users_changelist.html'
     inlines = (PlayerInline,)
     fieldsets = (
                     (
@@ -47,6 +46,7 @@ class UserAdmin(BaseUserAdmin):
 
 class GameAdmin(admin.ModelAdmin):
     inlines = (PlayerInline, ) 
+    change_form_template = 'accounts/game_change_form.html'
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
