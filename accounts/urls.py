@@ -12,4 +12,6 @@ urlpatterns = [
     path('logout/', views.logout, name="logout"),
     path('assignment/', views.assignment, name="assignment"),
     path('players/', views.player_list, name="player_list"),
+    path('delete_player/', views.delete_player, name="delete_player"),
+    path('reset_player_data/', views.reset_player_data, name="reset_player_data"),
 ]

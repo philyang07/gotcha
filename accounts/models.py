@@ -73,7 +73,7 @@ class Game(models.Model):
         first_target.save()
 
     def target_ordering(self):
-        players = Player.objects.filter(game=self, alive=False)
+        players = Player.objects.filter(game=self, alive=False, target__isnull=False)
         if not players:
             return None
         counted_players = [players[0]]
@@ -94,11 +94,13 @@ class Player(models.Model):
 
 
     def __str__(self):
-        return self.user.first_name + " " + self.user.last_name
+        if self.user.first_name and self.user.last_name:
+            return self.user.first_name + " " + self.user.last_name
+        return "player " + str(self.pk) + " " + self.user.email
 
     @receiver(post_save, sender=User)
     def save_player(sender, instance, **kwargs):
-        if not Player.objects.filter(user=instance):
+        if not Player.objects.filter(user=instance) and not instance.has_perm("accounts.game_admin"):
             player = Player(user=instance)
             player.save()
             instance.player = player

@@ -45,6 +45,9 @@ class GameAdmin(admin.ModelAdmin):
         return extra_urls + urls
 
     def reset_players(self, request, **kwargs):
+        if request.method == "GET":
+            self.message_user(request, "Didn't reset as wasn't via button")
+            return HttpResponseRedirect('../')
         current_game = Game.objects.get(pk=kwargs['pk'])
         current_game.reset()
         self.message_user(request, "Resetted player codes, targets")
@@ -53,3 +56,4 @@ class GameAdmin(admin.ModelAdmin):
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Game, GameAdmin)
+admin.site.register(Player)

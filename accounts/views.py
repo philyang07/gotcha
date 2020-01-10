@@ -50,8 +50,9 @@ def create_game(request):
 
 @login_required(login_url="accounts:login")
 def profile(request):
-    if request.user.is_authenticated:
-        return render(request, 'accounts/profile.html')
+    if request.user.has_perm("accounts.game_admin"):
+        return render(request, 'accounts/admin_dashboard.html')
+    return render(request, 'accounts/profile.html')
 
 @login_required(login_url="accounts:login")
 def logout(request):
@@ -113,9 +114,36 @@ def player_list(request):
         template_name = 'accounts/player_list.html'
 
     all_players = [p for p in Player.objects.filter(game=current_game).order_by('-kills', '-last_active') if not p.user.has_perm('accounts.game_admin')]
+    
     context = {
         'players': all_players,
         'target_ordering': current_game.target_ordering(),
     }
 
     return render(request, template_name, context)
+
+def delete_player(request):
+    if request.method == "POST":
+        player = Player.objects.get(pk=request.POST["pk"])
+        if Player.objects.filter(target=player):
+            player_killer = Player.objects.get(target=player)
+            player_killer.target = player.target
+            player.target = None
+            player.save()
+            player.user.delete()
+            player.delete()
+            player_killer.save()
+
+            
+        else:
+            player.user.delete()
+            player.delete()
+        
+
+        # player.user.delete()
+
+    return HttpResponseRedirect('/accounts/players')
+
+def reset_player_data(request):
+    request.user.game.reset()
+    return HttpResponseRedirect('/accounts/players') 

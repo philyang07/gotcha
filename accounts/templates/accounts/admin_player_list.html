@@ -11,6 +11,7 @@
         <th>Secret code</th>
         <th>Target</th>
         <th>Open</th>
+        <th>Remove</th>
     </tr>
     {% for player in players %}
     <tr class="{% if player.is_open == True %}is_open{% elif player.alive == False %}dead{% endif %}">
@@ -20,10 +21,23 @@
         <td>{{ player.secret_code }}</td>
         <td>{{ player.target }}</td>
         <td>{% if player.is_open == True %}OPEN{% endif %}</td>
+        <td>
+            <form action="{% url 'accounts:delete_player' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">Delete</button>
+                <input type="hidden" value="{{ player.pk }}" name="pk">
+            </form>
+        </td>
     </tr>
     {% endfor %}
 </table>
 <h2>Target ordering</h2>
 <p>{{ target_ordering|linebreaks }}</p>
+<form action="{% url 'accounts:reset_player_data' %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Reset player data</button>
+</form>
+{% else %}
+<p>No players</p>
 {% endif %}
 {% endblock %}
