@@ -7,6 +7,11 @@
 <p>Your target is {{ user.player.target }}</p>
 {% endif %}
 <p>You have {{ user.player.kills }} kills.</p>
+<form action="{% url 'accounts:delete_player' %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+    <input type="hidden" value="{{ user.player.pk }}" name="pk">
+</form>
 <a href="{% url 'accounts:assignment' %}">Assignment</a>
 <a href="{% url 'accounts:player_list' %}">Player list</a>
 <a href="{% url 'accounts:logout' %}">Logout</a>

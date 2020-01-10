@@ -36,7 +36,7 @@ class Game(models.Model):
 
         for user in [player.user for player in players]:
             user.player.delete()
-            Player(game=self, user=user).save()
+            Player(game=self, user=user, alive=True).save()
 
         players = Player.objects.filter(game=self, user__is_staff=False)
         
@@ -72,8 +72,11 @@ class Game(models.Model):
         first_target.target = last_killer
         first_target.save()
 
+    def open_players(self):
+        return [p for p in Player.objects.filter(game=self) if p.is_open]
+
     def target_ordering(self):
-        players = Player.objects.filter(game=self, alive=False, target__isnull=False)
+        players = Player.objects.filter(game=self, alive=True, target__isnull=False)
         if not players:
             return None
         counted_players = [players[0]]
@@ -85,12 +88,15 @@ class Game(models.Model):
 class Player(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    secret_code = models.IntegerField('secret code', null=True, blank=True, unique=True)
+    secret_code = models.IntegerField('secret code', null=True, blank=True)
     target = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
     alive = models.BooleanField('alive', default=False)
     last_active = models.DateTimeField('last active', null=True, blank=True) # the last time the player eliminated someone
     kills = models.IntegerField('eliminations', default=0, null=True, blank=True)
+    manual_open = models.BooleanField('manual open', default=False)
 
+    class Meta:
+        unique_together = ('game', 'secret_code',)
 
 
     def __str__(self):
@@ -124,6 +130,6 @@ class Player(models.Model):
     def is_open(self):
         if not self.last_active:
             return None
-        return timezone.now() - self.last_active > timedelta(hours=24)
+        return self.alive and (self.manual_open or timezone.now() - self.last_active > timedelta(hours=24))
 
  

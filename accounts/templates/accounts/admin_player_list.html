@@ -12,6 +12,7 @@
         <th>Target</th>
         <th>Open</th>
         <th>Remove</th>
+        <th>Manual open</th>
     </tr>
     {% for player in players %}
     <tr class="{% if player.is_open == True %}is_open{% elif player.alive == False %}dead{% endif %}">
@@ -25,6 +26,13 @@
             <form action="{% url 'accounts:delete_player' %}" method="POST">
                 {% csrf_token %}
                 <button type="submit">Delete</button>
+                <input type="hidden" value="{{ player.pk }}" name="pk">
+            </form>
+        </td>
+        <td>
+            <form action="{% url 'accounts:manual_open' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">{% if player.is_open %}Undo{% else %}Set manual open{% endif %}</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
         </td>

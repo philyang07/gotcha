@@ -10,25 +10,41 @@ from django.utils import timezone
 
 # Create your views here.
 def register(request):
-    form = PlayerRegistrationForm(request.POST)
-    if request.method == "POST":
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password1']
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
-            user = User.objects.create_user(email, email, password, 
-                                            first_name=first_name,
-                                            last_name=last_name)
-            user.player.game = Game.objects.get(access_code=form.cleaned_data['access_code'])
-            user.player.save()
-            
-            login(request, user)
-            return HttpResponseRedirect(reverse('accounts:profile'))
-    else:
-        form = PlayerRegistrationForm()
+    if request.method == "GET":
+        for game in Game.objects.all():
+            for i in range(5):
+                email = Game.generate_access_code() + "@gmail.com"
+                first_name = Game.generate_access_code().lower()
+                last_name = Game.generate_access_code().lower()
 
-    return render(request, 'accounts/register.html', {'form': form})
+                user = User.objects.create_user(email, email, 123, 
+                                        first_name=first_name,
+                                        last_name=last_name)
+                user.save()
+                user.player.game = game
+                user.player.save()
+    return HttpResponseRedirect(reverse("accounts:login"))
+
+# def register(request):
+#     form = PlayerRegistrationForm(request.POST)
+#     if request.method == "POST":
+#         if form.is_valid():
+#             email = form.cleaned_data['email']
+#             password = form.cleaned_data['password1']
+#             first_name = form.cleaned_data['first_name']
+#             last_name = form.cleaned_data['last_name']
+#             user = User.objects.create_user(email, email, password, 
+#                                             first_name=first_name,
+#                                             last_name=last_name)
+#             user.player.game = Game.objects.get(access_code=form.cleaned_data['access_code'])
+#             user.player.save()
+            
+#             login(request, user)
+#             return HttpResponseRedirect(reverse('accounts:profile'))
+#     else:
+#         form = PlayerRegistrationForm()
+
+#     return render(request, 'accounts/register.html', {'form': form})
 
 def create_game(request):
     form = RegistrationForm(request.POST)
@@ -37,7 +53,7 @@ def create_game(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password1']
             user = User.objects.create_user(email, email, password)
-            user.user_permissions.add(Permissions.objects.get(codename="game_admin"))
+            user.user_permissions.add(Permission.objects.get(codename="game_admin"))
             game = Game(admin=user, access_code=Game.generate_access_code())
             game.save()
             login(request, user)
@@ -67,17 +83,28 @@ def assignment(request):
 
             # regardless, the player submitting in the legit codes will get a kill
             current_player = request.user.player
+            game = current_player.game
             current_player.kills += 1
 
             """ 
             killing a player on the open list means
                 1. the open player's original killer gets a new target; the open player's target 
             """
-            open_codes = [p.secret_code for p in Player.open_players()]
+            open_codes = [p.secret_code for p in current_player.game.open_players()]
             target_code = form.cleaned_data['target_code']
-            if target_code in open_codes:
-                open_player = Player.objects.get(secret_code=target_code)
-                open_player_killer = Player.objects.get(target__secret_code=target_code)
+
+            # always prioritise actual target; or won't get credit for kill!
+            if target_code == current_player.target.secret_code: # target is the actual target
+                old_target = current_player.target
+                current_player.target = old_target.target
+                old_target.alive = False
+                old_target.target = None
+                current_player.last_active = old_target.last_active = timezone.now()
+                old_target.save()
+                current_player.save()
+            else: # open otherwise
+                open_player = Player.objects.get(game=game, secret_code=target_code)
+                open_player_killer = Player.objects.get(game=game, target__secret_code=target_code)
                 open_player_killer.target = open_player.target
                 open_player.target = None
                 open_player.alive = False
@@ -85,17 +112,6 @@ def assignment(request):
                 current_player.save()
                 open_player.save()
                 open_player_killer.save()
-
-                return HttpResponseRedirect(reverse('accounts:profile'))
-
-            # otherwise, the submitting player's target changes
-            old_target = current_player.target
-            current_player.target = old_target.target
-            old_target.alive = False
-            old_target.target = None
-            current_player.last_active = old_target.last_active = timezone.now()
-            old_target.save()
-            current_player.save()
 
             return HttpResponseRedirect(reverse('accounts:profile'))
     else:
@@ -124,25 +140,36 @@ def player_list(request):
 
 def delete_player(request):
     if request.method == "POST":
+        if not Player.objects.filter(pk=request.POST["pk"]):
+            return HttpResponseRedirect('/accounts/players')
         player = Player.objects.get(pk=request.POST["pk"])
         if Player.objects.filter(target=player):
             player_killer = Player.objects.get(target=player)
             player_killer.target = player.target
             player.target = None
             player.save()
-            player.user.delete()
-            player.delete()
             player_killer.save()
-
-            
+            player_user = player.user
+            player.delete()
+            player_user.delete()            
         else:
             player.user.delete()
-            player.delete()
-        
+    if request.user.has_perm("accounts.game_admin"):
+        return HttpResponseRedirect('/accounts/players')
+    return HttpResponseRedirect('/accounts/login')
 
-        # player.user.delete()
-
-    return HttpResponseRedirect('/accounts/players')
+def manual_open(request):
+    if request.method == "POST":
+        if not Player.objects.filter(pk=request.POST["pk"]):
+            return HttpResponseRedirect('/accounts/players')
+        player = Player.objects.get(pk=request.POST["pk"])
+        if player.manual_open:
+            player.manual_open = False
+        else:
+            player.manual_open = True
+        player.save()
+        return HttpResponseRedirect('/accounts/players')
+    return HttpResponseRedirect("/accounts/login")
 
 def reset_player_data(request):
     request.user.game.reset()
