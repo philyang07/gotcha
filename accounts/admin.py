@@ -38,14 +38,16 @@ class GameAdmin(admin.ModelAdmin):
     change_form_template = 'accounts/game_change_form.html'
     
     def get_urls(self):
-        urls = super().get_urls()
+        urls = super(GameAdmin, self).get_urls()
         extra_urls = [
-            path('reset_players/', self.reset_players)
+            path('reset_players/', self.reset_players),
         ]
         return extra_urls + urls
 
     def reset_players(self, request):
-        Player.reset("nigger")
+        print("WTF")
+        Player.reset_players(self.get_object())
+        print(self.get_object())
         self.message_user(request, "Resetted player codes, targets")
         return HttpResponseRedirect('../')
 
