@@ -62,8 +62,31 @@ def assignment(request):
     form = AssignmentForm(request.POST, request=request)
     if request.method == "POST":
         if form.is_valid():
+
+            # regardless, the player submitting in the legit codes will get a kill
             current_player = request.user.player
             current_player.kills += 1
+
+            """ 
+            killing a player on the open list means
+                1. the open player's original killer gets a new target; the open player's target 
+            """
+            open_codes = [p.secret_code for p in Player.open_players()]
+            target_code = form.cleaned_data['target_code']
+            if target_code in open_codes:
+                open_player = Player.objects.get(secret_code=target_code)
+                open_player_killer = Player.objects.get(target__secret_code=target_code)
+                open_player_killer.target = open_player.target
+                open_player.target = None
+                open_player.alive = False
+                current_player.last_active = open_player.last_active = timezone.now()
+                current_player.save()
+                open_player.save()
+                open_player_killer.save()
+
+                return HttpResponseRedirect(reverse('accounts:profile'))
+
+            # otherwise, the submitting player's target changes
             old_target = current_player.target
             current_player.target = old_target.target
             old_target.alive = False
