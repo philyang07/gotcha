@@ -40,14 +40,13 @@ class GameAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super(GameAdmin, self).get_urls()
         extra_urls = [
-            path('reset_players/', self.reset_players),
+            path('<int:pk>/change/reset_players/', self.reset_players),
         ]
         return extra_urls + urls
 
-    def reset_players(self, request):
-        print("WTF")
-        Player.reset_players(self.get_object())
-        print(self.get_object())
+    def reset_players(self, request, **kwargs):
+        current_game = Game.objects.get(pk=kwargs['pk'])
+        current_game.reset()
         self.message_user(request, "Resetted player codes, targets")
         return HttpResponseRedirect('../')
 

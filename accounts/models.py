@@ -22,29 +22,24 @@ class Game(models.Model):
     def __str__(self):
         return self.access_code + " - " + self.admin.email
 
-class Player(models.Model):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    secret_code = models.IntegerField('secret code', null=True, blank=True, unique=True)
-    target = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
-    alive = models.BooleanField('alive', default=False)
-    last_active = models.DateTimeField('last active', null=True, blank=True) # the last time the player eliminated someone
-    kills = models.IntegerField('eliminations', default=0, null=True, blank=True)
-
-    def reset(game): # reset codes, 
+    def reset(self): # reset codes, 
         # clear everything
-        players = Player.objects.filter(game=game, user__is_staff=False)
-        for player in players:
-            player.secret_code = None
-            player.target = None
-            player.alive = False
-            player.kills = 0
+        players = Player.objects.filter(game=self, user__is_staff=False)
 
+        if not players:
+            return
+
+        for user in [player.user for player in players]:
+            user.player.delete()
+            Player(game=self, user=user).save()
+
+        players = Player.objects.filter(game=self, user__is_staff=False)
+        
         for player in players:
             player.last_active = timezone.now()
             candidate_code = randint(100, 999)
 
-            while Player.objects.filter(game=game, secret_code=candidate_code):
+            while Player.objects.filter(game=self, secret_code=candidate_code):
                 candidate_code = randint(100, 999)
             player.secret_code = candidate_code
 
@@ -58,19 +53,30 @@ class Player(models.Model):
         # 5. repeat step 4 until all players apart from the 'first' target have a target
         # 6. set the first player's target to the last player to have a target assigned to them
 
-        if len(players) == 1:
-            return
+        # if len(players) == 1:
+        #     return
 
         first_target = last_target = choice(players)
-        last_killer = choice(Player.objects.filter(game=game, target=None).exclude(pk=first_target.pk))
-        while Player.objects.filter(game=game, target=None).exclude(pk=first_target.pk):
+        last_killer = choice(Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk))
+        while Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk):
             last_killer.target = last_target
             last_killer.save()
             last_target = last_killer
-            if Player.objects.filter(game=game, target=None).exclude(pk=first_target.pk):
-                last_killer = choice(Player.objects.filter(game=game, target=None).exclude(pk=first_target.pk))
+            if Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk):
+                last_killer = choice(Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk))
         first_target.target = last_killer
         first_target.save()
+
+class Player(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    secret_code = models.IntegerField('secret code', null=True, blank=True, unique=True)
+    target = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
+    alive = models.BooleanField('alive', default=False)
+    last_active = models.DateTimeField('last active', null=True, blank=True) # the last time the player eliminated someone
+    kills = models.IntegerField('eliminations', default=0, null=True, blank=True)
+
+
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
