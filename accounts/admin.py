@@ -45,7 +45,9 @@ class UserAdmin(BaseUserAdmin):
         self.message_user(request, "Resetted player codes, targets")
         return HttpResponseRedirect('../')
 
-        
+class GameAdmin(admin.ModelAdmin):
+    inlines = (PlayerInline, ) 
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
-admin.site.register(Game)
+admin.site.register(Game, GameAdmin)

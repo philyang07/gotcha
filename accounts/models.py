@@ -96,8 +96,8 @@ class Player(models.Model):
             return None
         return timezone.now() - self.last_active > timedelta(hours=24)
 
-    def target_ordering():
-        players = Player.objects.filter(user__is_staff=False, alive=True)
+    def target_ordering(game):
+        players = Player.objects.filter(user__is_staff=False, alive=True, game=game)
         if not players:
             return None
         counted_players = [players[0]]

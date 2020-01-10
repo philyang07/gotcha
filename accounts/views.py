@@ -13,13 +13,16 @@ def register(request):
     form = PlayerRegistrationForm(request.POST)
     if request.method == "POST":
         if form.is_valid():
-            email = self.cleaned_data['email']
-            password = self.cleaned_data['password1']
-            first_name = self.cleaned_data['first_name']
-            last_name = self.cleaned_data['last_name']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
             user = User.objects.create_user(email, email, password, 
                                             first_name=first_name,
                                             last_name=last_name)
+            user.player.game = Game.objects.get(access_code=form.cleaned_data['access_code'])
+            user.player.save()
+            
             login(request, user)
             return HttpResponseRedirect(reverse('accounts:profile'))
     else:
@@ -77,12 +80,17 @@ def assignment(request):
 def player_list(request):
     template_name = 'accounts/player_list.html'
 
-    open_players = Player.objects.filter(last_active__lte=timezone.now() - timedelta(hours=24))
-    all_players = Player.objects.filter(user__is_staff=False).order_by('-kills', '-last_active')
+    current_game = None
+    if Game.objects.get(admin=request.user):
+        current_game = Game.objects.get(admin=request.user)
+    else:
+        current_game = request.user.player.game
+
+    all_players = Player.objects.filter(user__is_staff=False, game=current_game).order_by('-kills', '-last_active')
 
     context = {
         'players': all_players,
-        'target_ordering': Player.target_ordering(),
+        'target_ordering': Player.target_ordering(current_game),
         }
 
     return render(request, template_name, context)
