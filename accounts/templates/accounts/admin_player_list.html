@@ -8,6 +8,8 @@
         <th>Player</th>
         <th>Eliminations</th>
         <th>Time since last assignment</th>
+        <th>Secret code</th>
+        <th>Target</th>
         <th>Open</th>
     </tr>
     {% for player in players %}
@@ -15,9 +17,13 @@
         <td>{{ player }}</td>
         <td>{{ player.kills }}</td>
         <td>{{ player.inactivity_duration }}</td>
+        <td>{{ player.secret_code }}</td>
+        <td>{{ player.target }}</td>
         <td>{% if player.is_open == True %}OPEN{% endif %}</td>
     </tr>
     {% endfor %}
 </table>
+<h2>Target ordering</h2>
+<p>{{ target_ordering|linebreaks }}</p>
 {% endif %}
 {% endblock %}

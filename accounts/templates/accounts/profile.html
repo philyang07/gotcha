@@ -1,8 +1,4 @@
 {% if user.is_authenticated %}
-{% if user.is_staff %}
-<a href="{% url 'accounts:player_list' %}">Player list</a>
-<a href="{% url 'accounts:logout' %}">Logout</a>
-{% else %}
 <p>Welcome {{ user.first_name }}!</p>
 <p>Your email is {{ user.email }}</p>
 {% if user.player.secret_code %}
@@ -15,7 +11,6 @@
 <a href="{% url 'accounts:assignment' %}">Assignment</a>
 <a href="{% url 'accounts:player_list' %}">Player list</a>
 <a href="{% url 'accounts:logout' %}">Logout</a>
-{% endif %}
 {% else %}
 <p>You aren't authorised to visit this page.</p>
 {% endif %}

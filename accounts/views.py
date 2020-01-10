@@ -1,7 +1,7 @@
 from django.shortcuts import render, reverse
 from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.http import HttpResponseRedirect
 from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm
 from .models import Player, Game
@@ -37,6 +37,7 @@ def create_game(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password1']
             user = User.objects.create_user(email, email, password)
+            user.user_permissions.add(Permissions.objects.get(codename="game_admin"))
             game = Game(admin=user, access_code=Game.generate_access_code())
             game.save()
             login(request, user)
@@ -100,20 +101,21 @@ def assignment(request):
         form = AssignmentForm()
     return render(request, 'accounts/assignment.html', {'form': form})
 
+@login_required(login_url="accounts:login")
 def player_list(request):
-    template_name = 'accounts/player_list.html'
+    template_name = current_game = None
 
-    current_game = None
-    if Game.objects.filter(admin=request.user):
+    if request.user.has_perm('accounts.game_admin'):
         current_game = Game.objects.get(admin=request.user)
+        template_name = 'accounts/admin_player_list.html'
     else:
         current_game = request.user.player.game
+        template_name = 'accounts/player_list.html'
 
-    all_players = Player.objects.filter(user__is_staff=False, game=current_game).order_by('-kills', '-last_active')
-
+    all_players = [p for p in Player.objects.filter(game=current_game).order_by('-kills', '-last_active') if not p.user.has_perm('accounts.game_admin')]
     context = {
         'players': all_players,
         'target_ordering': current_game.target_ordering(),
-        }
+    }
 
     return render(request, template_name, context)

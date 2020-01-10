@@ -12,6 +12,11 @@ class Game(models.Model):
     access_code = models.CharField('access_code', max_length=4, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
     
+    class Meta:
+        permissions = [
+            ("game_admin", "Can view game statistics"),
+        ]
+
     def generate_access_code():
         existing_access_codes = [g.access_code for g in Game.objects.all()]
         candidate_code = "".join([choice(string.ascii_uppercase) for i in range(4)])
@@ -68,7 +73,7 @@ class Game(models.Model):
         first_target.save()
 
     def target_ordering(self):
-        players = Player.objects.filter(game=self, user__is_staff=False, alive=True)
+        players = Player.objects.filter(game=self, alive=False)
         if not players:
             return None
         counted_players = [players[0]]
@@ -78,7 +83,7 @@ class Game(models.Model):
         return " -->\n".join([str(counted_players.index(p)+1) + ". " + str(p) for p in counted_players]) + " -->"
 
 class Player(models.Model):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     secret_code = models.IntegerField('secret code', null=True, blank=True, unique=True)
     target = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)

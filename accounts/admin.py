@@ -13,20 +13,20 @@ class PlayerInline(admin.StackedInline):
 
 class UserAdmin(BaseUserAdmin):
     inlines = (PlayerInline,)
-    fieldsets = (
-                    (
-                        None, 
-                        {'fields': ('first_name', 'last_name', 'email', 'password'), 
-                        }
-                    ),
-                )
+    # fieldsets = (
+    #                 (
+    #                     None, 
+    #                     {'fields': ('first_name', 'last_name', 'email', 'password'), 
+    #                     }
+    #                 ),
+    #             )
 
-    add_fieldsets = (
-        (None, {
-            'fields': ('first_name', 'last_name', 'email', 'password1', 'password2')
+    # add_fieldsets = (
+    #     (None, {
+    #         'fields': ('first_name', 'last_name', 'email', 'password1', 'password2')
 
-        }),
-    )
+    #     }),
+    # )
 
     def save_model(self, request, obj, form, change):
         obj.username = form.cleaned_data['email']
