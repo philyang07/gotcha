@@ -79,15 +79,16 @@ class Player(models.Model):
 
     @property
     def inactivity_duration(self):
-        if not self.alive:
-            return "Eliminated"
         if not self.last_active:
             return "Not in game"
+    
         duration = timezone.now() - self.last_active
         minutes = int(divmod(duration.total_seconds(), 3600)[1]/60)
         hours = int(duration.total_seconds()/3600)
         hr_str = "hr" if hours == 1 else "hrs"
         min_str = "min" if minutes == 1 else "mins"
+        if not self.alive:
+            return f"Dead for {hours} {hr_str}, {minutes} {min_str}"
         return f"{hours} {hr_str}, {minutes} {min_str}"
 
     @property
