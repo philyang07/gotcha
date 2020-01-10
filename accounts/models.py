@@ -33,14 +33,13 @@ class Player(models.Model):
 
     def reset(game): # reset codes, 
         # clear everything
-        for user in User.objects.all():
-            if hasattr(user, 'player'):
-                user.player.delete()
-            if not user.is_staff: # don't give the superuser a player
-                blank_player = Player(user=user)
-                blank_player.save()
-
         players = Player.objects.filter(game=game, user__is_staff=False)
+        for player in players:
+            player.secret_code = None
+            player.target = None
+            player.alive = False
+            player.kills = 0
+
         for player in players:
             player.last_active = timezone.now()
             candidate_code = randint(100, 999)
@@ -58,6 +57,9 @@ class Player(models.Model):
         # 4. select another player with no target, and set their target to be the last player to be assigned a target
         # 5. repeat step 4 until all players apart from the 'first' target have a target
         # 6. set the first player's target to the last player to have a target assigned to them
+
+        if len(players) == 1:
+            return
 
         first_target = last_target = choice(players)
         last_killer = choice(Player.objects.filter(game=game, target=None).exclude(pk=first_target.pk))

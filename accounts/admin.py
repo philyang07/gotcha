@@ -32,6 +32,11 @@ class UserAdmin(BaseUserAdmin):
         obj.username = form.cleaned_data['email']
         super().save_model(request, obj, form, change)
 
+
+class GameAdmin(admin.ModelAdmin):
+    inlines = (PlayerInline, ) 
+    change_form_template = 'accounts/game_change_form.html'
+    
     def get_urls(self):
         urls = super().get_urls()
         extra_urls = [
@@ -40,13 +45,9 @@ class UserAdmin(BaseUserAdmin):
         return extra_urls + urls
 
     def reset_players(self, request):
-        Player.reset()
+        Player.reset("nigger")
         self.message_user(request, "Resetted player codes, targets")
         return HttpResponseRedirect('../')
-
-class GameAdmin(admin.ModelAdmin):
-    inlines = (PlayerInline, ) 
-    change_form_template = 'accounts/game_change_form.html'
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
