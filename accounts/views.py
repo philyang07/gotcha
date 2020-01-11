@@ -22,6 +22,7 @@ def register(request):
                                         last_name=last_name)
                 user.save()
                 user.player.game = game
+                user.player.alive = True
                 user.player.save()
     return HttpResponseRedirect(reverse("accounts:login"))
 
@@ -129,10 +130,12 @@ def player_list(request):
         current_game = request.user.player.game
         template_name = 'accounts/player_list.html'
 
-    all_players = [p for p in Player.objects.filter(game=current_game).order_by('-kills', '-last_active') if not p.user.has_perm('accounts.game_admin')]
-    
+    all_players = current_game.players().order_by('-alive', '-kills', '-last_active') 
+    new_players = current_game.players().filter(last_active__isnull=True)
+
     context = {
         'players': all_players,
+        'new_players': new_players, 
         'target_ordering': current_game.target_ordering(),
     }
 

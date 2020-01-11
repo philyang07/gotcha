@@ -30,6 +30,7 @@
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
         </td>
+        {% if player.alive == True and player.last_active %}
         <td>
             <form action="{% url 'accounts:manual_open' %}" method="POST">
                 {% csrf_token %}
@@ -44,9 +45,31 @@
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
         </td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>
+{% if new_players %}
+<h2>New players</h2>
+<table>
+    <tr>
+        <th>Player</th>
+        <th>Add to game</th>
+    </tr>
+    {% for player in new_players %}
+    <tr>
+        <td>{{ player }}</td>
+        <td>
+            <form action="{% url 'accounts:manual_add' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">Add</button>
+                <input type="hidden" value="{{ player.pk }}" name="pk">
+            </form>            
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
 <h2>Target ordering</h2>
 <p>{{ target_ordering|linebreaks }}</p>
 <form action="{% url 'accounts:reset_player_data' %}" method="POST">

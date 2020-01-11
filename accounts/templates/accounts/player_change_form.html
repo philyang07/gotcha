@@ -4,15 +4,11 @@
     <div>
         <form action="manual_delete/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
-            <button type="submit" class="button" style="padding: 5px;">Manual delete player</button>
+            <button type="submit" class="button" style="padding: 5px;">Manually delete player</button>
         </form>
         <form action="manual_kill/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
-            <button type="submit" class="button" style="padding: 5px;">Manual kill player</button>
-        </form>
-        <form action="manual_open/" method="POST" style="display:inline-block">
-            {% csrf_token %}
-            <button type="submit" class="button" style="padding: 5px;">Manual open player</button>
+            <button type="submit" class="button" style="padding: 5px;">Manually kill player</button>
         </form>
     </div>
     <br />

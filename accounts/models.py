@@ -59,7 +59,7 @@ class Game(models.Model):
         self.reassign_targets()
 
     def reassign_targets(self):
-        players = self.players().filter(alive=True)
+        players = self.players().filter(alive=True, last_active__isnull=False)
 
         if not players:
             return
@@ -148,7 +148,7 @@ class Player(models.Model):
     @property
     def is_open(self):
         if not self.last_active:
-            return None
+            return False
         return self.alive and (self.manual_open or timezone.now() - self.last_active > timedelta(hours=24))
 
     def manual_delete(self):
@@ -165,12 +165,13 @@ class Player(models.Model):
 
     def manual_kill(self):
         player = self
-        if Player.objects.filter(target=player): # equivalent them to being alive
+        if Player.objects.filter(target=player) and player.last_active: # equivalent them to being alive
             player_killer = Player.objects.get(target=player)
             player_killer.target = player.target
             player.target = None
             player.last_active = timezone.now()
             player.alive = False
+            player.manual_open = False
             player.save()
             player_killer.save()   
         else:

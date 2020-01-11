@@ -92,54 +92,36 @@ class GameAdmin(admin.ModelAdmin):
         self.message_user(request, "Manually deleted player " + player_name)
         return HttpResponseRedirect('../')
 
-class PlayerAdmin(admin.ModelAdmin):
-    change_form_template = 'accounts/player_change_form.html'
+# class PlayerAdmin(admin.ModelAdmin):
+#     change_form_template = 'accounts/player_change_form.html'
     
-    def get_urls(self):
-        urls = super(PlayerAdmin, self).get_urls()
-        extra_urls = [
-            path('<int:pk>/change/manual_kill/', self.manual_kill),
-            path('<int:pk>/change/manual_delete/', self.manual_delete),
-            path('<int:pk>/change/manual_open/', self.manual_open),
-        ]
-        return extra_urls + urls
+#     def get_urls(self):
+#         urls = super(PlayerAdmin, self).get_urls()
+#         extra_urls = [
+#             path('<int:pk>/change/manual_kill/', self.manual_kill),
+#             path('<int:pk>/change/manual_delete/', self.manual_delete),
+#         ]
+#         return extra_urls + urls
 
-    def manual_kill(self, request, **kwargs):
-        if request.method == "GET":
-            self.message_user(request, "Didn't kill as wasn't via button")
-            return HttpResponseRedirect('../')
-        Player.objects.get(pk=kwargs['pk']).manual_kill()
+#     def manual_kill(self, request, **kwargs):
+#         if request.method == "GET":
+#             self.message_user(request, "Didn't kill as wasn't via button")
+#             return HttpResponseRedirect('../')
+#         Player.objects.get(pk=kwargs['pk']).manual_kill()
 
-        self.message_user(request, "Manually killed player")
-        return HttpResponseRedirect('../')
+#         self.message_user(request, "Manually killed player")
+#         return HttpResponseRedirect('../')
 
-    def manual_delete(self, request, **kwargs):
-        if request.method == "GET":
-            self.message_user(request, "Didn't delete as wasn't via button")
-            return HttpResponseRedirect('../')
-        Player.objects.get(pk=kwargs['pk']).manual_delete()
+#     def manual_delete(self, request, **kwargs):
+#         if request.method == "GET":
+#             self.message_user(request, "Didn't delete as wasn't via button")
+#             return HttpResponseRedirect('../')
+#         Player.objects.get(pk=kwargs['pk']).manual_delete()
 
-        self.message_user(request, "Manually deleted player")
-        return HttpResponseRedirect('/admin/accounts/player')
-        
-    def manual_open(self, request, **kwargs):
-        if request.method == "GET":
-            self.message_user(request, "Didn't kill as wasn't via button")
-            return HttpResponseRedirect('../')
-        player = Player.objects.get(pk=kwargs['pk'])
-        if not player.alive:
-            self.message_user(request, "Player is inactive, so no changes made")
-        elif player.manual_open:
-            player.manual_open = False
-            self.message_user(request, "Manually set player to not open")
-        else:
-            player.manual_open = True
-            self.message_user(request, "Manually set player to open")
-        player.save()
-        return HttpResponseRedirect('../')
-        
+#         self.message_user(request, "Manually deleted player")
+#         return HttpResponseRedirect('/admin/accounts/player')
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Game, GameAdmin)
-admin.site.register(Player, PlayerAdmin)
+admin.site.register(Player)

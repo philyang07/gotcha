@@ -32,8 +32,8 @@ class AssignmentForm(forms.Form):
         target_code = self.cleaned_data['target_code']
         
         open_codes = [p.secret_code for p in self.request.user.player.game.open_players()]
-    
-        if self.request.user.player.target.secret_code != target_code and target_code not in open_codes:
+
+        if (self.request.user.player.target.secret_code != target_code and target_code not in open_codes) or self.request.user.player.secret_code == target_code:
             raise forms.ValidationError("Code is invalid")
         return target_code
 
