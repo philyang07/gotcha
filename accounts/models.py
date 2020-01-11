@@ -37,25 +37,15 @@ class Game(models.Model):
     def __str__(self):
         return self.access_code + " - " + self.admin.email
 
-    def reset(self): # reset codes, 
+    def initialize_players(self):
         players = self.players()
 
         for player in players:
-            player.last_active = timezone.now()
-            player.kills = 0
-            player.manual_open = False
-            player.alive = True
-            player.save()
+            player.initialize()
 
-        for player in players:
-            candidate_code = randint(100, 999)
 
-            while players.filter(secret_code=candidate_code):
-                candidate_code = randint(100, 999)
-            player.secret_code = candidate_code
-
-            player.save()
-
+    def reset(self): # reset codes, 
+        self.initialize_players()
         self.reassign_targets()
 
     def reassign_targets(self):
@@ -123,6 +113,22 @@ class Player(models.Model):
             return self.user.first_name + " " + self.user.last_name
         return "player " + str(self.pk) + " " + self.user.email
 
+    def initialize(self):
+        self.last_active = timezone.now()
+        self.kills = 0
+        self.manual_open = False
+        self.alive = True
+        self.save()
+
+        candidate_code = randint(100, 999)
+
+        players = self.game.players()
+        while players.filter(secret_code=candidate_code):
+            candidate_code = randint(100, 999)
+        self.secret_code = candidate_code
+
+        self.save()
+
     @receiver(post_save, sender=User)
     def save_player(sender, instance, **kwargs):
         if not Player.objects.filter(user=instance) and not instance.has_perm("accounts.game_admin"):
@@ -176,3 +182,22 @@ class Player(models.Model):
             player_killer.save()   
         else:
             return True
+
+    def manual_add(self):
+        game = self.game
+        """
+            If they are not in the game:
+                1. Choose a random person in the game (alive)
+                2. This person will be the killer of this guy
+                3. This guy, will now kill the target of the random person
+        """
+        if not self.last_active: 
+            random_alive = choice(game.players().filter(alive=True, last_active__isnull=False))
+            random_alive_target = random_alive.target
+            random_alive.target = self
+            random_alive.save()
+            self.initialize()
+            self.target = random_alive_target
+            self.save()
+
+

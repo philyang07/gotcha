@@ -38,6 +38,7 @@ def register(request):
 #                                             first_name=first_name,
 #                                             last_name=last_name)
 #             user.player.game = Game.objects.get(access_code=form.cleaned_data['access_code'])
+#             user.player.alive = True
 #             user.player.save()
             
 #             login(request, user)
@@ -130,11 +131,11 @@ def player_list(request):
         current_game = request.user.player.game
         template_name = 'accounts/player_list.html'
 
-    all_players = current_game.players().order_by('-alive', '-kills', '-last_active') 
+    players = current_game.players().filter(last_active__isnull=False).order_by('-alive', '-kills', '-last_active') 
     new_players = current_game.players().filter(last_active__isnull=True)
 
     context = {
-        'players': all_players,
+        'players': players,
         'new_players': new_players, 
         'target_ordering': current_game.target_ordering(),
     }
@@ -174,6 +175,17 @@ def manual_kill(request):
             return HttpResponseRedirect('/accounts/players')
         player = Player.objects.get(pk=request.POST["pk"])
         player.manual_kill()
+    if request.user.has_perm("accounts.game_admin"):
+        return HttpResponseRedirect('/accounts/players')
+    return HttpResponseRedirect('/accounts/profile')
+
+@login_required(login_url="accounts:login")
+def manual_add(request):
+    if request.method == "POST":
+        if not Player.objects.filter(pk=request.POST["pk"]):
+            return HttpResponseRedirect('/accounts/players')
+        player = Player.objects.get(pk=request.POST["pk"])
+        player.manual_add()
     if request.user.has_perm("accounts.game_admin"):
         return HttpResponseRedirect('/accounts/players')
     return HttpResponseRedirect('/accounts/profile')

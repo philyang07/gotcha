@@ -19,10 +19,10 @@
     </form>
     <form action="manual_kill/" method="POST" style="display:inline-block">
         {% csrf_token %}
-        <button type="submit" class="button" style="padding: 5px">Manually kill player</button>
+        <button type="submit" class="button" style="padding: 5px; margin-right: 10px">Manually kill player</button>
         <input type="hidden" value="{{ inline_admin_form.original.pk }}" name="player_pk">
     </form>
-    {% if not inline_admin_form.original.is_active %}
+    {% if not inline_admin_form.original.last_active %}
     <form action="manual_add/" method="POST" style="display:inline-block">
       {% csrf_token %}
       <button type="submit" class="button" style="padding: 5px">Add player to game</button>

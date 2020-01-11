@@ -47,6 +47,7 @@ class GameAdmin(admin.ModelAdmin):
             path('<int:pk>/change/reassign_targets/', self.reassign_targets),
             path('<int:pk>/change/manual_kill/', self.manual_kill),
             path('<int:pk>/change/manual_delete/', self.manual_delete),
+            path('<int:pk>/change/manual_add/', self.manual_add),
         ]
         return extra_urls + urls
 
@@ -79,6 +80,17 @@ class GameAdmin(admin.ModelAdmin):
             self.message_user(request, player_name + " is already eliminated. No changes made.")
         else:
             self.message_user(request, "Manually killed player " + player_name)
+        return HttpResponseRedirect('../')
+
+    def manual_add(self, request, **kwargs):
+        if request.method == "GET":
+            self.message_user(request, "Didn't add as wasn't via button")
+            return HttpResponseRedirect('../')
+        player = Player.objects.get(pk=request.POST['player_pk'])
+        player_name = str(player)
+        player.manual_add()
+
+        self.message_user(request, "Manually added player " + player_name + " to the game")
         return HttpResponseRedirect('../')
 
     def manual_delete(self, request, **kwargs):
