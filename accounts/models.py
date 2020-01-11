@@ -3,11 +3,18 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from random import randint, choice
 from django.db.models.signals import post_save
+from django.db.models import Q
 from django.dispatch import receiver
 from datetime import timedelta
 import string
 
 # Create your models here.
+class GamePlayerManager(models.Manager):
+    use_for_related_fields = True
+    def query_set(self):
+        return super().get_queryset().filter()
+
+
 class Game(models.Model):
     access_code = models.CharField('access_code', max_length=4, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -16,6 +23,9 @@ class Game(models.Model):
         permissions = [
             ("game_admin", "Can view game statistics"),
         ]
+
+    def players(self):
+        return self.player_set.filter(game=self).exclude(Q(user__user_permissions__codename="accounts.game_admin"))
 
     def generate_access_code():
         existing_access_codes = [g.access_code for g in Game.objects.all()]
@@ -28,27 +38,36 @@ class Game(models.Model):
         return self.access_code + " - " + self.admin.email
 
     def reset(self): # reset codes, 
-        # clear everything
-        players = Player.objects.filter(game=self, user__is_staff=False)
+        players = self.players()
 
-        if not players:
-            return
-
-        for user in [player.user for player in players]:
-            user.player.delete()
-            Player(game=self, user=user, alive=True).save()
-
-        players = Player.objects.filter(game=self, user__is_staff=False)
-        
         for player in players:
             player.last_active = timezone.now()
+            player.kills = 0
+            player.manual_open = False
+            player.alive = True
+            player.save()
+
+        for player in players:
             candidate_code = randint(100, 999)
 
-            while Player.objects.filter(game=self, secret_code=candidate_code):
+            while players.filter(secret_code=candidate_code):
                 candidate_code = randint(100, 999)
             player.secret_code = candidate_code
 
             player.save()
+
+        self.reassign_targets()
+
+    def reassign_targets(self):
+        players = self.players().filter(alive=True)
+
+        if not players:
+            return
+
+        for player in players:
+            player.target = None
+            player.save()
+
 
         # target assignment process:
         # 1. choose a random player to be the 'first' target
@@ -62,21 +81,21 @@ class Game(models.Model):
             return
 
         first_target = last_target = choice(players)
-        last_killer = choice(Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk))
-        while Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk):
+        last_killer = choice(players.filter(target=None).exclude(pk=first_target.pk))
+        while players.filter(target=None).exclude(pk=first_target.pk):
             last_killer.target = last_target
             last_killer.save()
             last_target = last_killer
-            if Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk):
-                last_killer = choice(Player.objects.filter(game=self, target=None).exclude(pk=first_target.pk))
+            if players.filter(target=None).exclude(pk=first_target.pk):
+                last_killer = choice(players.filter(target=None).exclude(pk=first_target.pk))
         first_target.target = last_killer
         first_target.save()
 
     def open_players(self):
-        return [p for p in Player.objects.filter(game=self) if p.is_open]
+        return [p for p in self.players() if p.is_open]
 
     def target_ordering(self):
-        players = Player.objects.filter(game=self, alive=True, target__isnull=False)
+        players = self.players().filter(alive=True, target__isnull=False)
         if not players:
             return None
         counted_players = [players[0]]
@@ -132,4 +151,27 @@ class Player(models.Model):
             return None
         return self.alive and (self.manual_open or timezone.now() - self.last_active > timedelta(hours=24))
 
- 
+    def manual_delete(self):
+        player = self
+        player_user = player.user
+        if Player.objects.filter(target=player):
+            player_killer = Player.objects.get(target=player)
+            player_killer.target = player.target
+            player.target = None
+            player.save()
+            player_killer.save()
+            player.delete()
+        player_user.delete()     
+
+    def manual_kill(self):
+        player = self
+        if Player.objects.filter(target=player): # equivalent them to being alive
+            player_killer = Player.objects.get(target=player)
+            player_killer.target = player.target
+            player.target = None
+            player.last_active = timezone.now()
+            player.alive = False
+            player.save()
+            player_killer.save()   
+        else:
+            return True

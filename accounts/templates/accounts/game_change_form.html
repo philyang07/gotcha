@@ -6,6 +6,10 @@
             {% csrf_token %}
             <button type="submit">Reset player data</button>
         </form>
+        <form action="reassign_targets/" method="POST">
+            {% csrf_token %}
+            <button type="submit">Reassign targets</button>
+        </form>
     </div>
     <br />
     {{ block.super }}

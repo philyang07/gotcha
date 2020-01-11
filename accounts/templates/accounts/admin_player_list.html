@@ -13,6 +13,7 @@
         <th>Open</th>
         <th>Remove</th>
         <th>Manual open</th>
+        <th>Manual kill</th>
     </tr>
     {% for player in players %}
     <tr class="{% if player.is_open == True %}is_open{% elif player.alive == False %}dead{% endif %}">
@@ -32,7 +33,14 @@
         <td>
             <form action="{% url 'accounts:manual_open' %}" method="POST">
                 {% csrf_token %}
-                <button type="submit">{% if player.is_open %}Undo{% else %}Set manual open{% endif %}</button>
+                <button type="submit">{% if player.manual_open %}Undo{% else %}Set manual open{% endif %}</button>
+                <input type="hidden" value="{{ player.pk }}" name="pk">
+            </form>
+        </td>
+        <td>
+            <form action="{% url 'accounts:manual_kill' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">{% if player.alive %}Manual kill{% else %}Eliminated{% endif %}</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
         </td>
@@ -45,7 +53,12 @@
     {% csrf_token %}
     <button type="submit">Reset player data</button>
 </form>
+<form action="{% url 'accounts:reassign_targets' %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Reassign targets</button>
+</form>
 {% else %}
 <p>No players</p>
 {% endif %}
+<a href="{% url 'accounts:profile' %}">Go back</a>
 {% endblock %}

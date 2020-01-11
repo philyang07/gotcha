@@ -138,26 +138,19 @@ def player_list(request):
 
     return render(request, template_name, context)
 
+@login_required(login_url="accounts:login")
 def delete_player(request):
     if request.method == "POST":
         if not Player.objects.filter(pk=request.POST["pk"]):
             return HttpResponseRedirect('/accounts/players')
         player = Player.objects.get(pk=request.POST["pk"])
-        if Player.objects.filter(target=player):
-            player_killer = Player.objects.get(target=player)
-            player_killer.target = player.target
-            player.target = None
-            player.save()
-            player_killer.save()
-            player_user = player.user
-            player.delete()
-            player_user.delete()            
-        else:
-            player.user.delete()
+        player.manual_delete()
+
     if request.user.has_perm("accounts.game_admin"):
         return HttpResponseRedirect('/accounts/players')
     return HttpResponseRedirect('/accounts/login')
 
+@login_required(login_url="accounts:login")
 def manual_open(request):
     if request.method == "POST":
         if not Player.objects.filter(pk=request.POST["pk"]):
@@ -171,6 +164,23 @@ def manual_open(request):
         return HttpResponseRedirect('/accounts/players')
     return HttpResponseRedirect("/accounts/login")
 
+@login_required(login_url="accounts:login")
+def manual_kill(request):
+    if request.method == "POST":
+        if not Player.objects.filter(pk=request.POST["pk"]):
+            return HttpResponseRedirect('/accounts/players')
+        player = Player.objects.get(pk=request.POST["pk"])
+        player.manual_kill()
+    if request.user.has_perm("accounts.game_admin"):
+        return HttpResponseRedirect('/accounts/players')
+    return HttpResponseRedirect('/accounts/profile')
+
+@login_required(login_url="accounts:login")
 def reset_player_data(request):
     request.user.game.reset()
+    return HttpResponseRedirect('/accounts/players') 
+
+@login_required(login_url="accounts:login")
+def reassign_targets(request):
+    request.user.game.reassign_targets()
     return HttpResponseRedirect('/accounts/players') 

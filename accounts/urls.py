@@ -14,5 +14,7 @@ urlpatterns = [
     path('players/', views.player_list, name="player_list"),
     path('delete_player/', views.delete_player, name="delete_player"),
     path('manual_open/', views.manual_open, name="manual_open"),
+    path('manual_kill/', views.manual_kill, name="manual_kill"),
     path('reset_player_data/', views.reset_player_data, name="reset_player_data"),
+    path('reassign_targets/', views.reassign_targets, name="reassign_targets"),
 ]

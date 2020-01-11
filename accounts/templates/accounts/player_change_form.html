@@ -1,0 +1,20 @@
+{% extends 'admin/change_form.html' %}
+
+{% block object-tools %}
+    <div>
+        <form action="manual_delete/" method="POST">
+            {% csrf_token %}
+            <button type="submit">Manual delete player</button>
+        </form>
+        <form action="manual_kill/" method="POST">
+            {% csrf_token %}
+            <button type="submit">Manual kill player</button>
+        </form>
+        <form action="manual_open/" method="POST">
+            {% csrf_token %}
+            <button type="submit">Manual open player</button>
+        </form>
+    </div>
+    <br />
+    {{ block.super }}
+{% endblock %}

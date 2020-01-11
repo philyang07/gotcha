@@ -9,7 +9,14 @@
 <p>You have {{ user.player.kills }} kills.</p>
 <form action="{% url 'accounts:delete_player' %}" method="POST">
     {% csrf_token %}
-    <button type="submit">Delete</button>
+    <button type="submit">Delete yourself</button>
+    <input type="hidden" value="{{ user.player.pk }}" name="pk">
+</form>
+<form action="{% url 'accounts:manual_kill' %}" method="POST">
+    {% csrf_token %}
+    {% if user.player.alive == True %}
+    <button type="submit">Give up</button>
+    {% endif %}
     <input type="hidden" value="{{ user.player.pk }}" name="pk">
 </form>
 <a href="{% url 'accounts:assignment' %}">Assignment</a>
