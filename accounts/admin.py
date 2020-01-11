@@ -75,9 +75,10 @@ class GameAdmin(admin.ModelAdmin):
 
         player = Player.objects.get(pk=request.POST['player_pk'])
         player_name = str(player)
-        player.manual_kill()
-
-        self.message_user(request, "Manually killed player " + player_name)
+        if player.manual_kill():
+            self.message_user(request, player_name + " is already eliminated. No changes made.")
+        else:
+            self.message_user(request, "Manually killed player " + player_name)
         return HttpResponseRedirect('../')
 
     def manual_delete(self, request, **kwargs):

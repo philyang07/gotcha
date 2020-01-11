@@ -2,17 +2,17 @@
 
 {% block object-tools %}
     <div>
-        <form action="manual_delete/" method="POST">
+        <form action="manual_delete/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
-            <button type="submit">Manual delete player</button>
+            <button type="submit" class="button" style="padding: 3px;">Manual delete player</button>
         </form>
-        <form action="manual_kill/" method="POST">
+        <form action="manual_kill/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
-            <button type="submit">Manual kill player</button>
+            <button type="submit" class="button" style="padding: 3px;">Manual kill player</button>
         </form>
-        <form action="manual_open/" method="POST">
+        <form action="manual_open/" method="POST" style="display:inline-block">
             {% csrf_token %}
-            <button type="submit">Manual open player</button>
+            <button type="submit" class="button" style="padding: 3px;">Manual open player</button>
         </form>
     </div>
     <br />

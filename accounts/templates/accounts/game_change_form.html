@@ -1,16 +1,14 @@
 {% extends 'admin/change_form.html' %}
 
 {% block object-tools %}
-    <div>
-        <form action="reset_players/" method="POST">
+        <form action="reset_players/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
-            <button type="submit">Reset player data</button>
+            <button type="submit" class="button" style="padding: 5px;">Reset player data</button>
         </form>
-        <form action="reassign_targets/" method="POST">
+        <form action="reassign_targets/" method="POST" style="display:inline-block">
             {% csrf_token %}
-            <button type="submit">Reassign targets</button>
+            <button type="submit" class="button" style="padding: 5px;">Reassign targets</button>
         </form>
-    </div>
     <br />
     {{ block.super }}
 {% endblock %}
