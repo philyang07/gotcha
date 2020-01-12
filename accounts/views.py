@@ -9,44 +9,44 @@ from datetime import timedelta
 from django.utils import timezone
 
 # Create your views here.
+def populate_players(request):
+    if request.method == "POST":
+        game = Game.objects.get(pk=request.POST["pk"])
+        for i in range(5):
+            email = Game.generate_access_code().lower() + "@gmail.com"
+            first_name = Game.generate_access_code().lower()
+            last_name = Game.generate_access_code().lower()
+
+            user = User.objects.create_user(email, email, 123, 
+                                    first_name=first_name,
+                                    last_name=last_name)
+            user.save()
+            user.player.game = game
+            user.player.alive = True
+            user.player.save()
+    return HttpResponseRedirect(reverse("accounts:player_list"))
+
 def register(request):
-    if request.method == "GET":
-        for game in Game.objects.all():
-            for i in range(5):
-                email = Game.generate_access_code() + "@gmail.com"
-                first_name = Game.generate_access_code().lower()
-                last_name = Game.generate_access_code().lower()
-
-                user = User.objects.create_user(email, email, 123, 
-                                        first_name=first_name,
-                                        last_name=last_name)
-                user.save()
-                user.player.game = game
-                user.player.alive = True
-                user.player.save()
-    return HttpResponseRedirect(reverse("accounts:login"))
-
-# def register(request):
-#     form = PlayerRegistrationForm(request.POST)
-#     if request.method == "POST":
-#         if form.is_valid():
-#             email = form.cleaned_data['email']
-#             password = form.cleaned_data['password1']
-#             first_name = form.cleaned_data['first_name']
-#             last_name = form.cleaned_data['last_name']
-#             user = User.objects.create_user(email, email, password, 
-#                                             first_name=first_name,
-#                                             last_name=last_name)
-#             user.player.game = Game.objects.get(access_code=form.cleaned_data['access_code'])
-#             user.player.alive = True
-#             user.player.save()
+    form = PlayerRegistrationForm(request.POST)
+    if request.method == "POST":
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            user = User.objects.create_user(email, email, password, 
+                                            first_name=first_name,
+                                            last_name=last_name)
+            user.player.game = Game.objects.get(access_code=form.cleaned_data['access_code'])
+            user.player.alive = True
+            user.player.save()
             
-#             login(request, user)
-#             return HttpResponseRedirect(reverse('accounts:profile'))
-#     else:
-#         form = PlayerRegistrationForm()
+            login(request, user)
+            return HttpResponseRedirect(reverse('accounts:profile'))
+    else:
+        form = PlayerRegistrationForm()
 
-#     return render(request, 'accounts/register.html', {'form': form})
+    return render(request, 'accounts/register.html', {'form': form})
 
 def create_game(request):
     form = RegistrationForm(request.POST)
@@ -131,10 +131,11 @@ def player_list(request):
         current_game = request.user.player.game
         template_name = 'accounts/player_list.html'
 
-    players = current_game.players().filter(last_active__isnull=False).order_by('-alive', '-kills', '-last_active') 
-    new_players = current_game.players().filter(last_active__isnull=True)
-
+    players = current_game.players().filter(secret_code__isnull=False).order_by('-alive', '-kills', '-last_active') 
+    new_players = current_game.players().filter(secret_code__isnull=True)
+        
     context = {
+        'game': current_game,
         'players': players,
         'new_players': new_players, 
         'target_ordering': current_game.target_ordering(),
@@ -148,7 +149,11 @@ def delete_player(request):
         if not Player.objects.filter(pk=request.POST["pk"]):
             return HttpResponseRedirect('/accounts/players')
         player = Player.objects.get(pk=request.POST["pk"])
+        game = player.game
         player.manual_delete()
+        if not game.players():
+            game.in_progress = False
+            game.save()
 
     if request.user.has_perm("accounts.game_admin"):
         return HttpResponseRedirect('/accounts/players')
@@ -198,4 +203,16 @@ def reset_player_data(request):
 @login_required(login_url="accounts:login")
 def reassign_targets(request):
     request.user.game.reassign_targets()
+    return HttpResponseRedirect('/accounts/players') 
+
+@login_required(login_url="accounts:login")
+def start_game(request):
+    game = request.user.game
+    game.in_progress = True
+    game.save()
+
+    for player in game.players().filter(secret_code__isnull=False):
+        player.last_active = timezone.now()
+        player.save()
+
     return HttpResponseRedirect('/accounts/players') 

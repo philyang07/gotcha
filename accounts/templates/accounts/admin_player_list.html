@@ -1,36 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if game.in_progress == False and players %}
+    <p>Targets and secret codes sent to players</p>
+    <form action="{% url 'accounts:start_game' %}" method="POST">
+        {% csrf_token %}
+        <button type="submit">Start game</button>
+    </form>
+{% elif game.in_progress %}
+<p>Game in progress</p>
+{% endif %}
 {% if players %}
 <h2>Player list</h2>
 <table class="player_list">
     <tr>
         <th>Player</th>
-        <th>Eliminations</th>
-        <th>Time since last assignment</th>
+        <th>Email</th>
         <th>Secret code</th>
         <th>Target</th>
+        {% if game.in_progress == True %}
+        <th>Eliminations</th>
         <th>Open</th>
-        <th>Remove</th>
+        <th>Time since last assignment</th>
         <th>Manual open</th>
         <th>Manual kill</th>
+        {% endif %}
+        <th>Remove</th>
     </tr>
     {% for player in players %}
     <tr class="{% if player.is_open == True %}is_open{% elif player.alive == False %}dead{% endif %}">
         <td>{{ player }}</td>
-        <td>{{ player.kills }}</td>
-        <td>{{ player.inactivity_duration }}</td>
+        <td>{{ player.user.email }}</td>
         <td>{{ player.secret_code }}</td>
         <td>{{ player.target }}</td>
+        {% if game.in_progress == True %}
+        <td>{{ player.kills }}</td>
         <td>{% if player.is_open == True %}OPEN{% endif %}</td>
-        <td>
-            <form action="{% url 'accounts:delete_player' %}" method="POST">
-                {% csrf_token %}
-                <button type="submit">Delete</button>
-                <input type="hidden" value="{{ player.pk }}" name="pk">
-            </form>
-        </td>
-        {% if player.alive == True and player.last_active %}
+        <td>{{ player.inactivity_duration }}</td>
+        {% if player.alive == True %}
         <td>
             <form action="{% url 'accounts:manual_open' %}" method="POST">
                 {% csrf_token %}
@@ -46,19 +53,31 @@
             </form>
         </td>
         {% endif %}
+        {% endif %}
+        <td>
+            <form action="{% url 'accounts:delete_player' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">Delete</button>
+                <input type="hidden" value="{{ player.pk }}" name="pk">
+            </form>
+        </td>
     </tr>
     {% endfor %}
 </table>
+{% endif %}
+<h2>{% if not players %}Registered players{% else %}New players{% endif %}</h2>
 {% if new_players %}
-<h2>New players</h2>
 <table>
     <tr>
         <th>Player</th>
+        {% if players %}
         <th>Add to game</th>
+        {% endif %}
     </tr>
     {% for player in new_players %}
     <tr>
         <td>{{ player }}</td>
+        {% if players %}
         <td>
             <form action="{% url 'accounts:manual_add' %}" method="POST">
                 {% csrf_token %}
@@ -66,22 +85,38 @@
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>            
         </td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>
+{% else %}
+<p>{% if not players %}No players have registered{% else %}No new players{% endif %}</p>
 {% endif %}
+{% if players %}
 <h2>Target ordering</h2>
 <p>{{ target_ordering|linebreaks }}</p>
+{% endif %}
+{% if new_players or players %}
+<br>
 <form action="{% url 'accounts:reset_player_data' %}" method="POST">
     {% csrf_token %}
-    <button type="submit">Reset player data</button>
+    <button type="submit">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
 </form>
+<br>
+{% endif %}
+{% if players %}
 <form action="{% url 'accounts:reassign_targets' %}" method="POST">
     {% csrf_token %}
     <button type="submit">Reassign targets</button>
 </form>
-{% else %}
-<p>No players</p>
+<br>
 {% endif %}
+
+<form action="{% url 'accounts:populate_players' %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Populate with random players</button>
+    <input type="hidden" name="pk" value="{{ game.pk }}">
+</form>
+<br>
 <a href="{% url 'accounts:profile' %}">Go back</a>
 {% endblock %}

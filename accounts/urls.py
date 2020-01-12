@@ -7,6 +7,7 @@ app_name = 'accounts'
 urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
     path('register/', views.register, name='register'),
+    path('populate_players/', views.populate_players, name="populate_players"),
     path('create_game/', views.create_game, name="create_game"),
     path('profile/', views.profile, name="profile"),
     path('logout/', views.logout, name="logout"),
@@ -18,4 +19,5 @@ urlpatterns = [
     path('manual_add/', views.manual_add, name="manual_add"),
     path('reset_player_data/', views.reset_player_data, name="reset_player_data"),
     path('reassign_targets/', views.reassign_targets, name="reassign_targets"),
+    path('start_game/', views.start_game, name="start_game"),
 ]

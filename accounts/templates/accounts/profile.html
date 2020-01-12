@@ -1,25 +1,36 @@
 <p>Welcome {{ user.first_name }}!</p>
-<p>Your email is {{ user.email }}</p>
+<p>Your registered email is {{ user.email }}</p>
 {% if user.player.secret_code %}
 <p>Your secret code is {{ user.player.secret_code }}</p>
 {% endif %}
 {% if user.player.target %}
 <p>Your target is {{ user.player.target }}</p>
 {% endif %}
+{% if user.player.game.in_progress == True %}
 <p>You have {{ user.player.kills }} kills.</p>
+    {% if user.player.alive == False %}
+    <p>You were eliminated</p>
+    {% endif %}
+    <form action="{% url 'accounts:manual_kill' %}" method="POST">
+        {% csrf_token %}
+        {% if user.player.alive == True %}
+        <button type="submit">Leave the game</button>
+        <input type="hidden" value="{{ user.player.pk }}" name="pk">
+        {% endif %}
+    </form>
+{% endif %}
+
+{% if game.in_progress == False %}
 <form action="{% url 'accounts:delete_player' %}" method="POST">
     {% csrf_token %}
     <button type="submit">Delete yourself</button>
     <input type="hidden" value="{{ user.player.pk }}" name="pk">
 </form>
-<form action="{% url 'accounts:manual_kill' %}" method="POST">
-    {% csrf_token %}
-    {% if user.player.alive == True %}
-    <button type="submit">Give up</button>
-    {% endif %}
-    <input type="hidden" value="{{ user.player.pk }}" name="pk">
-</form>
+{% endif %}
+
+{% if user.player.game.in_progress %}
 <a href="{% url 'accounts:assignment' %}">Assignment</a>
+{% endif %}
 <a href="{% url 'accounts:player_list' %}">Player list</a>
 <a href="{% url 'accounts:logout' %}">Logout</a>
 

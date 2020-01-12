@@ -38,19 +38,21 @@ class Game(models.Model):
     def __str__(self):
         return self.access_code + " - " + self.admin.email
 
-    def initialize_players(self):
+    def initialize_players(self, in_game=False):
         players = self.players()
+        if in_game:
+            players = players.filter(secret_code__isnull=False)
 
         for player in players:
             player.initialize()
 
 
     def reset(self): # reset codes, 
-        self.initialize_players()
+        self.initialize_players(in_game=True)
         self.reassign_targets()
 
     def reassign_targets(self):
-        players = self.players().filter(alive=True, last_active__isnull=False)
+        players = self.players().filter(alive=True, secret_code__isnull=False)
 
         if not players:
             return
@@ -115,10 +117,12 @@ class Player(models.Model):
         return "player " + str(self.pk) + " " + self.user.email
 
     def initialize(self):
-        self.last_active = timezone.now()
         self.kills = 0
         self.manual_open = False
         self.alive = True
+        if self.game.in_progress:
+            self.last_active = timezone.now()
+
         self.save()
 
         candidate_code = randint(100, 999)
@@ -139,8 +143,8 @@ class Player(models.Model):
 
     @property
     def inactivity_duration(self):
-        if not self.last_active:
-            return "Not in game"
+        if not self.last_active: # game hasn't started, or if it has, they are a 'new player'
+            return None
     
 
         duration = timezone.now() - self.last_active
@@ -192,8 +196,8 @@ class Player(models.Model):
                 2. This person will be the killer of this guy
                 3. This guy, will now kill the target of the random person
         """
-        if not self.last_active: 
-            random_alive = choice(game.players().filter(alive=True, last_active__isnull=False))
+        if not self.secret_code: 
+            random_alive = choice(game.players().filter(alive=True, secret_code__isnull=False))
             random_alive_target = random_alive.target
             random_alive.target = self
             random_alive.save()

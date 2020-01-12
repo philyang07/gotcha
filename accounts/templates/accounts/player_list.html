@@ -6,19 +6,24 @@
 <table class="player_list">
     <tr>
         <th>Player</th>
+        {% if player.game.in_progress == True%}
         <th>Eliminations</th>
         <th>Time since last assignment</th>
         <th>Open</th>
+        {% endif %}
     </tr>
     {% for player in players %}
     <tr class="{% if player.is_open == True %}is_open{% elif player.alive == False %}dead{% endif %}">
         <td>{{ player }}</td>
+        {% if player.game.in_progress == True %}
         <td>{{ player.kills }}</td>
         <td>{{ player.inactivity_duration }}</td>
         <td>{% if player.is_open == True %}OPEN{% endif %}</td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>
 {% endif %}
+<br>
 <a href="{% url 'accounts:profile' %}">Go back</a>
 {% endblock %}
