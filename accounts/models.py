@@ -18,7 +18,8 @@ class GamePlayerManager(models.Manager):
 class Game(models.Model):
     access_code = models.CharField('access_code', max_length=4, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
-    
+    in_progress = models.BooleanField('in progess', default=False)
+
     class Meta:
         permissions = [
             ("game_admin", "Can view game statistics"),

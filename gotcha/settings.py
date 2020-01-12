@@ -28,7 +28,7 @@ DEBUG = False
 if os.environ.get('DEBUG'):
     DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['http://127.0.0.1:8000/', "*"]
 
 
 # Application definition

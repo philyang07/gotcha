@@ -11,6 +11,7 @@ class PlayerInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'Player'
     template = "accounts/player_inline.html"
+    raw_id_fields =  ['user']
 
 class UserAdmin(BaseUserAdmin):
     inlines = (PlayerInline,)
@@ -39,7 +40,7 @@ class GameAdmin(admin.ModelAdmin):
     inlines = (PlayerInline, ) 
 
     change_form_template = 'accounts/game_change_form.html'
-    
+
     def get_urls(self):
         urls = super(GameAdmin, self).get_urls()
         extra_urls = [
