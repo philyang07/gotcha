@@ -3,7 +3,9 @@ from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Permission
 from django.http import HttpResponseRedirect
-from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm, PickyAuthenticationForm, AuthenticationForm, BareLoginForm, ChangeDetailsForm
+from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm, PickyAuthenticationForm, \
+    AuthenticationForm, BareLoginForm, ChangeDetailsForm
+from django.contrib.auth.forms import PasswordResetForm
 from .models import Player, Game
 from datetime import timedelta
 from django.utils import timezone
@@ -105,23 +107,28 @@ def create_game(request):
 
     return render(request, 'accounts/create_game.html', {'form': form})
 
+def game_in_progress(user):
+    if user.player.game: # user is a player
+        return user.player.game.in_progress
+    return not user.is_superuser and not user.game 
+
 def not_superuser(user):
     return not user.is_superuser
 
-@user_passes_test(not_superuser)
+@user_passes_test(not_superuser, login_url="accounts:login")
 @login_required(login_url="accounts:login")
 def profile(request):
     if request.user.has_perm("accounts.game_admin"):
         return render(request, 'accounts/admin_dashboard.html')
     return render(request, 'accounts/profile.html')
 
-@user_passes_test(not_superuser)
+@user_passes_test(not_superuser, login_url="accounts:login")
 @login_required(login_url="accounts:login")
 def logout(request):
     auth_logout(request)
     return HttpResponseRedirect(reverse('accounts:login'))
 
-@user_passes_test(not_superuser)
+@user_passes_test(game_in_progress, login_url="accounts:profile")
 @login_required(login_url="accounts:login")
 def assignment(request):
     form = AssignmentForm(request.POST, request=request)
@@ -169,7 +176,7 @@ def assignment(request):
         form = AssignmentForm()
     return render(request, 'accounts/assignment.html', {'form': form})
 
-@user_passes_test(not_superuser)
+@user_passes_test(not_superuser, login_url="accounts:login")
 @login_required(login_url="accounts:login")
 def player_list(request):
     template_name = current_game = None

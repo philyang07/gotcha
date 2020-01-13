@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, reverse
 from .forms import PickyAuthenticationForm
 from django.contrib.auth import views as auth_views
 from . import views
@@ -25,4 +25,7 @@ urlpatterns = [
     path('start_game/', views.start_game, name="start_game"),
     path('delete_game/', views.delete_game, name="delete_game"),
     path('reset_game_to_start/', views.reset_game_to_start, name="reset_game_to_start"),
+    path('password_reset/', auth_views.PasswordResetView.as_view(template_name="accounts/password_reset.html", success_url="/accounts/login"), name="password_reset"),
+    path('password_confirm/', auth_views.PasswordResetConfirmView.as_view(template_name="accounts/password_reset.html"), name="password_reset_confirm"),
+    path('password_change/', auth_views.PasswordChangeView.as_view(), name="password_change"),
 ]
