@@ -155,7 +155,7 @@
 <br>
 <form action="{% url 'accounts:populate_players' %}" method="POST">
     {% csrf_token %}
-    <button type="submit">Populate with random players</button>
+    <button type="submit">Populate with random players (password is 123)</button>
     <input type="hidden" name="pk" value="{{ game.pk }}">
 </form>
 <br>

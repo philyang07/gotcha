@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Permission
 from django.http import HttpResponseRedirect
-from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm, PickyAuthenticationForm, AuthenticationForm, BareLoginForm
+from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm, PickyAuthenticationForm, AuthenticationForm, BareLoginForm, ChangeDetailsForm
 from .models import Player, Game
 from datetime import timedelta
 from django.utils import timezone
@@ -36,14 +36,43 @@ def login_view(request):
         form = BareLoginForm()
     return render(request, 'accounts/login.html', {'form': form})
 
+def change_details(request):
+    user = request.user
+    form = ChangeDetailsForm(request.POST, request=request)
+    initial = {'email': user.email}
+    if request.user.has_perm("accounts.game_admin"):
+         initial['access_code'] = user.game.access_code
+    else:
+        initial['first_name'] = user.first_name
+        initial['last_name'] = user.last_name
+
+    if request.method == "POST":
+        if form.is_valid():
+            if not request.user.has_perm("accounts.game_admin"):
+                request.user.first_name = form.cleaned_data['first_name']
+                request.user.last_name = form.cleaned_data['last_name']
+            else:
+                request.user.game.access_code = form.cleaned_data['access_code']
+                request.user.game.save()
+
+            request.user.email = form.cleaned_data['email']
+            request.user.username = form.cleaned_data['email']
+            request.user.save()
+            return HttpResponseRedirect(reverse('accounts:change_details'))
+    else:
+        form = ChangeDetailsForm(initial=initial, request=request)
+
+    return render(request, 'accounts/change_details.html', {'form': form})
+            
+
 def register(request):
     form = PlayerRegistrationForm(request.POST)
     if request.method == "POST":
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password1']
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
+            first_name = form.cleaned_data['first_name'].lower().capitalize()
+            last_name = form.cleaned_data['last_name'].lower().capitalize()
             user = User.objects.create_user(email, email, password, 
                                             first_name=first_name,
                                             last_name=last_name)

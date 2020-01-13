@@ -39,6 +39,18 @@
     {% endfor %}
 </table>
 {% endif %}
+{% if not game.has_sent_info %}
+<table>
+    <tr>
+        <th>Registered players</th>
+    </tr>
+    {% for player in new_players %}
+    <tr>
+        <td>{{ player }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
 <br>
 <a href="{% url 'accounts:profile' %}">Go back</a>
 {% endblock %}

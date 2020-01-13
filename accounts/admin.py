@@ -7,12 +7,12 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 
 # Register your models here.
-class PlayerInline(admin.StackedInline):
+class PlayerInline(admin.TabularInline):
     model = Player
     can_delete = False
     verbose_name_plural = 'Player'
-    template = "accounts/player_inline.html"
-    # template = "accounts/player_tabular_inline.html"
+    # template = "accounts/player_inline.html"
+    template = "accounts/player_tabular_inline.html"
     extra = 0
 
     raw_id_fields =  ['user']

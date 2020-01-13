@@ -68,6 +68,45 @@ class AssignmentForm(forms.Form):
             raise forms.ValidationError("Code is invalid")
         return target_code
 
+class ChangeDetailsForm(forms.Form):
+    def __init__(self, *args, **kwargs): # to pass in the request object
+        self.request = kwargs.pop('request', None)
+        super(forms.Form, self).__init__(*args, **kwargs)    
+    
+    first_name = forms.CharField(label="First name", max_length=100, required=False)
+    last_name = forms.CharField(label="Last name", max_length=100, required=False)
+    email = forms.EmailField(label="Email", max_length=100)
+    access_code = forms.CharField(label="Access code", max_length=5, required=False)
+
+    def clean_first_name(self):
+        first_name = self.cleaned_data["first_name"].lower().capitalize()
+        if not first_name and not self.request.user.has_perm("accounts.game_admin"):
+            raise ValidationError("First name can't be blank!")
+        return first_name
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data["last_name"].lower().capitalize()
+        if not last_name and not self.request.user.has_perm("accounts.game_admin"):
+            raise ValidationError("Last name can't be blank!")
+        return last_name
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].lower()
+        if User.objects.filter(email=email).exclude(pk=self.request.user.pk):
+            raise ValidationError("Someone already registered with that email")
+        return email
+
+    def clean_access_code(self):
+        access_code = self.cleaned_data["access_code"].upper()
+        if self.request.user.has_perm("accounts.game_admin"):
+            if not access_code:
+                raise ValidationError("Access code can't be blank")
+            elif " " in access_code:
+                raise ValidationError("Access code can't contain spaces")
+            elif access_code != self.request.user.game.access_code and access_code in [g.access_code for g in Game.objects.all()]:
+                raise ValidationError("Access code already exists")
+        return access_code
+
 class PlayerRegistrationForm(RegistrationForm):
     first_name = forms.CharField(label="First name", max_length=100)
     last_name = forms.CharField(label="Last name", max_length=100)

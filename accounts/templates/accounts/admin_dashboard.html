@@ -1,5 +1,6 @@
 <p>Email: {{ user.email }}</p>
 <p>Game access code: {{ user.game.access_code }}</p>
 <a href="{% url 'accounts:player_list' %}">Player list</a>
+<a href="{% url 'accounts:change_details' %}">Change details</a>
 <a href="{% url 'accounts:delete_game' %}">Delete game</a>
 <a href="{% url 'accounts:logout' %}">Logout</a>

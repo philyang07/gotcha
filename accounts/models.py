@@ -16,7 +16,7 @@ class GamePlayerManager(models.Manager):
 
 
 class Game(models.Model):
-    access_code = models.CharField('access code', max_length=4, unique=True)
+    access_code = models.CharField('access code', max_length=5, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
     in_progress = models.BooleanField('in progess', default=False)
 
@@ -35,7 +35,6 @@ class Game(models.Model):
         """
         return self.players().filter(secret_code__isnull=False)
         
-
     @property
     def winner(self):
         alive_players = self.players().filter(alive=True, secret_code__isnull=False)
@@ -56,8 +55,8 @@ class Game(models.Model):
     def populate_players(self):
         for i in range(5):
             email = Game.generate_access_code().lower() + "@gmail.com"
-            first_name = Game.generate_access_code().lower()
-            last_name = Game.generate_access_code().lower()
+            first_name = Game.generate_access_code().lower().capitalize()
+            last_name = Game.generate_access_code().lower().capitalize()
 
             user = User.objects.create_user(email, email, 123, 
                                     first_name=first_name,

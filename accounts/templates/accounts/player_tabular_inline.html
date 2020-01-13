@@ -67,6 +67,7 @@
           {% endfor %}
         {% endfor %}
         <td>
+          <form><input type="hidden"></form>
           {% if inline_admin_form.original.last_active and inline_admin_form.original.alive and not inline_admin_form.original.game.winner %}
           <form action="manual_kill/" method="POST" style="display:inline-block">
               {% csrf_token %}

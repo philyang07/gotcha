@@ -12,6 +12,7 @@
   <h3><b>{{ inline_admin_formset.opts.verbose_name|capfirst }}:</b>&nbsp;<span class="inline_label">{% if inline_admin_form.original %}{{ inline_admin_form.original }}
   
     <div style="padding-top: 3px;">
+    <form><input type="hidden"></form>
     <form action="manual_delete/" method="POST" style="display:inline-block">
         {% csrf_token %}
         <button type="submit" class="button" style="padding: 5px; margin-right: 10px">Manually delete player</button>
