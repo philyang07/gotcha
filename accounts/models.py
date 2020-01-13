@@ -86,6 +86,12 @@ class Game(models.Model):
             self.initialize_players(in_game=self.in_progress, with_code=True)
             self.reassign_targets()
 
+    def delete_game(self):
+        player_pks = [p.pk for p in self.players()]
+        for pk in player_pks:
+            Player.objects.get(pk=pk).manual_delete()
+        self.admin.delete()
+
     def reassign_targets(self):
         players = self.players().filter(alive=True, secret_code__isnull=False)
 

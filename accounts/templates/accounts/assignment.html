@@ -1,8 +1,6 @@
 <form action="{% url 'accounts:assignment' %}" method="post">
-    <table>
     {% csrf_token %}
-    {{ form }}
-    </table>
+    {% include 'accounts/form_display.html' with form=form %}
     <input type="submit" value="Submit">
 </form>
 <br>

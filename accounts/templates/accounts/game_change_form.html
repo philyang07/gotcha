@@ -47,6 +47,10 @@
             {% csrf_token %}
             <button type="submit" class="button" style="padding: 5px;">Populate players</button>
         </form>
+        <form action="delete_game/" method="POST" style="display:inline-block; margin-right: 10px">
+            {% csrf_token %}
+            <button type="submit" class="button" style="background-color: rgb(197, 57, 48); padding: 5px;">Delete game</button>
+        </form>
     <br />
     {{ block.super }}
 {% endblock %}

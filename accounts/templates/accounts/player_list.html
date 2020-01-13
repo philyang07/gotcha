@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if player.game.winner %}
+{% if game.winner %}
 <p>The last player standing is {{ game.winner }}!</p>
     {% if not most_kills_players %}
     <p>No-one scored above 0 eliminations :(</p>

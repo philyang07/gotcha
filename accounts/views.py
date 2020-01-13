@@ -1,9 +1,9 @@
 from django.shortcuts import render, reverse
 from django.contrib.auth import authenticate, login, logout as auth_logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Permission
 from django.http import HttpResponseRedirect
-from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm
+from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm, PickyAuthenticationForm, AuthenticationForm, BareLoginForm
 from .models import Player, Game
 from datetime import timedelta
 from django.utils import timezone
@@ -15,6 +15,26 @@ def populate_players(request):
         game.populate_players()
 
     return HttpResponseRedirect(reverse("accounts:player_list"))
+
+def login_view(request):
+    """
+    An experimental login view for learning's sake
+    """
+    form = BareLoginForm(request.POST)
+    if request.method == "POST":
+        if form.is_valid():
+            username = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            print(username, password)
+            if request.user:
+                logout(request)
+            user = authenticate(username=username, password=password)
+            if user:
+                login(request, user)
+                return HttpResponseRedirect(reverse('accounts:profile'))
+    else:
+        form = BareLoginForm()
+    return render(request, 'accounts/login.html', {'form': form})
 
 def register(request):
     form = PlayerRegistrationForm(request.POST)
@@ -56,17 +76,23 @@ def create_game(request):
 
     return render(request, 'accounts/create_game.html', {'form': form})
 
+def not_superuser(user):
+    return not user.is_superuser
+
+@user_passes_test(not_superuser)
 @login_required(login_url="accounts:login")
 def profile(request):
     if request.user.has_perm("accounts.game_admin"):
         return render(request, 'accounts/admin_dashboard.html')
     return render(request, 'accounts/profile.html')
 
+@user_passes_test(not_superuser)
 @login_required(login_url="accounts:login")
 def logout(request):
     auth_logout(request)
     return HttpResponseRedirect(reverse('accounts:login'))
 
+@user_passes_test(not_superuser)
 @login_required(login_url="accounts:login")
 def assignment(request):
     form = AssignmentForm(request.POST, request=request)
@@ -114,6 +140,7 @@ def assignment(request):
         form = AssignmentForm()
     return render(request, 'accounts/assignment.html', {'form': form})
 
+@user_passes_test(not_superuser)
 @login_required(login_url="accounts:login")
 def player_list(request):
     template_name = current_game = None
@@ -134,7 +161,6 @@ def player_list(request):
         if max_kills > 0:
             most_kills_players = [p for p in current_game.players().filter(secret_code__isnull=False) if p.kills == max_kills]
 
-
     context = {
         'game': current_game,
         'players': players,
@@ -150,7 +176,7 @@ def player_list(request):
 def delete_player(request):
     if request.method == "POST":
         if not Player.objects.filter(pk=request.POST["pk"]):
-            return HttpResponseRedirect('/accounts/players')
+            return HttpResponseRedirect(reverse('accounts:player_list'))
         player = Player.objects.get(pk=request.POST["pk"])
         game = player.game
         player.manual_delete()
@@ -159,59 +185,64 @@ def delete_player(request):
             game.save()
 
     if request.user.has_perm("accounts.game_admin"):
-        return HttpResponseRedirect('/accounts/players')
-    return HttpResponseRedirect('/accounts/login')
+        return HttpResponseRedirect(reverse('accounts:player_list'))
+    return HttpResponseRedirect(reverse('accounts:login'))
 
 @login_required(login_url="accounts:login")
 def manual_open(request):
     if request.method == "POST":
         if not Player.objects.filter(pk=request.POST["pk"]):
-            return HttpResponseRedirect('/accounts/players')
+            return HttpResponseRedirect(reverse('accounts:player_list'))
         player = Player.objects.get(pk=request.POST["pk"])
         if player.manual_open:
             player.manual_open = False
         else:
             player.manual_open = True
         player.save()
-        return HttpResponseRedirect('/accounts/players')
-    return HttpResponseRedirect("/accounts/login")
+        return HttpResponseRedirect(reverse('accounts:player_list'))
+    return HttpResponseRedirect(reverse('accounts:login'))
 
 @login_required(login_url="accounts:login")
 def manual_kill(request):
     if request.method == "POST":
         if not Player.objects.filter(pk=request.POST["pk"]):
-            return HttpResponseRedirect('/accounts/players')
+            return HttpResponseRedirect(reverse('accounts:player_list'))
         player = Player.objects.get(pk=request.POST["pk"])
         player.manual_kill()
     if request.user.has_perm("accounts.game_admin"):
-        return HttpResponseRedirect('/accounts/players')
-    return HttpResponseRedirect('/accounts/profile')
+        return HttpResponseRedirect(reverse('accounts:player_list'))
+    return HttpResponseRedirect(reverse('accounts:profile'))
 
 @login_required(login_url="accounts:login")
 def manual_add(request):
     if request.method == "POST":
         if not Player.objects.filter(pk=request.POST["pk"]):
-            return HttpResponseRedirect('/accounts/players')
+            return HttpResponseRedirect(reverse('accounts:player_list'))
         player = Player.objects.get(pk=request.POST["pk"])
         player.manual_add()
     if request.user.has_perm("accounts.game_admin"):
-        return HttpResponseRedirect('/accounts/players')
-    return HttpResponseRedirect('/accounts/profile')
+        return HttpResponseRedirect(reverse('accounts:player_list'))
+    return HttpResponseRedirect(reverse('accounts:profile'))
 
 @login_required(login_url="accounts:login")
 def reset_player_data(request):
     request.user.game.reset()
-    return HttpResponseRedirect('/accounts/players') 
+    return HttpResponseRedirect(reverse('accounts:player_list'))
+
+@login_required(login_url="accounts:delete_game")
+def delete_game(request):
+    request.user.game.delete_game()
+    return HttpResponseRedirect(reverse('accounts:login'))
 
 @login_required(login_url="accounts:login")
 def reset_game_to_start(request):
     request.user.game.reset(to_start=True)
-    return HttpResponseRedirect('/accounts/players') 
+    return HttpResponseRedirect(reverse('accounts:player_list'))
 
 @login_required(login_url="accounts:login")
 def reassign_targets(request):
     request.user.game.reassign_targets()
-    return HttpResponseRedirect('/accounts/players') 
+    return HttpResponseRedirect(reverse('accounts:player_list'))
 
 @login_required(login_url="accounts:login")
 def start_game(request):
@@ -223,4 +254,4 @@ def start_game(request):
         player.last_active = timezone.now()
         player.save()
 
-    return HttpResponseRedirect('/accounts/players') 
+    return HttpResponseRedirect(reverse('accounts:player_list'))

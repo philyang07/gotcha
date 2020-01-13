@@ -1,11 +1,13 @@
 from django.urls import path
+from .forms import PickyAuthenticationForm
 from django.contrib.auth import views as auth_views
 from . import views
 
 app_name = 'accounts'
 
 urlpatterns = [
-    path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
+    # path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html', authentication_form=PickyAuthenticationForm), name='login'),
+    path('login/', views.login_view, name='login'), # for learning's sake
     path('register/', views.register, name='register'),
     path('populate_players/', views.populate_players, name="populate_players"),
     path('create_game/', views.create_game, name="create_game"),
@@ -20,5 +22,6 @@ urlpatterns = [
     path('reset_player_data/', views.reset_player_data, name="reset_player_data"),
     path('reassign_targets/', views.reassign_targets, name="reassign_targets"),
     path('start_game/', views.start_game, name="start_game"),
+    path('delete_game/', views.delete_game, name="delete_game"),
     path('reset_game_to_start/', views.reset_game_to_start, name="reset_game_to_start"),
 ]

@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from .models import Player, Game
 
@@ -20,6 +22,35 @@ class RegistrationForm(forms.Form):
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Password mismatch!")
         return password2
+
+class BareLoginForm(forms.Form):
+    """
+        A login form I made for my own learning's sake
+    """
+    email = forms.EmailField(label="Email", max_length=100)
+    password = forms.CharField(label="Password", widget=forms.PasswordInput)
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].lower()
+        if not User.objects.filter(email=email):
+            raise ValidationError("Email doesn't exist")
+        elif User.objects.get(email=email).is_superuser:
+            raise ValidationError("No superusers")
+        return email
+
+    def clean_password(self):
+        email = self.cleaned_data.get('email')
+        if not email:
+            return
+        password = self.cleaned_data['password'].lower()
+        if not authenticate(username=email, password=password):
+            raise ValidationError("Invalid password")
+        return password
+
+class PickyAuthenticationForm(AuthenticationForm):
+    def confirm_login_allowed(self, user):
+        if user.is_superuser:
+            raise forms.ValidationError("No superusers")
 
 class AssignmentForm(forms.Form):
     def __init__(self, *args, **kwargs): # to pass in the request object

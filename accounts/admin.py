@@ -67,6 +67,7 @@ class GameAdmin(admin.ModelAdmin):
             path('<int:pk>/change/reset_players/', self.reset_players),
             path('<int:pk>/change/start_game/', self.start_game),
             path('<int:pk>/change/reset_game_to_start/', self.reset_game_to_start),
+            path('<int:pk>/change/delete_game/', self.delete_game),
             path('<int:pk>/change/populate_players/', self.populate_players),
             path('<int:pk>/change/reassign_targets/', self.reassign_targets),
             path('<int:pk>/change/manual_kill/', self.manual_kill),
@@ -83,6 +84,16 @@ class GameAdmin(admin.ModelAdmin):
         current_game.reset()
         self.message_user(request, "Resetted player codes, targets")
         return HttpResponseRedirect('../')
+
+    def delete_game(self, request, **kwargs):
+        if request.method == "GET":
+            self.message_user(request, "Didn't delete as wasn't via button")
+            return HttpResponseRedirect('../')
+        current_game = Game.objects.get(pk=kwargs['pk'])
+        current_game_name = str(current_game)
+        current_game.delete_game()
+        self.message_user(request, "Deleted game " + current_game_name)
+        return HttpResponseRedirect('/admin/accounts/game')
 
     def reset_game_to_start(self, request, **kwargs):
         if request.method == "GET":
