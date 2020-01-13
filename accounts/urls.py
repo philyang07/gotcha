@@ -20,4 +20,5 @@ urlpatterns = [
     path('reset_player_data/', views.reset_player_data, name="reset_player_data"),
     path('reassign_targets/', views.reassign_targets, name="reassign_targets"),
     path('start_game/', views.start_game, name="start_game"),
+    path('reset_game_to_start/', views.reset_game_to_start, name="reset_game_to_start"),
 ]

@@ -66,35 +66,36 @@
             {% endfor %}
           {% endfor %}
         {% endfor %}
+        <td>
+          {% if inline_admin_form.original.last_active and inline_admin_form.original.alive and not inline_admin_form.original.game.winner %}
+          <form action="manual_kill/" method="POST" style="display:inline-block">
+              {% csrf_token %}
+              <button type="submit" class="button" style="padding: 5px; margin-right: 10px">Manually kill player</button>
+              <input type="hidden" value="{{ inline_admin_form.original.pk }}" name="player_pk">
+          </form>
+          {% endif %}
+      </td>
+      <td>
+      {% if not inline_admin_form.original.secret_code %}
+      <form action="manual_add/" method="POST" style="display:inline-block">
+        {% csrf_token %}
+        <button type="submit" class="button" style="padding: 5px">Add player to game</button>
+        <input type="hidden" value="{{ inline_admin_form.original.pk }}" name="player_pk">
+      </form>
+      {% endif %}
+      </td>
+      <td>
+          <form action="manual_delete/" method="POST" style="display:inline-block">
+              {% csrf_token %}
+              <button type="submit" class="button" style="padding: 5px; margin-right: 10px">Manually delete player</button>
+              <input type="hidden" value="{{ inline_admin_form.original.pk }}" name="player_pk">
+          </form>
+      </td>
         {% if inline_admin_formset.formset.can_delete and inline_admin_formset.has_delete_permission %}
           <td class="delete">{% if inline_admin_form.original %}{{ inline_admin_form.deletion_field.field }}{% endif %}</td>
         {% endif %}
         
-        <td>
-            {% if inline_admin_form.original.last_active and inline_admin_form.original.alive %}
-            <form action="manual_kill/" method="POST" style="display:inline-block">
-                {% csrf_token %}
-                <button type="submit" class="button" style="padding: 5px; margin-right: 10px">Manually kill player</button>
-                <input type="hidden" value="{{ inline_admin_form.original.pk }}" name="player_pk">
-            </form>
-            {% endif %}
-        </td>
-        <td>
-        {% if not inline_admin_form.original.secret_code %}
-        <form action="manual_add/" method="POST" style="display:inline-block">
-          {% csrf_token %}
-          <button type="submit" class="button" style="padding: 5px">Add player to game</button>
-          <input type="hidden" value="{{ inline_admin_form.original.pk }}" name="player_pk">
-        </form>
-        {% endif %}
-        </td>
-        <td>
-            <form action="manual_delete/" method="POST" style="display:inline-block">
-                {% csrf_token %}
-                <button type="submit" class="button" style="padding: 5px; margin-right: 10px">Manually delete player</button>
-                <input type="hidden" value="{{ inline_admin_form.original.pk }}" name="player_pk">
-            </form>
-        </td>
+
 
         </tr>
      {% endfor %}

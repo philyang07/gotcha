@@ -127,10 +127,19 @@ def player_list(request):
 
     players = current_game.players().filter(secret_code__isnull=False).order_by('-alive', '-kills', '-last_active') 
     new_players = current_game.players().filter(secret_code__isnull=True)
-        
+
+    max_kills = most_kills_players = None
+    if players:
+        max_kills = max([p.kills for p in players])
+        if max_kills > 0:
+            most_kills_players = [p for p in current_game.players().filter(secret_code__isnull=False) if p.kills == max_kills]
+
+
     context = {
         'game': current_game,
         'players': players,
+        'max_kills': max_kills, 
+        'most_kills_players': most_kills_players,
         'new_players': new_players, 
         'target_ordering': current_game.target_ordering(),
     }
@@ -192,6 +201,11 @@ def manual_add(request):
 @login_required(login_url="accounts:login")
 def reset_player_data(request):
     request.user.game.reset()
+    return HttpResponseRedirect('/accounts/players') 
+
+@login_required(login_url="accounts:login")
+def reset_game_to_start(request):
+    request.user.game.reset(to_start=True)
     return HttpResponseRedirect('/accounts/players') 
 
 @login_required(login_url="accounts:login")

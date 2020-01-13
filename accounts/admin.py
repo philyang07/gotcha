@@ -7,12 +7,12 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 
 # Register your models here.
-class PlayerInline(admin.TabularInline):
+class PlayerInline(admin.StackedInline):
     model = Player
     can_delete = False
     verbose_name_plural = 'Player'
-    # template = "accounts/player_inline.html"
-    template = "accounts/player_tabular_inline.html"
+    template = "accounts/player_inline.html"
+    # template = "accounts/player_tabular_inline.html"
     extra = 0
 
     raw_id_fields =  ['user']
@@ -66,6 +66,7 @@ class GameAdmin(admin.ModelAdmin):
         extra_urls = [
             path('<int:pk>/change/reset_players/', self.reset_players),
             path('<int:pk>/change/start_game/', self.start_game),
+            path('<int:pk>/change/reset_game_to_start/', self.reset_game_to_start),
             path('<int:pk>/change/populate_players/', self.populate_players),
             path('<int:pk>/change/reassign_targets/', self.reassign_targets),
             path('<int:pk>/change/manual_kill/', self.manual_kill),
@@ -83,9 +84,19 @@ class GameAdmin(admin.ModelAdmin):
         self.message_user(request, "Resetted player codes, targets")
         return HttpResponseRedirect('../')
 
-    def start_game(self, request, **kwargs):
+    def reset_game_to_start(self, request, **kwargs):
         if request.method == "GET":
             self.message_user(request, "Didn't start game as wasn't via button")
+            return HttpResponseRedirect('../')
+        current_game = Game.objects.get(pk=kwargs['pk'])
+        current_game.reset(to_start=True)
+
+        self.message_user(request, "Started a new game")
+        return HttpResponseRedirect('../')
+
+    def start_game(self, request, **kwargs):
+        if request.method == "GET":
+            self.message_user(request, "Didn't reset game as wasn't via button")
             return HttpResponseRedirect('../')
         current_game = Game.objects.get(pk=kwargs['pk'])
         current_game.in_progress = True
@@ -128,7 +139,6 @@ class GameAdmin(admin.ModelAdmin):
   
         if player.manual_kill():
             if player.game.winner:
-                print("nigg")
                 self.message_user(request, player_name + " is the winner. No changes made.")
             else:
                 self.message_user(request, player_name + " is already eliminated. No changes made.")

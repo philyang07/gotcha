@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if player.game.winner %}
+<p>The last player standing is {{ game.winner }}!</p>
+    {% if not most_kills_players %}
+    <p>No-one scored above 0 eliminations :(</p>
+    {% elif most_kills_players.count == 1 %}
+    <p>The player with the most eliminations was {{ most_kills_players.first }} with {{ max_kills }} eliminations!</p>
+    {% else %}
+    <p>The following players had the most eliminations ({{ max_kills }})</p>
+    <ul>
+        {% for player in most_kills_players %}
+        <li>{{ player }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endif %}
 {% if players %}
 <h2>Player list</h2>
 <table class="player_list">

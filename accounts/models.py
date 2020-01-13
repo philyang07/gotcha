@@ -29,6 +29,14 @@ class Game(models.Model):
         return self.player_set.filter(game=self).exclude(Q(user__user_permissions__codename="accounts.game_admin"))
 
     @property
+    def has_sent_info(self):
+        """
+            Defined as being the stage when at least one player has a secret code
+        """
+        return self.players().filter(secret_code__isnull=False)
+        
+
+    @property
     def winner(self):
         alive_players = self.players().filter(alive=True, secret_code__isnull=False)
         if self.in_progress and len(alive_players) == 1:
@@ -59,18 +67,24 @@ class Game(models.Model):
             user.player.alive = True
             user.player.save()
 
-    def initialize_players(self, in_game=False):
+    def initialize_players(self, in_game=False, with_code=False):
         players = self.players()
         if in_game:
             players = players.filter(secret_code__isnull=False)
 
         for player in players:
-            player.initialize()
+            player.initialize(with_code=with_code)
 
 
-    def reset(self): # reset codes, 
-        self.initialize_players(in_game=self.in_progress)
-        self.reassign_targets()
+    def reset(self, to_start=False): # resets the players after registration stage
+        if to_start:
+            # the self.in_progress shouldn't matter; as the players not in the game don't have codes anyway
+            self.initialize_players(in_game=self.in_progress, with_code=False)
+            self.in_progress = False
+            self.save()
+        else:
+            self.initialize_players(in_game=self.in_progress, with_code=True)
+            self.reassign_targets()
 
     def reassign_targets(self):
         players = self.players().filter(alive=True, secret_code__isnull=False)
@@ -137,21 +151,23 @@ class Player(models.Model):
             return self.user.first_name + " " + self.user.last_name
         return "player " + str(self.pk) + " " + self.user.email
 
-    def initialize(self):
+    def initialize(self, with_code=False):
         self.kills = 0
         self.manual_open = False
         self.alive = True
-        if self.game.in_progress:
+        self.secret_code = None
+        self.last_active = None
+
+        if self.game.in_progress and not self.game.winner:
             self.last_active = timezone.now()
-
-        self.save()
-
-        candidate_code = randint(100, 999)
-
-        players = self.game.players()
-        while players.filter(secret_code=candidate_code):
+        
+        if with_code:
             candidate_code = randint(100, 999)
-        self.secret_code = candidate_code
+
+            players = self.game.players()
+            while players.filter(secret_code=candidate_code):
+                candidate_code = randint(100, 999)
+            self.secret_code = candidate_code
 
         self.save()
 
@@ -199,7 +215,6 @@ class Player(models.Model):
         player_user.delete()     
 
     def manual_kill(self):
-        print(self.game, self)
         if self.game.winner == self: # not necessary to have the == self but shouldn't matter
             return True
 
@@ -230,21 +245,17 @@ class Player(models.Model):
         """
 
         alive_players = game.players().filter(alive=True, secret_code__isnull=False)
-        print(alive_players)
         if not self.secret_code: 
-            print("NIGNOG")
             if len(alive_players) == 1:
                 only_player = alive_players[0]
-                print("POGU")
                 only_player.target = self
                 self.target = only_player
                 only_player.save()
             elif len(alive_players) > 1:
-                print("OKAYWTF")
                 random_alive = choice(alive_players)
                 random_alive_target = random_alive.target
                 random_alive.target = self
                 random_alive.save()
                 self.target = random_alive_target
-            self.initialize()
+            self.initialize(with_code=True)
 

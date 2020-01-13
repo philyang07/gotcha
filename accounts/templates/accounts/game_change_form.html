@@ -8,19 +8,41 @@
                 <button type="submit" class="button" style="background-color: rgb(58, 180, 58); padding: 5px;">Start game</button>
             </form>
             <br>
+        {% elif game.winner %}
+            <p>The last player standing is {{ game.winner }}!</p>
+                {% if not most_kills_players %}
+                <p>No-one scored above 0 eliminations :(</p>
+                {% elif most_kills_players.count == 1 %}
+                <p>The player with the most eliminations was {{ most_kills_players.first }} with {{ max_kills }} eliminations!</p>
+                {% else %}
+                <p>The following players had the most eliminations ({{ max_kills }})</p>
+                <ul>
+                    {% for player in most_kills_players %}
+                    <li>{{ player }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <form action="reset_game_to_start/" method="POST" style="display:inline-block; margin: 0 10px 10px 0">
+                    {% csrf_token %}
+                    <button type="submit" class="button" style="background-color: rgb(58, 180, 58); padding: 5px;">Reset game to start</button>
+                </form>
         {% elif game.in_progress %}
-        <p>Game in progress</p>
+            <p>Game in progress</p>
         {% endif %}
+        {% if not game.winner %}
         {% if new_players or players %}
         <form action="reset_players/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
             <button type="submit" class="button" style="padding: 5px;">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
         </form>
         {% endif %}
+        {% if players %}
         <form action="reassign_targets/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
             <button type="submit" class="button" style="padding: 5px;">Reassign targets</button>
         </form>
+        {% endif %}
+        {% endif %}
         <form action="populate_players/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
             <button type="submit" class="button" style="padding: 5px;">Populate players</button>

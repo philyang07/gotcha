@@ -7,14 +7,18 @@
 <p>Your target is {{ user.player.target }}</p>
 {% endif %}
 {% if user.player.game.in_progress == True %}
+{% if user.player.secret_code %}
 <p>You have {{ user.player.kills }} kills.</p>
+{% endif %}
     {% if user.player.alive == False %}
     <p>You were eliminated</p>
     {% endif %}
     <form action="{% url 'accounts:manual_kill' %}" method="POST">
         {% csrf_token %}
         {% if user.player.alive == True %}
+        {% if user.player.secret_code %}
         <button type="submit">Leave the game</button>
+        {% endif %}
         <input type="hidden" value="{{ user.player.pk }}" name="pk">
         {% endif %}
     </form>
@@ -28,7 +32,7 @@
 </form>
 {% endif %}
 
-{% if user.player.game.in_progress %}
+{% if user.player.game.in_progress and user.player.secret_code and user.player.alive %}
 <a href="{% url 'accounts:assignment' %}">Assignment</a>
 {% endif %}
 <a href="{% url 'accounts:player_list' %}">Player list</a>
