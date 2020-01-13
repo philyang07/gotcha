@@ -7,6 +7,8 @@
         {% csrf_token %}
         <button type="submit">Start game</button>
     </form>
+{% elif game.winner %}
+<p>The last person standing is {{ game.winner }}!</p>
 {% elif game.in_progress %}
 <p>Game in progress</p>
 {% endif %}
@@ -39,18 +41,22 @@
         <td>{{ player.inactivity_duration }}</td>
         {% if player.alive == True %}
         <td>
+            {% if not game.winner %}
             <form action="{% url 'accounts:manual_open' %}" method="POST">
                 {% csrf_token %}
                 <button type="submit">{% if player.manual_open %}Undo{% else %}Set manual open{% endif %}</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
+            {% endif %}
         </td>
         <td>
+            {% if not game.winner %}
             <form action="{% url 'accounts:manual_kill' %}" method="POST">
                 {% csrf_token %}
                 <button type="submit">{% if player.alive %}Manual kill{% else %}Eliminated{% endif %}</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
+            {% endif %}
         </td>
         {% endif %}
         {% endif %}
@@ -70,6 +76,7 @@
 <table>
     <tr>
         <th>Player</th>
+        <th>Email</th>
         {% if players %}
         <th>Add to game</th>
         {% endif %}
@@ -77,6 +84,7 @@
     {% for player in new_players %}
     <tr>
         <td>{{ player }}</td>
+        <td>{{ player.user.email }}</td>
         {% if players %}
         <td>
             <form action="{% url 'accounts:manual_add' %}" method="POST">
@@ -92,7 +100,7 @@
 {% else %}
 <p>{% if not players %}No players have registered{% else %}No new players{% endif %}</p>
 {% endif %}
-{% if players %}
+{% if players and not game.winner %}
 <h2>Target ordering</h2>
 <p>{{ target_ordering|linebreaks }}</p>
 {% endif %}
@@ -104,7 +112,7 @@
 </form>
 <br>
 {% endif %}
-{% if players %}
+{% if players and not game.winner %}
 <form action="{% url 'accounts:reassign_targets' %}" method="POST">
     {% csrf_token %}
     <button type="submit">Reassign targets</button>

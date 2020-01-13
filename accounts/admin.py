@@ -4,13 +4,17 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import Player, Game
 from django.urls import path
 from django.http import HttpResponseRedirect
+from django.utils import timezone
 
 # Register your models here.
-class PlayerInline(admin.StackedInline):
+class PlayerInline(admin.TabularInline):
     model = Player
     can_delete = False
     verbose_name_plural = 'Player'
-    template = "accounts/player_inline.html"
+    # template = "accounts/player_inline.html"
+    template = "accounts/player_tabular_inline.html"
+    extra = 0
+
     raw_id_fields =  ['user']
 
 class UserAdmin(BaseUserAdmin):
@@ -41,10 +45,28 @@ class GameAdmin(admin.ModelAdmin):
 
     change_form_template = 'accounts/game_change_form.html'
 
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        game = Game.objects.get(pk=object_id)
+        players = game.players().filter(secret_code__isnull=False).order_by('-alive', '-kills', '-last_active') 
+        new_players = game.players().filter(secret_code__isnull=True)
+
+        extra_context = {
+            'game': game,
+            'players': players,
+            'new_players': new_players,
+        }
+
+        return super().change_view(
+            request, object_id, form_url, extra_context=extra_context,
+        )
+
     def get_urls(self):
         urls = super(GameAdmin, self).get_urls()
         extra_urls = [
             path('<int:pk>/change/reset_players/', self.reset_players),
+            path('<int:pk>/change/start_game/', self.start_game),
+            path('<int:pk>/change/populate_players/', self.populate_players),
             path('<int:pk>/change/reassign_targets/', self.reassign_targets),
             path('<int:pk>/change/manual_kill/', self.manual_kill),
             path('<int:pk>/change/manual_delete/', self.manual_delete),
@@ -59,6 +81,31 @@ class GameAdmin(admin.ModelAdmin):
         current_game = Game.objects.get(pk=kwargs['pk'])
         current_game.reset()
         self.message_user(request, "Resetted player codes, targets")
+        return HttpResponseRedirect('../')
+
+    def start_game(self, request, **kwargs):
+        if request.method == "GET":
+            self.message_user(request, "Didn't start game as wasn't via button")
+            return HttpResponseRedirect('../')
+        current_game = Game.objects.get(pk=kwargs['pk'])
+        current_game.in_progress = True
+        for player in current_game.players().filter(secret_code__isnull=False):
+            player.last_active = timezone.now()
+            player.save()
+
+        current_game.save()
+
+        self.message_user(request, "Started game")
+        return HttpResponseRedirect('../')
+
+    def populate_players(self, request, **kwargs):
+        if request.method == "GET":
+            self.message_user(request, "Didn't do anything as wasn't via button")
+            return HttpResponseRedirect('../')
+        current_game = Game.objects.get(pk=kwargs['pk'])
+        current_game.populate_players()
+
+        self.message_user(request, "Added extra randoms into the game")
         return HttpResponseRedirect('../')
 
     def reassign_targets(self, request, **kwargs):
@@ -77,8 +124,14 @@ class GameAdmin(admin.ModelAdmin):
 
         player = Player.objects.get(pk=request.POST['player_pk'])
         player_name = str(player)
+        
+  
         if player.manual_kill():
-            self.message_user(request, player_name + " is already eliminated. No changes made.")
+            if player.game.winner:
+                print("nigg")
+                self.message_user(request, player_name + " is the winner. No changes made.")
+            else:
+                self.message_user(request, player_name + " is already eliminated. No changes made.")
         else:
             self.message_user(request, "Manually killed player " + player_name)
         return HttpResponseRedirect('../')

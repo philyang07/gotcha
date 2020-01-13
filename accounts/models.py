@@ -16,7 +16,7 @@ class GamePlayerManager(models.Manager):
 
 
 class Game(models.Model):
-    access_code = models.CharField('access_code', max_length=4, unique=True)
+    access_code = models.CharField('access code', max_length=4, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
     in_progress = models.BooleanField('in progess', default=False)
 
@@ -28,6 +28,13 @@ class Game(models.Model):
     def players(self):
         return self.player_set.filter(game=self).exclude(Q(user__user_permissions__codename="accounts.game_admin"))
 
+    @property
+    def winner(self):
+        alive_players = self.players().filter(alive=True, secret_code__isnull=False)
+        if self.in_progress and len(alive_players) == 1:
+            return alive_players[0]
+        return None
+
     def generate_access_code():
         existing_access_codes = [g.access_code for g in Game.objects.all()]
         candidate_code = "".join([choice(string.ascii_uppercase) for i in range(4)])
@@ -37,6 +44,20 @@ class Game(models.Model):
 
     def __str__(self):
         return self.access_code + " - " + self.admin.email
+
+    def populate_players(self):
+        for i in range(5):
+            email = Game.generate_access_code().lower() + "@gmail.com"
+            first_name = Game.generate_access_code().lower()
+            last_name = Game.generate_access_code().lower()
+
+            user = User.objects.create_user(email, email, 123, 
+                                    first_name=first_name,
+                                    last_name=last_name)
+            user.save()
+            user.player.game = self
+            user.player.alive = True
+            user.player.save()
 
     def initialize_players(self, in_game=False):
         players = self.players()
@@ -48,7 +69,7 @@ class Game(models.Model):
 
 
     def reset(self): # reset codes, 
-        self.initialize_players(in_game=True)
+        self.initialize_players(in_game=self.in_progress)
         self.reassign_targets()
 
     def reassign_targets(self):
@@ -167,7 +188,10 @@ class Player(models.Model):
         player_user = player.user
         if Player.objects.filter(target=player):
             player_killer = Player.objects.get(target=player)
-            player_killer.target = player.target
+            if player.target == player_killer: # scenario when two players are left, and one leaves
+                player_killer.target = None
+            else:
+                player_killer.target = player.target
             player.target = None
             player.save()
             player_killer.save()
@@ -175,10 +199,18 @@ class Player(models.Model):
         player_user.delete()     
 
     def manual_kill(self):
+        print(self.game, self)
+        if self.game.winner == self: # not necessary to have the == self but shouldn't matter
+            return True
+
         player = self
+
         if Player.objects.filter(target=player) and player.last_active: # equivalent them to being alive
             player_killer = Player.objects.get(target=player)
-            player_killer.target = player.target
+            if player.target == player_killer: # when only two players are left
+                player_killer.target = None
+            else: 
+                player_killer.target = player.target
             player.target = None
             player.last_active = timezone.now()
             player.alive = False
@@ -196,13 +228,23 @@ class Player(models.Model):
                 2. This person will be the killer of this guy
                 3. This guy, will now kill the target of the random person
         """
-        if not self.secret_code: 
-            random_alive = choice(game.players().filter(alive=True, secret_code__isnull=False))
-            random_alive_target = random_alive.target
-            random_alive.target = self
-            random_alive.save()
-            self.initialize()
-            self.target = random_alive_target
-            self.save()
 
+        alive_players = game.players().filter(alive=True, secret_code__isnull=False)
+        print(alive_players)
+        if not self.secret_code: 
+            print("NIGNOG")
+            if len(alive_players) == 1:
+                only_player = alive_players[0]
+                print("POGU")
+                only_player.target = self
+                self.target = only_player
+                only_player.save()
+            elif len(alive_players) > 1:
+                print("OKAYWTF")
+                random_alive = choice(alive_players)
+                random_alive_target = random_alive.target
+                random_alive.target = self
+                random_alive.save()
+                self.target = random_alive_target
+            self.initialize()
 

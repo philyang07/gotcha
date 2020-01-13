@@ -12,18 +12,8 @@ from django.utils import timezone
 def populate_players(request):
     if request.method == "POST":
         game = Game.objects.get(pk=request.POST["pk"])
-        for i in range(5):
-            email = Game.generate_access_code().lower() + "@gmail.com"
-            first_name = Game.generate_access_code().lower()
-            last_name = Game.generate_access_code().lower()
+        game.populate_players()
 
-            user = User.objects.create_user(email, email, 123, 
-                                    first_name=first_name,
-                                    last_name=last_name)
-            user.save()
-            user.player.game = game
-            user.player.alive = True
-            user.player.save()
     return HttpResponseRedirect(reverse("accounts:player_list"))
 
 def register(request):
@@ -87,6 +77,7 @@ def assignment(request):
             current_player = request.user.player
             game = current_player.game
             current_player.kills += 1
+            current_player.manual_open = False
 
             """ 
             killing a player on the open list means
@@ -98,7 +89,10 @@ def assignment(request):
             # always prioritise actual target; or won't get credit for kill!
             if target_code == current_player.target.secret_code: # target is the actual target
                 old_target = current_player.target
-                current_player.target = old_target.target
+                if current_player == old_target:
+                    current_player.target = None
+                else:
+                    current_player.target = old_target.target
                 old_target.alive = False
                 old_target.target = None
                 current_player.last_active = old_target.last_active = timezone.now()
@@ -151,7 +145,7 @@ def delete_player(request):
         player = Player.objects.get(pk=request.POST["pk"])
         game = player.game
         player.manual_delete()
-        if not game.players():
+        if not game.players().filter(secret_code__isnull=False):
             game.in_progress = False
             game.save()
 

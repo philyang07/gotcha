@@ -1,13 +1,29 @@
 {% extends 'admin/change_form.html' %}
 
 {% block object-tools %}
+        {% if game.in_progress == False and players %}
+            <p>Targets and secret codes sent to players</p>
+            <form action="start_game/" method="POST" style="display:inline-block; margin: 0 0 10px 0">
+                {% csrf_token %}
+                <button type="submit" class="button" style="background-color: rgb(58, 180, 58); padding: 5px;">Start game</button>
+            </form>
+            <br>
+        {% elif game.in_progress %}
+        <p>Game in progress</p>
+        {% endif %}
+        {% if new_players or players %}
         <form action="reset_players/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
-            <button type="submit" class="button" style="padding: 5px;">Reset player data</button>
+            <button type="submit" class="button" style="padding: 5px;">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
         </form>
-        <form action="reassign_targets/" method="POST" style="display:inline-block">
+        {% endif %}
+        <form action="reassign_targets/" method="POST" style="display:inline-block; margin-right: 10px">
             {% csrf_token %}
             <button type="submit" class="button" style="padding: 5px;">Reassign targets</button>
+        </form>
+        <form action="populate_players/" method="POST" style="display:inline-block; margin-right: 10px">
+            {% csrf_token %}
+            <button type="submit" class="button" style="padding: 5px;">Populate players</button>
         </form>
     <br />
     {{ block.super }}
