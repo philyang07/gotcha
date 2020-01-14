@@ -4,6 +4,8 @@ colorama==0.4.3
 dj-database-url==0.5.0
 Django==3.0.1
 django-heroku==0.3.1
+django-sendgrid-v5==0.8.1
+future==0.18.2
 gunicorn==20.0.4
 isort==4.3.21
 lazy-object-proxy==1.4.3
@@ -11,7 +13,9 @@ mccabe==0.6.1
 mysqlclient==1.4.6
 psycopg2==2.8.4
 pylint==2.4.4
+python-http-client==3.2.1
 pytz==2019.3
+sendgrid==6.1.0
 six==1.13.0
 sqlparse==0.3.0
 typed-ast==1.4.0
