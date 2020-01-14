@@ -21,7 +21,7 @@ class PlayerInline(admin.TabularInline):
 
 class UserAdmin(BaseUserAdmin):
     form = CustomUserChangeForm
-    
+
 
     def save_model(self, request, obj, form, change):
         email = form.cleaned_data['email'].lower()
@@ -169,36 +169,15 @@ class GameAdmin(admin.ModelAdmin):
         self.message_user(request, "Manually deleted player " + player_name)
         return HttpResponseRedirect('../')
 
-# class PlayerAdmin(admin.ModelAdmin):
-#     change_form_template = 'accounts/player_change_form.html'
-    
-#     def get_urls(self):
-#         urls = super(PlayerAdmin, self).get_urls()
-#         extra_urls = [
-#             path('<int:pk>/change/manual_kill/', self.manual_kill),
-#             path('<int:pk>/change/manual_delete/', self.manual_delete),
-#         ]
-#         return extra_urls + urls
+class PlayerAdmin(admin.ModelAdmin):
+    list_display = ('game', 'get_name', 'user',)
 
-#     def manual_kill(self, request, **kwargs):
-#         if request.method == "GET":
-#             self.message_user(request, "Didn't kill as wasn't via button")
-#             return HttpResponseRedirect('../')
-#         Player.objects.get(pk=kwargs['pk']).manual_kill()
+    def get_name(self, obj):
+        return obj.user.first_name + " " + obj.user.last_name
 
-#         self.message_user(request, "Manually killed player")
-#         return HttpResponseRedirect('../')
-
-#     def manual_delete(self, request, **kwargs):
-#         if request.method == "GET":
-#             self.message_user(request, "Didn't delete as wasn't via button")
-#             return HttpResponseRedirect('../')
-#         Player.objects.get(pk=kwargs['pk']).manual_delete()
-
-#         self.message_user(request, "Manually deleted player")
-#         return HttpResponseRedirect('/admin/accounts/player')
+    get_name.short_description = 'Player name'
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Game, GameAdmin)
-admin.site.register(Player)
+admin.site.register(Player, PlayerAdmin)
