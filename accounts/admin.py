@@ -20,7 +20,6 @@ class PlayerInline(admin.TabularInline):
     raw_id_fields =  ['user']
 
 class UserAdmin(BaseUserAdmin):
-    inlines = (PlayerInline,)
     form = CustomUserChangeForm
     
 
