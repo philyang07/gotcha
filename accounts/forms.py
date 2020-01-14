@@ -33,6 +33,19 @@ class CustomUserChangeForm(UserChangeForm):
             raise ValidationError("Someone already registered with that email")
         return email
 
+    def clean(self):
+        cleaned_data = super(CustomUserChangeForm, self).clean()
+        first_name = cleaned_data['first_name']
+        last_name = cleaned_data['last_name']        
+
+        if ('first_name' in self.changed_data or 'last_name' in self.changed_data) and self.instance and self.instance.player:
+            if [game for game in Game.objects.all() if self.instance.player in game.players()]: # if the user is a player in an actual game
+                if self.instance.player.game.players().filter(user__first_name=first_name, user__last_name=last_name):
+                    raise ValidationError("Someone in the same game already has the same name :(")
+        
+        return cleaned_data
+
+
 class BareLoginForm(forms.Form):
     """
         A login form I made for my own learning's sake
@@ -96,6 +109,15 @@ class ChangeDetailsForm(forms.Form):
 
     def clean_last_name(self):
         last_name = self.cleaned_data["last_name"].lower().capitalize()
+
+        # trying to make sure names are unique
+        first_name = self.cleaned_data["first_name"].lower().capitalize()
+        game = Game.objects.filter(access_code=self.request.user.player.game.access_code)
+        if game:
+            game = game[0]
+            if game.players().filter(user__first_name=first_name, user__last_name=last_name):
+                raise ValidationError("Sorry, someone in the game has the same name! Change it slightly please :)")
+
         if not last_name and not self.request.user.has_perm("accounts.game_admin"):
             raise ValidationError("Last name can't be blank!")
         return last_name
@@ -127,8 +149,21 @@ class PlayerRegistrationForm(RegistrationForm):
         if access_code not in [g.access_code for g in Game.objects.all()]:
             raise ValidationError("No game exists with that access code")
         return access_code
-    
-# class GameCreationForm(RegistrationForm):
+
+    def clean(self):
+        cleaned_data = super(PlayerRegistrationForm, self).clean()
+
+        last_name = cleaned_data["last_name"].lower().capitalize()
+        access_code = cleaned_data["access_code"]
+        first_name = cleaned_data["first_name"].lower().capitalize()
+        game = Game.objects.filter(access_code=access_code)
+        if game:
+            game = game[0]
+            if game.players().filter(user__first_name=first_name, user__last_name=last_name):
+                raise ValidationError("Sorry, someone in the game has the same name! Change it slightly please :)")
+        
+        return cleaned_data
+
     
 
 
