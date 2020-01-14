@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserChangeForm
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from .models import Player, Game
@@ -22,6 +22,16 @@ class RegistrationForm(forms.Form):
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Password mismatch!")
         return password2
+
+class CustomUserChangeForm(UserChangeForm):
+    def __init__(self, *args, **kwargs): # to pass in the request object
+        super(CustomUserChangeForm, self).__init__(*args, **kwargs)
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].lower()
+        if "email" in self.changed_data and User.objects.filter(email=email):
+            raise ValidationError("Someone already registered with that email")
+        return email
 
 class BareLoginForm(forms.Form):
     """

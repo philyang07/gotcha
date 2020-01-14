@@ -5,6 +5,8 @@ from .models import Player, Game
 from django.urls import path
 from django.http import HttpResponseRedirect
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from .forms import CustomUserChangeForm
 
 # Register your models here.
 class PlayerInline(admin.TabularInline):
@@ -19,24 +21,13 @@ class PlayerInline(admin.TabularInline):
 
 class UserAdmin(BaseUserAdmin):
     inlines = (PlayerInline,)
-
-    # fieldsets = (
-    #                 (
-    #                     None, 
-    #                     {'fields': ('first_name', 'last_name', 'email', 'password'), 
-    #                     }
-    #                 ),
-    #             )
-
-    # add_fieldsets = (
-    #     (None, {
-    #         'fields': ('first_name', 'last_name', 'email', 'password1', 'password2')
-
-    #     }),
-    # )
+    form = CustomUserChangeForm
+    
 
     def save_model(self, request, obj, form, change):
-        obj.username = form.cleaned_data['email']
+        email = form.cleaned_data['email'].lower()
+        if not obj.is_superuser:
+            obj.username = form.cleaned_data['email']
         super().save_model(request, obj, form, change)
 
 

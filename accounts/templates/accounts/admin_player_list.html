@@ -12,7 +12,7 @@
     {% if not most_kills_players %}
     <p>No-one scored above 0 eliminations :(</p>
     {% elif most_kills_players.count == 1 %}
-    <p>The player with the most eliminations was {{ most_kills_players.first }} with {{ max_kills }} eliminations!</p>
+    <p>The player with the most eliminations was {{ most_kills_players.first }} with {{ max_kills }} elimination{{ max_kills|pluralize:"s" }}!</p>
     {% else %}
     <p>The following players had the most eliminations ({{ max_kills }})</p>
     <ul>

@@ -151,7 +151,7 @@ def assignment(request):
             # always prioritise actual target; or won't get credit for kill!
             if target_code == current_player.target.secret_code: # target is the actual target
                 old_target = current_player.target
-                if current_player == old_target:
+                if current_player == old_target.target:
                     current_player.target = None
                 else:
                     current_player.target = old_target.target

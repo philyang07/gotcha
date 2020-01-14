@@ -8,7 +8,7 @@
 {% endif %}
 {% if user.player.game.in_progress == True %}
 {% if user.player.secret_code %}
-<p>You have {{ user.player.kills }} kills.</p>
+<p>You have {{ user.player.kills }} elimination{{ user.player.kills|pluralize:"s" }}.</p>
 {% endif %}
     {% if user.player == user.player.game.winner %}
     <p>Congratulations, you are the last player standing!</p>
