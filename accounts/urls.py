@@ -26,7 +26,33 @@ urlpatterns = [
     path('start_game/', views.start_game, name="start_game"),
     path('delete_game/', views.delete_game, name="delete_game"),
     path('reset_game_to_start/', views.reset_game_to_start, name="reset_game_to_start"),
-    path('password_reset/', auth_views.PasswordResetView.as_view(template_name="accounts/password_reset.html", success_url="/accounts/login"), name="password_reset"),
-    path('password_confirm/', auth_views.PasswordResetConfirmView.as_view(template_name="accounts/password_reset.html"), name="password_reset_confirm"),
-    path('password_change/', auth_views.PasswordChangeView.as_view(), name="password_change"),
+
+
+    path('password_change/', auth_views.PasswordChangeView.as_view(
+        template_name="accounts/password_change.html"
+    ), name="password_change"),
+
+    path('password_change_done/', auth_views.PasswordChangeDoneView.as_view(
+        template_name="accounts/password_change_done.html"
+    ), name="password_change_done"),
+
+    # password reset urls
+    path('password_reset/', auth_views.PasswordResetView.as_view(
+        email_template_name="accounts/password_reset_email.html",
+        template_name="accounts/password_reset_form.html",
+        success_url="/password_reset_done/"
+    ), name="password_reset"),
+
+    path('password_reset_done/', auth_views.PasswordResetDoneView.as_view(
+        template_name="accounts/password_reset_done.html"
+    ), name="password_reset_done"),
+
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+        template_name="accounts/password_reset_confirm.html",
+        success_url="/reset/done/"
+    ), name="password_reset_confirm"),
+
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(
+        template_name="accounts/password_reset_complete.html"
+    ), name="password_reset_complete"),
 ]

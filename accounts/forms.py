@@ -42,7 +42,7 @@ class BareLoginForm(forms.Form):
         email = self.cleaned_data.get('email')
         if not email:
             return
-        password = self.cleaned_data['password'].lower()
+        password = self.cleaned_data['password']
         if not authenticate(username=email, password=password):
             raise ValidationError("Invalid password")
         return password
