@@ -127,6 +127,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND="sendgrid_backend.SendgridBackend"
+if os.environ['DEBUG']:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
+# DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
+
+AUTH_PASSWORD_VALIDATORS = []
 
 django_heroku.settings(locals())
