@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <form action="{% url 'accounts:login' %}" method="post">
     {% csrf_token %}
 
@@ -8,3 +10,4 @@
 <a href="{% url 'accounts:password_reset' %}">Forgot password?</a>
 <a href="{% url 'accounts:register' %}">Register</a>
 <a href="{% url 'accounts:create_game' %}">Create game</a>
+{% endblock %}

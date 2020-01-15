@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <p>Welcome {{ user.first_name }}!</p>
 <p>Your registered email is {{ user.email }}</p>
 {% if user.player.secret_code %}
@@ -43,4 +45,4 @@
 {% endif %}
 <a href="{% url 'accounts:change_details' %}">Change details</a>
 <a href="{% url 'accounts:logout' %}">Logout</a>
-
+{% endblock %}

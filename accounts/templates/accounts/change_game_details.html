@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <form action="{% url 'accounts:change_details' %}" method="post">
     {% csrf_token %}
     {% include 'accounts/form_display.html' with form=form %}
@@ -6,3 +8,4 @@
 <br>
 <a href="{% url 'accounts:password_change' %}">Change password</a>
 <a href="{% url 'accounts:profile' %}">Go back</a>
+{% endblock %}
