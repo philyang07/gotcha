@@ -70,19 +70,17 @@
             {% endif %}
         </td>
         <td>
-            {% if player.alive == True %}
-            <form action="{% url 'accounts:manual_kill' %}" method="POST">
+            <form action="{% url 'accounts:manual_kill' %}" method="POST" onsubmit="return confirm('Are you sure?');">
                 {% csrf_token %}
-                <button type="submit">{% if player.alive %}Manual kill{% else %}Eliminated{% endif %}</button>
+                <button type="submit">{% if player.alive %}Manual kill{% else %}Revive{% endif %}</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
-            {% endif %}
         </td>
         {% endif %}
         {% endif %}
         {% if not game.winner %}
         <td>
-            <form action="{% url 'accounts:delete_player' %}" method="POST">
+            <form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure?');">
                 {% csrf_token %}
                 <button type="submit">Delete</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
@@ -111,7 +109,7 @@
         {% if not game.winner %}
         {% if game.has_sent_info %}
         <td>
-            <form action="{% url 'accounts:manual_add' %}" method="POST">
+            <form action="{% url 'accounts:manual_add' %}" method="POST" onsubmit="return confirm('Are you sure?');">
                 {% csrf_token %}
                 <button type="submit">Add</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
@@ -119,7 +117,7 @@
         </td>
         {% endif %}  
         <td>
-            <form action="{% url 'accounts:delete_player' %}" method="POST">
+            <form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure?');">
                 {% csrf_token %}
                 <button type="submit">Delete</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
@@ -139,14 +137,14 @@
 {% if not game.winner %}
 {% if new_players or players %}
 <br>
-<form action="{% url 'accounts:reset_player_data' %}" method="POST">
+<form action="{% url 'accounts:reset_player_data' %}" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
     <button type="submit">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
 </form>
 {% endif %}
 {% if game.has_sent_info %}
 <br>
-<form action="{% url 'accounts:reassign_targets' %}" method="POST">
+<form action="{% url 'accounts:reassign_targets' %}" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
     <button type="submit">Reassign targets</button>
 </form>

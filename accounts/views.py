@@ -279,7 +279,10 @@ def manual_kill(request):
         if not Player.objects.filter(pk=request.POST["pk"]):
             return HttpResponseRedirect(reverse('accounts:player_list'))
         player = Player.objects.get(pk=request.POST["pk"])
-        player.manual_kill()
+        if not player.alive:
+            player.manual_add()
+        else:
+            player.manual_kill()
     if request.user.has_perm("accounts.game_admin"):
         return HttpResponseRedirect(reverse('accounts:player_list'))
     return HttpResponseRedirect(reverse('accounts:profile'))

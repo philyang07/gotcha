@@ -157,8 +157,9 @@ class Player(models.Model):
             return self.user.first_name + " " + self.user.last_name
         return "player " + str(self.pk) + " " + self.user.email
 
-    def initialize(self, with_code=False):
-        self.kills = 0
+    def initialize(self, with_code=False, keep_kills=False):
+        if not keep_kills:
+            self.kills = 0
         self.manual_open = False
         self.alive = True
         self.secret_code = None
@@ -251,17 +252,21 @@ class Player(models.Model):
         """
 
         alive_players = game.players().filter(alive=True, secret_code__isnull=False)
-        if not self.secret_code: 
-            if len(alive_players) == 1:
-                only_player = alive_players[0]
-                only_player.target = self
-                self.target = only_player
-                only_player.save()
-            elif len(alive_players) > 1:
-                random_alive = choice(alive_players)
-                random_alive_target = random_alive.target
-                random_alive.target = self
-                random_alive.save()
-                self.target = random_alive_target
+        
+        if len(alive_players) == 1:
+            only_player = alive_players[0]
+            only_player.target = self
+            self.target = only_player
+            only_player.save()
+        elif len(alive_players) > 1:
+            random_alive = choice(alive_players)
+            random_alive_target = random_alive.target
+            random_alive.target = self
+            random_alive.save()
+            self.target = random_alive_target
+        
+        if self.secret_code: # 
+            self.initialize(with_code=True, keep_kills=True)
+        else:
             self.initialize(with_code=True)
 
