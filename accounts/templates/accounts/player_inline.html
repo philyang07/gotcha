@@ -18,7 +18,7 @@
         <button type="submit" class="button" style="padding: 5px; margin-right: 10px">Manually delete player</button>
         <input type="hidden" value="{{ inline_admin_form.original.pk }}" name="player_pk">
     </form>
-    {% if inline_admin_form.original.last_active and inline_admin_form.original.alive == True and not inline_admin_form.original.game.winner %}
+    {% if inline_admin_form.original.last_active and not inline_admin_form.original.game.winner %}
     <form action="manual_kill/" method="POST" style="display:inline-block">
         {% csrf_token %}
         <button type="submit" class="button" style="padding: 5px; margin-right: 10px">{% if inline_admin_form.original.alive == True %}Manually kill player{% else %}Revive{% endif %}</button>

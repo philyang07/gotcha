@@ -70,7 +70,7 @@
             {% endif %}
         </td>
         <td>
-            <form action="{% url 'accounts:manual_kill' %}" method="POST" onsubmit="return confirm('Are you sure?');">
+            <form action="{% url 'accounts:manual_kill' %}" method="POST" onsubmit="return confirm('Are you sure? Reviving a player will give them a random target');">
                 {% csrf_token %}
                 <button type="submit">{% if player.alive %}Manual kill{% else %}Revive{% endif %}</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
@@ -80,7 +80,7 @@
         {% endif %}
         {% if not game.winner %}
         <td>
-            <form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure?');">
+            <form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure? This can not be undone');">
                 {% csrf_token %}
                 <button type="submit">Delete</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
