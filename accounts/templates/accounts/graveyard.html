@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if dead_players %}
-<table>
-    <tr>
-        <th>Player</th>
-        <th>Time of death</th>
-        <th>Death message</th>
-    </tr>
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th>Player</th>
+            <th>Time of death</th>
+            <th>Death message</th>
+        </tr>
+    </thead>
     {% for player in dead_players %}
     <tr>
         <td>{{ player }}</td>

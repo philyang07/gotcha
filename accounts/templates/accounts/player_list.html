@@ -18,15 +18,17 @@
 {% endif %}
 {% if players %}
 <h2>Player list</h2>
-<table class="player_list">
-    <tr>
-        <th>Player</th>
-        {% if game.in_progress == True %}
-        <th>Eliminations</th>
-        <th>Time since last assignment</th>
-        <th>Open</th>
-        {% endif %}
-    </tr>
+<table class="player_list table">
+    <thead class="thead-light">
+        <tr>
+            <th>Player</th>
+            {% if game.in_progress == True %}
+            <th>Eliminations</th>
+            <th>Time since last assignment</th>
+            <th>Open</th>
+            {% endif %}
+        </tr>
+    </thead>
     {% for player in players %}
     <tr class="{% if player.is_open == True %}is_open{% elif player.alive == False %}dead{% endif %}">
         <td>{{ player }}</td>
@@ -36,6 +38,7 @@
         <td>{% if player.is_open == True %}OPEN{% endif %}</td>
         {% endif %}
     </tr>
+    
     {% endfor %}
 </table>
 {% endif %}

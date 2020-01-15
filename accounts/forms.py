@@ -5,7 +5,13 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from .models import Player, Game
 
-class RegistrationForm(forms.Form):
+class PrettyForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(PrettyForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+class RegistrationForm(PrettyForm):
     email = forms.EmailField(label="Email", max_length=100)
     password1 = forms.CharField(label="Enter password", widget=forms.PasswordInput)
     password2 = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
@@ -46,7 +52,7 @@ class CustomUserChangeForm(UserChangeForm):
         return cleaned_data
 
 
-class BareLoginForm(forms.Form):
+class BareLoginForm(PrettyForm):
     """
         A login form I made for my own learning's sake
     """
@@ -75,7 +81,7 @@ class PickyAuthenticationForm(AuthenticationForm):
         if user.is_superuser:
             raise forms.ValidationError("No superusers")
 
-class AssignmentForm(forms.Form):
+class AssignmentForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
         super(AssignmentForm, self).__init__(*args, **kwargs)
@@ -91,10 +97,10 @@ class AssignmentForm(forms.Form):
             raise forms.ValidationError("Code is invalid")
         return target_code
 
-class ChangeGameDetailsForm(forms.Form):
+class ChangeGameDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
-        super(forms.Form, self).__init__(*args, **kwargs)      
+        super(PrettyForm, self).__init__(*args, **kwargs)      
 
     access_code = forms.CharField(label="Access code", max_length=5, required=False)
     email = forms.EmailField(label="Email", max_length=100)
@@ -116,10 +122,10 @@ class ChangeGameDetailsForm(forms.Form):
             raise ValidationError("Someone already registered with that email")
         return email
 
-class ChangePlayerDetailsForm(forms.Form):
+class ChangePlayerDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
-        super(forms.Form, self).__init__(*args, **kwargs)    
+        super(PrettyForm, self).__init__(*args, **kwargs)    
     
     first_name = forms.CharField(label="First name", max_length=100)
     last_name = forms.CharField(label="Last name", max_length=100)
