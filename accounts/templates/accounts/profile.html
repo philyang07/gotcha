@@ -34,10 +34,13 @@
 </form>
 {% endif %}
 
-{% if user.player.game.in_progress and user.player.secret_code and user.player.alive and not user.player.game.winner %}
+{% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive and not user.player.game.winner %}
 <a href="{% url 'accounts:assignment' %}">Assignment</a>
 {% endif %}
 <a href="{% url 'accounts:player_list' %}">Player list</a>
+{% if user.player.game.in_progress == True %}
+<a href="{% url 'accounts:graveyard' %}">Graveyard</a>
+{% endif %}
 <a href="{% url 'accounts:change_details' %}">Change details</a>
 <a href="{% url 'accounts:logout' %}">Logout</a>
 

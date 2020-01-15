@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Permission
 from django.http import HttpResponseRedirect
 from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm, PickyAuthenticationForm, \
-    AuthenticationForm, BareLoginForm, ChangeDetailsForm
+    AuthenticationForm, BareLoginForm, ChangePlayerDetailsForm, ChangeGameDetailsForm
 from django.contrib.auth.forms import PasswordResetForm
 from .models import Player, Game
 from datetime import timedelta
@@ -40,19 +40,28 @@ def login_view(request):
 
 def change_details(request):
     user = request.user
-    form = ChangeDetailsForm(request.POST, request=request)
+    form = None
+    template = None
     initial = {'email': user.email}
+
     if request.user.has_perm("accounts.game_admin"):
-         initial['access_code'] = user.game.access_code
+        form = ChangeGameDetailsForm(request.POST, request=request)
+        template = 'accounts/change_game_details.html'
+        initial['access_code'] = user.game.access_code
     else:
+        form = ChangePlayerDetailsForm(request.POST, request=request)
+        template = 'accounts/change_player_details.html'
         initial['first_name'] = user.first_name
         initial['last_name'] = user.last_name
+        initial['death_message'] = user.player.death_message
 
     if request.method == "POST":
         if form.is_valid():
             if not request.user.has_perm("accounts.game_admin"):
                 request.user.first_name = form.cleaned_data['first_name']
                 request.user.last_name = form.cleaned_data['last_name']
+                request.user.player.death_message = form.cleaned_data['death_message']
+                request.user.player.save()
             else:
                 request.user.game.access_code = form.cleaned_data['access_code']
                 request.user.game.save()
@@ -62,9 +71,12 @@ def change_details(request):
             request.user.save()
             return HttpResponseRedirect(reverse('accounts:change_details'))
     else:
-        form = ChangeDetailsForm(initial=initial, request=request)
+        if request.user.has_perm("accounts.game_admin"):
+            form = ChangeGameDetailsForm(initial=initial, request=request)
+        else:
+            form = ChangePlayerDetailsForm(initial=initial, request=request)
 
-    return render(request, 'accounts/change_details.html', {'form': form})
+    return render(request, template, {'form': form})
             
 
 def register(request):
@@ -207,6 +219,30 @@ def player_list(request):
     }
 
     return render(request, template_name, context)
+
+
+@user_passes_test(not_superuser, login_url="accounts:profile")
+@login_required(login_url="accounts:login")
+def graveyard(request):
+    template_name = 'accounts/graveyard.html'
+    
+    current_game = None
+    if request.user.has_perm('accounts.game_admin'):
+        current_game = Game.objects.get(admin=request.user)
+    else:
+        current_game = request.user.player.game
+    
+    dead_players = current_game.players().filter(alive=False, secret_code__isnull=False).order_by('-last_active')
+
+    context = {
+        'dead_players': dead_players
+    }
+
+    return render(request, template_name, context)
+
+
+
+
 
 @login_required(login_url="accounts:login")
 def delete_player(request):

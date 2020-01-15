@@ -16,6 +16,7 @@ urlpatterns = [
     path('logout/', views.logout, name="logout"),
     path('assignment/', views.assignment, name="assignment"),
     path('change_details/', views.change_details, name="change_details"),
+    path('graveyard/', views.graveyard, name="graveyard"),
     path('players/', views.player_list, name="player_list"),
     path('delete_player/', views.delete_player, name="delete_player"),
     path('manual_open/', views.manual_open, name="manual_open"),

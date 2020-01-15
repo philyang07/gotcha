@@ -1,0 +1,20 @@
+{% if dead_players %}
+<table>
+    <tr>
+        <th>Player</th>
+        <th>Time of death</th>
+        <th>Death message</th>
+    </tr>
+    {% for player in dead_players %}
+    <tr>
+        <td>{{ player }}</td>
+        <td>{{ player.last_active }}</td>
+        <td>{{ player.death_message }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No-one has been eliminated yet</p>
+{% endif %}
+<br>
+<a href="{% url 'accounts:profile' %}">Go back</a>

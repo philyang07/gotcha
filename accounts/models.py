@@ -146,6 +146,7 @@ class Player(models.Model):
     last_active = models.DateTimeField('last active', null=True, blank=True) # the last time the player eliminated someone
     kills = models.IntegerField('eliminations', default=0, null=True, blank=True)
     manual_open = models.BooleanField('manual open', default=False)
+    death_message = models.TextField('death message', max_length=300, default="Was eliminated.")
 
     class Meta:
         unique_together = ('game', 'secret_code',)

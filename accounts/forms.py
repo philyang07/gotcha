@@ -91,15 +91,40 @@ class AssignmentForm(forms.Form):
             raise forms.ValidationError("Code is invalid")
         return target_code
 
-class ChangeDetailsForm(forms.Form):
+class ChangeGameDetailsForm(forms.Form):
+    def __init__(self, *args, **kwargs): # to pass in the request object
+        self.request = kwargs.pop('request', None)
+        super(forms.Form, self).__init__(*args, **kwargs)      
+
+    access_code = forms.CharField(label="Access code", max_length=5, required=False)
+    email = forms.EmailField(label="Email", max_length=100)
+
+    def clean_access_code(self):
+        access_code = self.cleaned_data["access_code"].upper()
+        if self.request.user.has_perm("accounts.game_admin"):
+            if not access_code:
+                raise ValidationError("Access code can't be blank")
+            elif " " in access_code:
+                raise ValidationError("Access code can't contain spaces")
+            elif access_code != self.request.user.game.access_code and access_code in [g.access_code for g in Game.objects.all()]:
+                raise ValidationError("Access code already exists")
+        return access_code
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].lower()
+        if User.objects.filter(email=email).exclude(pk=self.request.user.pk):
+            raise ValidationError("Someone already registered with that email")
+        return email
+
+class ChangePlayerDetailsForm(forms.Form):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
         super(forms.Form, self).__init__(*args, **kwargs)    
     
-    first_name = forms.CharField(label="First name", max_length=100, required=False)
-    last_name = forms.CharField(label="Last name", max_length=100, required=False)
+    first_name = forms.CharField(label="First name", max_length=100)
+    last_name = forms.CharField(label="Last name", max_length=100)
     email = forms.EmailField(label="Email", max_length=100)
-    access_code = forms.CharField(label="Access code", max_length=5, required=False)
+    death_message = forms.CharField(label="Death message", max_length=300, widget=forms.Textarea)
 
     def clean_first_name(self):
         first_name = self.cleaned_data["first_name"].lower().capitalize()
@@ -115,7 +140,7 @@ class ChangeDetailsForm(forms.Form):
         game = Game.objects.filter(access_code=self.request.user.player.game.access_code)
         if game:
             game = game[0]
-            if game.players().filter(user__first_name=first_name, user__last_name=last_name):
+            if game.players().filter(user__first_name=first_name, user__last_name=last_name).exclude(pk=self.request.user.player.pk):
                 raise ValidationError("Sorry, someone in the game has the same name! Change it slightly please :)")
 
         if not last_name and not self.request.user.has_perm("accounts.game_admin"):
@@ -128,16 +153,6 @@ class ChangeDetailsForm(forms.Form):
             raise ValidationError("Someone already registered with that email")
         return email
 
-    def clean_access_code(self):
-        access_code = self.cleaned_data["access_code"].upper()
-        if self.request.user.has_perm("accounts.game_admin"):
-            if not access_code:
-                raise ValidationError("Access code can't be blank")
-            elif " " in access_code:
-                raise ValidationError("Access code can't contain spaces")
-            elif access_code != self.request.user.game.access_code and access_code in [g.access_code for g in Game.objects.all()]:
-                raise ValidationError("Access code already exists")
-        return access_code
 
 class PlayerRegistrationForm(RegistrationForm):
     first_name = forms.CharField(label="First name", max_length=100)
