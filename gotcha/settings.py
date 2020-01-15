@@ -138,5 +138,20 @@ SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
 
 AUTH_PASSWORD_VALIDATORS = []
 
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': [["Bold", "Italic", "Underline", "Strike"],
+                        ['NumberedList', 'BulletedList', "Indent", "Outdent", 'JustifyLeft', 'JustifyCenter',
+                        'JustifyRight', 'JustifyBlock'],
+                        ["Table", "Link", "Unlink", "Anchor", "SectionLink", "Subscript", "Superscript"], ['Undo', 'Redo'], ["Source"],
+                        ["Maximize"]],
+        'extraPlugins': ','.join(
+            [
+               'autocorrect',
+            ]
+        ),
+    },
+
+}
 
 django_heroku.settings(locals())

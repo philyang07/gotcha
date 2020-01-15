@@ -8,9 +8,12 @@
 {% endfor %}
 </table> -->
 
-{{% for field in form %}
+{% for field in form %}
+{{ form.media }}
 <div class="form-group">
-    {{ field.label }}
-    {{ field }}
+    <div>{{ field.label }}</div>
+    <div>{{ field }}</div>
+    
 </div>
 {% endfor %}
+

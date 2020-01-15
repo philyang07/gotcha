@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import *
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from ckeditor.fields import RichTextFormField
+from ckeditor.widgets import CKEditorWidget
 # from djrichtextfield.models import RichTextWidget
 from .models import Player, Game
 
@@ -125,7 +125,7 @@ class ChangeGameDetailsForm(PrettyForm):
     access_code = forms.CharField(label="Access code", max_length=5, required=False)
     email = forms.EmailField(label="Email", max_length=100)
     # rules = forms.CharField(label="Rules", max_length=1000, widget=RichTextWidget(), required=False)
-    rules = forms.CharField(widget=RichTextFormField())
+    rules = forms.CharField(label="Rules", widget=CKEditorWidget(), max_length=1000)
 
     def clean_access_code(self):
         access_code = self.cleaned_data["access_code"].upper()
