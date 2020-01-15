@@ -137,14 +137,16 @@ class GameAdmin(admin.ModelAdmin):
         player = Player.objects.get(pk=request.POST['player_pk'])
         player_name = str(player)
         
-  
-        if player.manual_kill():
-            if player.game.winner:
-                self.message_user(request, player_name + " is the winner. No changes made.")
-            else:
-                self.message_user(request, player_name + " is already eliminated. No changes made.")
+        if not player.alive:
+            player.manual_add()
         else:
-            self.message_user(request, "Manually killed player " + player_name)
+            if player.manual_kill():
+                if player.game.winner:
+                    self.message_user(request, player_name + " is the winner. No changes made.")
+                else:
+                    self.message_user(request, player_name + " is already eliminated. No changes made.")
+            else:
+                self.message_user(request, "Manually killed player " + player_name)
         return HttpResponseRedirect('../')
 
     def manual_add(self, request, **kwargs):
