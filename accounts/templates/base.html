@@ -4,19 +4,21 @@
     <head>
         <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}?{% now 'U' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-4.4.1-dist/css/bootstrap.css' %}?{% now 'U' %}">
+        <script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.js"></script>
+        <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
     </head>
     <body>
         <div class="container-fluid">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <a class="navbar-brand">Assassin Game Manager</a>
                 <div class="collapse navbar-collapse">
-                    <div class="navbar-nav ml-auto">
-                        <a class="nav-item nav-link" href="#">Rules</a>
+                    <div class="navbar-nav">
                         {% if user.is_authenticated and user.is_superuser == False %}
+                        <a class="nav-item nav-link" href="{% url 'accounts:rules' %}">Rules</a>
                         <a class="nav-item nav-link" href="{% url 'accounts:profile' %}">{% if user.game %}Game dashboard{% else %}Player profile{% endif %}</a>
                         <a class="nav-item nav-link" href="{% url 'accounts:player_list' %}">Player List</a>
                         {% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive == True and not user.player.game.winner %}
-                        <a class="nav-item nav-link" href="{% url 'accounts:assignment' %}">Game</a>
+                        <a class="nav-item nav-link" href="{% url 'accounts:assignment' %}">Assignment</a>
                         {% endif %}   
                         {% if user.player.game.in_progress == True %}
                         <a class="nav-item nav-link" href="{% url 'accounts:graveyard' %}">Graveyard</a>

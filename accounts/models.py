@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.db.models import Q
 from django.dispatch import receiver
 from datetime import timedelta
+from ckeditor.fields import RichTextField
 import string
 
 # Create your models here.
@@ -19,6 +20,8 @@ class Game(models.Model):
     access_code = models.CharField('access code', max_length=5, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
     in_progress = models.BooleanField('in progess', default=False)
+    rules = RichTextField(blank=True, null=True)
+
 
     class Meta:
         permissions = [

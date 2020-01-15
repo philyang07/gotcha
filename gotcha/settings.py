@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -135,5 +137,6 @@ SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
 # DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 
 AUTH_PASSWORD_VALIDATORS = []
+
 
 django_heroku.settings(locals())

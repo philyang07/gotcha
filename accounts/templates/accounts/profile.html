@@ -12,37 +12,28 @@
 {% if user.player.secret_code %}
 <p>You have {{ user.player.kills }} elimination{{ user.player.kills|pluralize:"s" }}.</p>
 {% endif %}
-    {% if user.player == user.player.game.winner %}
-    <p>Congratulations, you are the last player standing!</p>
-    {% elif user.player.alive == False %}
-    <p>You were eliminated</p>
-    {% endif %}
-    <form action="{% url 'accounts:manual_kill' %}" method="POST" onsubmit="return confirm('Are you sure?');">
-        {% csrf_token %}
-        {% if user.player.alive == True %}
-        {% if user.player.secret_code and not user.player.game.winner %}
-        <button type="submit">Leave the game (your killer gets your target)</button>
-        {% endif %}
-        <input type="hidden" value="{{ user.player.pk }}" name="pk">
-        {% endif %}
-    </form>
+{% if user.player == user.player.game.winner %}
+<p>Congratulations, you are the last player standing!</p>
+{% elif user.player.alive == False %}
+<p>You were eliminated</p>
 {% endif %}
-
+{% if user.player.alive == True and user.player.secret_code and not user.player.game.winner %}
+<a href="{% url 'accounts:manual_kill' %}" onclick="return confirm('Are you sure?')" class="btn btn-secondary">Leave the game (your killer gets your target)</a>
+{% endif %}
+{% endif %}
+<a href="{% url 'accounts:change_details' %}" onclick="return confirm('Are you sure?')" class="btn btn-secondary">Change details</a>
 {% if user.player.game.in_progress == False %}
-<form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure? This can not be undone');">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Leave the game (and delete your data)</button>
-    <input type="hidden" value="{{ user.player.pk }}" name="pk">
-</form>
+<a href="{% url 'accounts:delete_player' %}" onclick="return confirm('Are you sure? This can not be undone')" class="btn btn-secondary">Delete self</a>
 {% endif %}
 
-{% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive == True and not user.player.game.winner %}
-<!-- <a href="{% url 'accounts:assignment' %}">Assignment</a>
+<!-- {% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive == True and not user.player.game.winner %}
+<a href="{% url 'accounts:assignment' %}">Assignment</a>
 {% endif %}
 <a href="{% url 'accounts:player_list' %}">Player list</a>
 {% if user.player.game.in_progress == True %}
 <a href="{% url 'accounts:graveyard' %}">Graveyard</a>
 {% endif %} -->
-<a href="{% url 'accounts:change_details' %}">Change details</a>
+<br>
+
 <!-- <a href="{% url 'accounts:logout' %}">Logout</a> -->
 {% endblock %}

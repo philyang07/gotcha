@@ -2,7 +2,7 @@
 
 {% block content %}
 {% if game.in_progress == False and players %}
-    <p>Targets and secret codes sent to players</p>
+    <p class="alert alert-info">Targets and secret codes sent to players</p>
     <form action="{% url 'accounts:start_game' %}" method="POST">
         {% csrf_token %}
         <button type="submit" class="btn btn-success">Start game</button>
@@ -10,11 +10,11 @@
 {% elif game.winner %}
 <p>The last player standing is {{ game.winner }}!</p>
     {% if not most_kills_players %}
-    <p>No-one scored above 0 eliminations :(</p>
+    <p class="alert alert-secondary">No-one scored above 0 eliminations :(</p class="alert alert-success">
     {% elif most_kills_players.count == 1 %}
-    <p>The player with the most eliminations was {{ most_kills_players.first }} with {{ max_kills }} elimination{{ max_kills|pluralize:"s" }}!</p>
+    <p class="alert alert-success">The player with the most eliminations was {{ most_kills_players.first }} with {{ max_kills }} elimination{{ max_kills|pluralize:"s" }}!</p class="alert alert-success">
     {% else %}
-    <p>The following players had the most eliminations ({{ max_kills }})</p>
+    <p>The following players shared the highest no. of eliminations, {{ max_kills }}</p>
     <ul>
         {% for player in most_kills_players %}
         <li>{{ player }}</li>
@@ -27,7 +27,7 @@
 </form>
 <br>
 {% elif game.in_progress %}
-<p>Game in progress</p>
+<p class="alert alert-success">Game in progress</p>
 {% endif %}
 {% if players %}
 <h2>Player list</h2>
@@ -75,7 +75,7 @@
         <td>
             <form action="{% url 'accounts:manual_kill' %}" method="POST" onsubmit="return confirm('Are you sure? Reviving a player will give them a random target');">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-warning">{% if player.alive %}Manual kill{% else %}Revive{% endif %}</button>
+                <button type="submit" class="btn btn-secondary">{% if player.alive %}Manual kill{% else %}Revive{% endif %}</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
         </td>
@@ -146,7 +146,7 @@
 <br>
 <form action="{% url 'accounts:reset_player_data' %}" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
-    <button type="submit"class="btn btn-warning">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
+    <button type="submit"class="btn btn-secondary">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
 </form>
 {% endif %}
 {% if game.has_sent_info %}
@@ -160,7 +160,7 @@
 <br>
 <form action="{% url 'accounts:populate_players' %}" method="POST">
     {% csrf_token %}
-    <button type="submit" class="btn btn-primary">Populate with random players (password is 123)</button>
+    <button type="submit" class="btn btn-light">Populate with random players (password is 123)</button>
     <input type="hidden" name="pk" value="{{ game.pk }}">
 </form>
 <br>

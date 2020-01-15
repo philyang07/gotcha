@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if rules %}
+{{ rules }}
+{% else %}
+<p>No rules have been written down by the game-master.</p>
+{% endif %}
+{% endblock %}

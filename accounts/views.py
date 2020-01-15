@@ -51,6 +51,7 @@ def change_details(request):
         form = ChangeGameDetailsForm(request.POST, request=request)
         template = 'accounts/change_game_details.html'
         initial['access_code'] = user.game.access_code
+        initial['rules'] = user.game.rules
     else:
         form = ChangePlayerDetailsForm(request.POST, request=request)
         template = 'accounts/change_player_details.html'
@@ -67,6 +68,7 @@ def change_details(request):
                 request.user.player.save()
             else:
                 request.user.game.access_code = form.cleaned_data['access_code']
+                request.user.game.rules = form.cleaned_data['rules']
                 request.user.game.save()
 
             request.user.email = form.cleaned_data['email']
@@ -80,7 +82,19 @@ def change_details(request):
             form = ChangePlayerDetailsForm(initial=initial, request=request)
 
     return render(request, template, {'form': form})
-            
+
+@user_passes_test(not_superuser, login_url="accounts:login")
+@login_required(login_url="accounts:login")        
+def rules(request):
+    current_game = None
+    if request.user.has_perm('accounts.game_admin'):
+        current_game = Game.objects.get(admin=request.user)
+    else:
+        current_game = request.user.player.game    
+
+    return render(request, 'accounts/rules.html', {'rules': current_game.rules})
+    
+    
 
 def register(request):
     form = PlayerRegistrationForm(request.POST)
@@ -248,19 +262,32 @@ def graveyard(request):
 
 @login_required(login_url="accounts:login")
 def delete_player(request):
-    if request.method == "POST":
-        if not Player.objects.filter(pk=request.POST["pk"]):
-            return HttpResponseRedirect(reverse('accounts:player_list'))
-        player = Player.objects.get(pk=request.POST["pk"])
-        game = player.game
-        player.manual_delete()
-        if not game.players().filter(secret_code__isnull=False):
-            game.in_progress = False
-            game.save()
-
+    game = None
     if request.user.has_perm("accounts.game_admin"):
-        return HttpResponseRedirect(reverse('accounts:player_list'))
-    return HttpResponseRedirect(reverse('accounts:login'))
+        game = request.user.game
+    else:
+        game = request.user.player.game
+
+    if request.method == "POST": # must be by game admin
+        player = None
+        if Player.objects.get(pk=request.POST["pk"]):
+            player = Player.objects.get(pk=request.POST["pk"])
+        else:
+            return HttpResponseRedirect(reverse('accounts:player_list'))
+        player.manual_delete()
+    else:
+        if not request.user.has_perm("accounts.game_admin"):
+            request.user.player.manual_delete()
+            logout(request)
+    if not game.players().filter(secret_code__isnull=False): # if this deletes the last player of the game, run it back to the start!
+        game.in_progress = False
+        game.save()
+    if not request.user.has_perm('accounts.game_admin'):
+        return HttpResponseRedirect(reverse('accounts:login'))
+    return HttpResponseRedirect(reverse('accounts:player_list'))
+    
+
+    
 
 @login_required(login_url="accounts:login")
 def manual_open(request):
@@ -276,6 +303,7 @@ def manual_open(request):
         return HttpResponseRedirect(reverse('accounts:player_list'))
     return HttpResponseRedirect(reverse('accounts:login'))
 
+@user_passes_test(not_superuser, login_url="accounts:login")
 @login_required(login_url="accounts:login")
 def manual_kill(request):
     if request.method == "POST":
@@ -286,6 +314,10 @@ def manual_kill(request):
             player.manual_add()
         else:
             player.manual_kill()
+    else:
+        if not request.user.has_perm("accounts.game_admin"):
+            request.user.player.manual_kill()
+
     if request.user.has_perm("accounts.game_admin"):
         return HttpResponseRedirect(reverse('accounts:player_list'))
     return HttpResponseRedirect(reverse('accounts:profile'))

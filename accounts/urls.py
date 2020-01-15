@@ -16,6 +16,9 @@ urlpatterns = [
     path('profile/', views.profile, name="profile"),
     path('logout/', views.logout, name="logout"),
     path('assignment/', views.assignment, name="assignment"),
+    path('rules/', views.rules, name="rules"),
+
+
     path('change_details/', views.change_details, name="change_details"),
     path('graveyard/', views.graveyard, name="graveyard"),
     path('players/', views.player_list, name="player_list"),
