@@ -5,5 +5,5 @@
 <a href="{% url 'accounts:graveyard' %}">Graveyard</a>
 {% endif %}
 <a href="{% url 'accounts:change_details' %}">Change details</a>
-<a href="{% url 'accounts:delete_game' %}">Delete game</a>
+<a href="{% url 'accounts:delete_game' %}" onclick="return confirm('Are you sure?')">Delete game</a>
 <a href="{% url 'accounts:logout' %}">Logout</a>

@@ -11,6 +11,9 @@ from datetime import timedelta
 from django.utils import timezone
 
 # Create your views here.
+def not_superuser(user):
+    return not user.is_superuser
+    
 def populate_players(request):
     if request.method == "POST":
         game = Game.objects.get(pk=request.POST["pk"])
@@ -37,6 +40,8 @@ def login_view(request):
         form = BareLoginForm()
     return render(request, 'accounts/login.html', {'form': form})
 
+@user_passes_test(not_superuser, login_url="accounts:login")
+@login_required(login_url="accounts:login")
 def change_details(request):
     user = request.user
     form = None
@@ -123,8 +128,7 @@ def game_in_progress(user):
         return user.player.game.in_progress
     return not user.is_superuser and not user.game 
 
-def not_superuser(user):
-    return not user.is_superuser
+
 
 @user_passes_test(not_superuser, login_url="accounts:login")
 @login_required(login_url="accounts:login")
@@ -139,7 +143,7 @@ def logout(request):
     auth_logout(request)
     return HttpResponseRedirect(reverse('accounts:login'))
 
-@user_passes_test(game_in_progress, login_url="accounts:profile")
+@user_passes_test(game_in_progress, login_url="accounts:login")
 @login_required(login_url="accounts:login")
 def assignment(request):
     form = AssignmentForm(request.POST, request=request)
@@ -220,7 +224,7 @@ def player_list(request):
     return render(request, template_name, context)
 
 
-@user_passes_test(not_superuser, login_url="accounts:profile")
+@user_passes_test(not_superuser, login_url="accounts:login")
 @login_required(login_url="accounts:login")
 def graveyard(request):
     template_name = 'accounts/graveyard.html'

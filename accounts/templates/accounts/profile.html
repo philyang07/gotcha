@@ -15,7 +15,7 @@
     {% elif user.player.alive == False %}
     <p>You were eliminated</p>
     {% endif %}
-    <form action="{% url 'accounts:manual_kill' %}" method="POST">
+    <form action="{% url 'accounts:manual_kill' %}" method="POST" onsubmit="return confirm('Are you sure?');">
         {% csrf_token %}
         {% if user.player.alive == True %}
         {% if user.player.secret_code and not user.player.game.winner %}
@@ -26,8 +26,8 @@
     </form>
 {% endif %}
 
-{% if game.in_progress == False %}
-<form action="{% url 'accounts:delete_player' %}" method="POST">
+{% if user.player.game.in_progress == False %}
+<form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure? This can not be undone');">
     {% csrf_token %}
     <button type="submit">Delete yourself</button>
     <input type="hidden" value="{{ user.player.pk }}" name="pk">
