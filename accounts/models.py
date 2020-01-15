@@ -20,7 +20,7 @@ class Game(models.Model):
     access_code = models.CharField('access code', max_length=5, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
     in_progress = models.BooleanField('in progess', default=False)
-    rules = RichTextField(blank=True, null=True)
+    rules = RichTextField(blank=True, null=True, default=None)
 
 
     class Meta:
