@@ -27,7 +27,6 @@ def login_view(request):
         if form.is_valid():
             username = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            print(username, password)
             if request.user:
                 logout(request)
             user = authenticate(username=username, password=password)
