@@ -7,8 +7,31 @@
     </head>
     <body>
         <div class="container-fluid">
-        {% block content %}
-        {% endblock %}
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand">Assassin Game Manager</a>
+                <div class="collapse navbar-collapse">
+                    <div class="navbar-nav ml-auto">
+                        <a class="nav-item nav-link" href="#">Rules</a>
+                        {% if user.is_authenticated and user.is_superuser == False %}
+                        <a class="nav-item nav-link" href="{% url 'accounts:profile' %}">{% if user.game %}Game dashboard{% else %}Player profile{% endif %}</a>
+                        <a class="nav-item nav-link" href="{% url 'accounts:player_list' %}">Player List</a>
+                        {% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive == True and not user.player.game.winner %}
+                        <a class="nav-item nav-link" href="{% url 'accounts:assignment' %}">Game</a>
+                        {% endif %}   
+                        {% if user.player.game.in_progress == True %}
+                        <a class="nav-item nav-link" href="{% url 'accounts:graveyard' %}">Graveyard</a>
+                        {% endif %}   
+                        <a class="nav-item nav-link" href="{% url 'accounts:logout' %}">Logout</a>  
+                        {% endif %}
+                        <a class="nav-item nav-link" href="{% url 'accounts:register' %}">Register</a>
+                        <a class="nav-item nav-link" href="{% url 'accounts:create_game' %}">Create game</a>
+                        <a class="nav-item nav-link" href="{% url 'accounts:login' %}">Login</a>
+                    </div>
+                </div>
+            </nav>
+            <br>
+            {% block content %}
+            {% endblock %}
         </div>
     </body>
 </html>

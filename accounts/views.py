@@ -3,8 +3,7 @@ from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Permission
 from django.http import HttpResponseRedirect
-from .forms import AssignmentForm, PlayerRegistrationForm, RegistrationForm, PickyAuthenticationForm, \
-    AuthenticationForm, BareLoginForm, ChangePlayerDetailsForm, ChangeGameDetailsForm
+from .forms import *
 from django.contrib.auth.forms import PasswordResetForm
 from .models import Player, Game
 from datetime import timedelta

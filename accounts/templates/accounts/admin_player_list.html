@@ -85,7 +85,7 @@
         <td>
             <form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure? This can not be undone');">
                 {% csrf_token %}
-                <button type="submit"class="btn btn-danger">Delete</button>
+                <button type="submit" class="btn btn-danger">Delete</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
         </td>
@@ -101,8 +101,10 @@
         <tr>
             <th>Player</th>
             <th>Email</th>
-            {% if players and not game.winner %}
+            {% if not game.winner %}
+            {% if game.has_sent_info %}
             <th>Add to game</th>
+            {% endif %}
             <th>Remove</th>
             {% endif %}
         </tr>
@@ -116,7 +118,7 @@
         <td>
             <form action="{% url 'accounts:manual_add' %}" method="POST" onsubmit="return confirm('Are you sure?');">
                 {% csrf_token %}
-                <button type="submit">Add</button>
+                <button type="submit" class="btn btn-secondary">Add</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>            
         </td>
@@ -124,7 +126,7 @@
         <td>
             <form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure?');">
                 {% csrf_token %}
-                <button type="submit">Delete</button>
+                <button type="submit" class="btn btn-danger">Delete</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>            
         </td>
@@ -144,14 +146,14 @@
 <br>
 <form action="{% url 'accounts:reset_player_data' %}" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
-    <button type="submit"class="btn btn-danger">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
+    <button type="submit"class="btn btn-warning">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
 </form>
 {% endif %}
 {% if game.has_sent_info %}
 <br>
 <form action="{% url 'accounts:reassign_targets' %}" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
-    <button type="submit"class="btn btn-warning">Reassign targets</button>
+    <button type="submit"class="btn btn-secondary">Reassign targets</button>
 </form>
 {% endif %}
 {% endif %}

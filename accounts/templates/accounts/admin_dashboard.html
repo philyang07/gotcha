@@ -2,11 +2,13 @@
 {% block content %}
 <p>Email: {{ user.email }}</p>
 <p>Game access code: {{ user.game.access_code }}</p>
-<a href="{% url 'accounts:player_list' %}">Player list</a>
+<!-- <a href="{% url 'accounts:player_list' %}">Player list</a>
 {% if user.game.in_progress %}
 <a href="{% url 'accounts:graveyard' %}">Graveyard</a>
-{% endif %}
-<a href="{% url 'accounts:change_details' %}">Change details</a>
-<a href="{% url 'accounts:delete_game' %}" onclick="return confirm('Are you sure?')">Delete game</a>
-<a href="{% url 'accounts:logout' %}">Logout</a>
+{% endif %} -->
+<a href="{% url 'accounts:change_details' %}" class="btn btn-primary">Change details</a>
+
+<a href="{% url 'accounts:delete_game' %}" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete game</a>
+
+<!-- <a href="{% url 'accounts:logout' %}">Logout</a> -->
 {% endblock %}

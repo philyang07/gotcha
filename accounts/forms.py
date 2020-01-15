@@ -1,9 +1,27 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm, UserChangeForm
+from django.contrib.auth.forms import *
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from .models import Player, Game
+
+class PrettyPasswordResetForm(PasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super(PrettyPasswordResetForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'   
+
+class PrettyPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super(PrettyPasswordChangeForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'  
+
+class PrettySetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super(PrettySetPasswordForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'  
 
 class PrettyForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -100,7 +118,7 @@ class AssignmentForm(PrettyForm):
 class ChangeGameDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
-        super(PrettyForm, self).__init__(*args, **kwargs)      
+        super(ChangeGameDetailsForm, self).__init__(*args, **kwargs)      
 
     access_code = forms.CharField(label="Access code", max_length=5, required=False)
     email = forms.EmailField(label="Email", max_length=100)
@@ -125,7 +143,7 @@ class ChangeGameDetailsForm(PrettyForm):
 class ChangePlayerDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
-        super(PrettyForm, self).__init__(*args, **kwargs)    
+        super(ChangePlayerDetailsForm, self).__init__(*args, **kwargs)    
     
     first_name = forms.CharField(label="First name", max_length=100)
     last_name = forms.CharField(label="Last name", max_length=100)
@@ -175,6 +193,8 @@ class PlayerRegistrationForm(RegistrationForm):
         cleaned_data = super(PlayerRegistrationForm, self).clean()
 
         last_name = cleaned_data["last_name"].lower().capitalize()
+        if not cleaned_data.get("access_code"):
+            return 
         access_code = cleaned_data["access_code"]
         first_name = cleaned_data["first_name"].lower().capitalize()
         game = Game.objects.filter(access_code=access_code)

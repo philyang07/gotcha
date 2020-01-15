@@ -31,18 +31,18 @@
 {% if user.player.game.in_progress == False %}
 <form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure? This can not be undone');">
     {% csrf_token %}
-    <button type="submit">Delete yourself</button>
+    <button type="submit" class="btn btn-danger">Leave the game (and delete your data)</button>
     <input type="hidden" value="{{ user.player.pk }}" name="pk">
 </form>
 {% endif %}
 
-{% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive and not user.player.game.winner %}
-<a href="{% url 'accounts:assignment' %}">Assignment</a>
+{% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive == True and not user.player.game.winner %}
+<!-- <a href="{% url 'accounts:assignment' %}">Assignment</a>
 {% endif %}
 <a href="{% url 'accounts:player_list' %}">Player list</a>
 {% if user.player.game.in_progress == True %}
 <a href="{% url 'accounts:graveyard' %}">Graveyard</a>
-{% endif %}
+{% endif %} -->
 <a href="{% url 'accounts:change_details' %}">Change details</a>
-<a href="{% url 'accounts:logout' %}">Logout</a>
+<!-- <a href="{% url 'accounts:logout' %}">Logout</a> -->
 {% endblock %}
