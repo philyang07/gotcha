@@ -4,15 +4,16 @@
     <head>
         <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}?{% now 'U' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-4.4.1-dist/css/bootstrap.css' %}?{% now 'U' %}">
-        <script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.js"></script>
-        <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
     </head>
     <body>
         <div class="container-fluid">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <a class="navbar-brand">Assassin Game Manager</a>
-                <div class="collapse navbar-collapse">
-                    <div class="navbar-nav">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <div class="navbar-nav" role="navigation"> 
                         {% if user.is_authenticated and user.is_superuser == False %}
                         <a class="nav-item nav-link" href="{% url 'accounts:rules' %}">Rules</a>
                         <a class="nav-item nav-link" href="{% url 'accounts:profile' %}">{% if user.game %}Game dashboard{% else %}Player profile{% endif %}</a>
