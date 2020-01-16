@@ -32,6 +32,10 @@ class PrettyForm(forms.Form):
             field.widget.attrs['class'] = 'form-control'
 
 class RegistrationForm(PrettyForm):
+    def __init__(self, *args, **kwargs):
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+        self.fields['email'].help_text = "Your email is used for authentication purposes only"
+
     email = forms.EmailField(label="Email", max_length=100)
     password1 = forms.CharField(label="Enter password", widget=forms.PasswordInput)
     password2 = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
