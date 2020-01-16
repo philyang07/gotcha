@@ -16,7 +16,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <div class="navbar-nav" role="navigation"> 
+                    <div class="navbar-nav m-auto"> 
                         {% if user.is_authenticated and user.is_superuser == False %}
                         <a class="nav-item nav-link" href="{% url 'accounts:rules' %}">Rules</a>
                         <a class="nav-item nav-link" href="{% url 'accounts:profile' %}">{% if user.game %}Game dashboard{% else %}Player profile{% endif %}</a>
@@ -29,7 +29,9 @@
                         {% endif %}   
                         <a class="nav-item nav-link" href="{% url 'accounts:logout' %}">Logout</a>  
                         {% endif %}
-                        <a class="nav-item nav-link" href="{% url 'accounts:register' %}">Register</a>
+                    </div>
+                    <div class="navbar-nav ml-auto"> 
+                        <a class="nav-item nav-link" href="{% url 'accounts:register' %}">Join game</a>
                         <a class="nav-item nav-link" href="{% url 'accounts:create_game' %}">Create game</a>
                         <a class="nav-item nav-link" href="{% url 'accounts:login' %}">Login</a>
                     </div>
