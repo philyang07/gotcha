@@ -34,7 +34,7 @@ class PrettyForm(forms.Form):
 class RegistrationForm(PrettyForm):
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
-        self.fields['email'].help_text = "Your email is used for authentication purposes only"
+        self.fields['email'].help_text = "Your email is used for authentication purposes only and is erased upon completion of the game"
 
     email = forms.EmailField(label="Email", max_length=100)
     password1 = forms.CharField(label="Enter password", widget=forms.PasswordInput)
