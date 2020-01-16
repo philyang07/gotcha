@@ -8,6 +8,7 @@ from django.contrib.auth.forms import PasswordResetForm
 from .models import Player, Game
 from datetime import timedelta
 from django.utils import timezone
+from django.conf import settings
 
 # Create your views here.
 def not_superuser(user):
@@ -19,6 +20,14 @@ def populate_players(request):
         game.populate_players()
 
     return HttpResponseRedirect(reverse("accounts:player_list"))
+
+def default(request):
+    if request.user.is_authenticated and not_superuser(request.user):
+        return HttpResponseRedirect(reverse('accounts:profile'))
+    return render(request, 'accounts/home.html')    
+
+def home_page(request):
+    return render(request, 'accounts/home.html')
 
 def login_view(request):
     """
@@ -50,6 +59,7 @@ def change_details(request):
     if request.user.has_perm("accounts.game_admin"):
         form = ChangeGameDetailsForm(request.POST, request=request)
         template = 'accounts/change_game_details.html'
+        initial['open_duration'] = user.game.open_duration
         initial['access_code'] = user.game.access_code
         initial['rules'] = user.game.rules
     else:
@@ -67,6 +77,7 @@ def change_details(request):
                 request.user.player.death_message = form.cleaned_data['death_message']
                 request.user.player.save()
             else:
+                request.user.game.open_duration = form.cleaned_data['open_duration']
                 request.user.game.access_code = form.cleaned_data['access_code']
                 request.user.game.rules = form.cleaned_data['rules']
                 request.user.game.save()
@@ -233,6 +244,9 @@ def player_list(request):
         'new_players': new_players, 
         'target_ordering': current_game.target_ordering(),
     }
+
+    if settings.DEBUG:
+        context['DEBUG'] = True
 
     return render(request, template_name, context)
 

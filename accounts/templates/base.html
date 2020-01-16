@@ -9,38 +9,46 @@
         <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-4.4.1-dist/css/bootstrap.css' %}?{% now 'U' %}">
     </head>
     <body>
-        <div class="container-fluid">
+        <main class="container-fluid">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <a class="navbar-brand">Assassin Game Manager</a>
+                <a class="navbar-brand" href="{% url 'accounts:home' %}">Assassin Game Manager</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                {% with request.resolver_match.view_name as url_name %}
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <div class="navbar-nav m-auto"> 
                         {% if user.is_authenticated and user.is_superuser == False %}
-                        <a class="nav-item nav-link" href="{% url 'accounts:rules' %}">Rules</a>
-                        <a class="nav-item nav-link" href="{% url 'accounts:profile' %}">{% if user.game %}Game dashboard{% else %}Player profile{% endif %}</a>
-                        <a class="nav-item nav-link" href="{% url 'accounts:player_list' %}">Player List</a>
+                        <a class="nav-item nav-link {% if url_name == 'accounts:rules' %}active{% endif %}" href="{% url 'accounts:rules' %}">Rules</a>
+                        <a class="nav-item nav-link {% if url_name == 'accounts:profile' %}active{% endif %}" href="{% url 'accounts:profile' %}">{% if user.game %}Game dashboard{% else %}Player profile{% endif %}</a>
+                        <a class="nav-item nav-link {% if url_name == 'accounts:player_list' %}active{% endif %}" href="{% url 'accounts:player_list' %}">Player List</a>
                         {% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive == True and not user.player.game.winner %}
-                        <a class="nav-item nav-link" href="{% url 'accounts:assignment' %}">Assignment</a>
+                        <a class="nav-item nav-link {% if url_name == 'accounts:assignment' %}active{% endif %}" href="{% url 'accounts:assignment' %}">Assignment</a>
                         {% endif %}   
-                        {% if user.player.game.in_progress == True %}
-                        <a class="nav-item nav-link" href="{% url 'accounts:graveyard' %}">Graveyard</a>
+                        {% if user.player.game.in_progress == True or user.game and user.game.in_progress == True %}
+                        <a class="nav-item nav-link {% if url_name == 'accounts:graveyard' %}active{% endif %}" href="{% url 'accounts:graveyard' %}">Graveyard</a>
                         {% endif %}   
                         <a class="nav-item nav-link" href="{% url 'accounts:logout' %}">Logout</a>  
                         {% endif %}
+ 
                     </div>
                     <div class="navbar-nav ml-auto"> 
-                        <a class="nav-item nav-link" href="{% url 'accounts:register' %}">Join game</a>
-                        <a class="nav-item nav-link" href="{% url 'accounts:create_game' %}">Create game</a>
-                        <a class="nav-item nav-link" href="{% url 'accounts:login' %}">Login</a>
+                        <a class="nav-item nav-link {% if url_name == 'accounts:register' %}active{% endif %}" href="{% url 'accounts:register' %}">Join game</a>
+                        <a class="nav-item nav-link {% if url_name == 'accounts:create_game' %}active{% endif %}" href="{% url 'accounts:create_game' %}">Create game</a>
+                        <a class="nav-item nav-link {% if url_name == 'accounts:login' %}active{% endif %}" href="{% url 'accounts:login' %}">Login</a>
                     </div>
                 </div>
+                {% endwith %}
             </nav>
             <br>
             {% block content %}
             {% endblock %}
-        </div>
+        </main>
+        <footer class="footer">
+            <div class="container">
+                <span class="text-muted">&copy; Copyright 2020 Phil Yang</span>
+            </div>
+        </footer>
         <script src="{% static 'jquery-3.4.1.min.js' %}"></script>
         <script src="{% static 'popper.min.js' %}"></script>
         <script src="{% static 'bootstrap-4.4.1-dist/js/bootstrap.js' %}"></script>

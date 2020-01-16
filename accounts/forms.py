@@ -124,11 +124,16 @@ class AssignmentForm(PrettyForm):
 class ChangeGameDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
-        super(ChangeGameDetailsForm, self).__init__(*args, **kwargs)      
+        super(ChangeGameDetailsForm, self).__init__(*args, **kwargs)   
+        self.fields['open_duration'].help_text = "This is the timeframe an elimination must be completed within before getting put on the open list"
+        self.fields['access_code'].help_text = "Give this to new players so that they can join your game"
+        self.fields['rules'].help_text = "Let the players know about any special rules e.g. safezones"
 
-    access_code = forms.CharField(label="Access code", max_length=5, required=False)
+
+
     email = forms.EmailField(label="Email", max_length=100)
-    # rules = forms.CharField(label="Rules", max_length=1000, widget=RichTextWidget(), required=False)
+    access_code = forms.CharField(label="Access code", max_length=5, required=False)
+    open_duration = forms.IntegerField(label="Open duration", required=True)
     rules = forms.CharField(label="Rules", widget=CKEditorWidget(), max_length=1000)
 
     def clean_access_code(self):
@@ -147,6 +152,12 @@ class ChangeGameDetailsForm(PrettyForm):
         if User.objects.filter(email=email).exclude(pk=self.request.user.pk):
             raise ValidationError("Someone already registered with that email")
         return email
+
+    def clean_open_duration(self):
+        open_duration = self.cleaned_data['open_duration']
+        if open_duration <= 0:
+            raise ValidationError("Open duration must be a minimum of 1 hour")
+        return open_duration
 
 class ChangePlayerDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object

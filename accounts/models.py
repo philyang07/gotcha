@@ -19,6 +19,7 @@ class GamePlayerManager(models.Manager):
 class Game(models.Model):
     access_code = models.CharField('access code', max_length=5, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
+    open_duration = models.IntegerField('open duration', default=24) # in hours
     in_progress = models.BooleanField('in progess', default=False)
     rules = RichTextField(blank=True, null=True, default=None)
     # rules = models.TextField('rules', max_length=1000, default=None)
@@ -208,7 +209,7 @@ class Player(models.Model):
     def is_open(self):
         if not self.last_active:
             return False
-        return self.alive and (self.manual_open or timezone.now() - self.last_active > timedelta(hours=24))
+        return self.alive and (self.manual_open or timezone.now() - self.last_active > timedelta(hours=self.game.open_duration))
 
     def manual_delete(self):
         player = self

@@ -21,9 +21,9 @@
 <a href="{% url 'accounts:manual_kill' %}" onclick="return confirm('Are you sure?')" class="btn btn-secondary">Leave the game (your killer gets your target)</a>
 {% endif %}
 {% endif %}
-<a href="{% url 'accounts:change_details' %}" onclick="return confirm('Are you sure?')" class="btn btn-secondary">Change details</a>
-{% if user.player.game.in_progress == False %}
-<a href="{% url 'accounts:delete_player' %}" onclick="return confirm('Are you sure? This can not be undone')" class="btn btn-secondary">Delete self</a>
+<a href="{% url 'accounts:change_details' %}" class="btn btn-secondary">Change details</a>
+{% if user.player.game.in_progress == False %} 
+<a href="{% url 'accounts:delete_player' %}" class="btn btn-secondary" onclick="return confirm('Are you sure? This can not be undone')" class="btn btn-secondary">Delete self</a>
 {% endif %}
 
 <!-- {% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive == True and not user.player.game.winner %}

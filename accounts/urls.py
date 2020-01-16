@@ -7,8 +7,8 @@ from . import views
 app_name = 'accounts'
 
 urlpatterns = [
-    # path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html', authentication_form=PickyAuthenticationForm), name='login'),
-    path('', views.profile, name='profile'), 
+    path('', views.default, name="default"),
+    path('home/', views.home_page, name='home'), 
     path('login/', views.login_view, name='login'), # for learning's sake
     path('register/', views.register, name='register'),
     path('populate_players/', views.populate_players, name="populate_players"),

@@ -25,7 +25,7 @@
     {% csrf_token %}
     <button type="submit" class="btn btn-success">Start a new game?</button>
 </form>
-<br>
+<br><br>
 {% elif game.in_progress %}
 <p class="alert alert-success">Game in progress</p>
 {% endif %}
@@ -143,26 +143,24 @@
 {% endif %}
 {% if not game.winner %}
 {% if new_players or players %}
-<br>
-<form action="{% url 'accounts:reset_player_data' %}" method="POST" onsubmit="return confirm('Are you sure?');">
+<form action="{% url 'accounts:reset_player_data' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
     <button type="submit"class="btn btn-secondary">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
 </form>
 {% endif %}
 {% if game.has_sent_info %}
-<br>
-<form action="{% url 'accounts:reassign_targets' %}" method="POST" onsubmit="return confirm('Are you sure?');">
+<form action="{% url 'accounts:reassign_targets' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
     <button type="submit"class="btn btn-secondary">Reassign targets</button>
 </form>
 {% endif %}
 {% endif %}
-<br>
-<form action="{% url 'accounts:populate_players' %}" method="POST">
+{% if DEBUG == True %}
+<form action="{% url 'accounts:populate_players' %}" style="display: inline" method="POST">
     {% csrf_token %}
     <button type="submit" class="btn btn-light">Populate with random players (password is 123)</button>
     <input type="hidden" name="pk" value="{{ game.pk }}">
 </form>
-<br>
-<a href="{% url 'accounts:profile' %}">Go back</a>
+{% endif %}
+<div><a href="{% url 'accounts:profile' %}" class="btn btn-link">Go back</a></div>
 {% endblock %}
