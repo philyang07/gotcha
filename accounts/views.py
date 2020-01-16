@@ -26,6 +26,9 @@ def default(request):
         return HttpResponseRedirect(reverse('accounts:profile'))
     return render(request, 'accounts/home.html')    
 
+def guide(request):
+    return render(request, 'accounts/guide.html')
+
 def home_page(request):
     return render(request, 'accounts/home.html')
 
@@ -60,6 +63,7 @@ def change_details(request):
         form = ChangeGameDetailsForm(request.POST, request=request)
         template = 'accounts/change_game_details.html'
         initial['open_duration'] = user.game.open_duration
+        initial['max_players'] = user.game.max_players
         initial['access_code'] = user.game.access_code
         initial['rules'] = user.game.rules
     else:
@@ -79,6 +83,7 @@ def change_details(request):
             else:
                 request.user.game.open_duration = form.cleaned_data['open_duration']
                 request.user.game.access_code = form.cleaned_data['access_code']
+                request.user.game.max_players = form.cleaned_data['max_players']
                 request.user.game.rules = form.cleaned_data['rules']
                 request.user.game.save()
 

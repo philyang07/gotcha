@@ -43,12 +43,12 @@
             <th>Open</th>
             <th>Time since last assignment</th>
             {% if not game.winner %}
-            <th>Manual open</th>
-            <th>Manual kill</th>
+            <th><a data-toggle="tooltip" title="This will put the player on the open list regardless of their duration of inactivity">Manual open</a></th>
+            <th><a data-toggle="tooltip" title="This will give the player's killer the player's target, and if revived, doesn't guaranetee the same target">Manual kill</a></th>
             {% endif %}
             {% endif %}
             {% if not game.winner %}
-            <th>Remove</th>
+            <th><a data-toggle="tooltip" title="This will delete the player's account permanently">Delete player</a></th>
             {% endif %}
         </tr>
     </thead>

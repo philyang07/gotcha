@@ -22,6 +22,7 @@ class Game(models.Model):
     open_duration = models.IntegerField('open duration', default=24) # in hours
     in_progress = models.BooleanField('in progess', default=False)
     rules = RichTextField(blank=True, null=True, default=None)
+    max_players = models.IntegerField('max players', default=50)
     # rules = models.TextField('rules', max_length=1000, default=None)
 
 
@@ -59,6 +60,9 @@ class Game(models.Model):
 
     def populate_players(self):
         for i in range(5):
+            if len(self.players()) >= self.max_players:
+                break;
+
             email = Game.generate_access_code().lower() + "@gmail.com"
             first_name = Game.generate_access_code().lower().capitalize()
             last_name = Game.generate_access_code().lower().capitalize()

@@ -125,16 +125,18 @@ class ChangeGameDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
         super(ChangeGameDetailsForm, self).__init__(*args, **kwargs)   
-        self.fields['open_duration'].help_text = "This is the timeframe an elimination must be completed within before getting put on the open list"
+        self.fields['open_duration'].help_text = "This is the timeframe in hours in which an elimination must be completed within before getting put on the open list"
         self.fields['access_code'].help_text = "Give this to new players so that they can join your game"
+        self.fields['max_players'].help_text = "Limit to the number of players that can register for this game"
         self.fields['rules'].help_text = "Let the players know about any special rules e.g. safezones"
 
 
 
     email = forms.EmailField(label="Email", max_length=100)
     access_code = forms.CharField(label="Access code", max_length=5, required=False)
-    open_duration = forms.IntegerField(label="Open duration", required=True)
-    rules = forms.CharField(label="Rules", widget=CKEditorWidget(), max_length=1000)
+    open_duration = forms.IntegerField(label="Open duration", required=True, min_value = 1, max_value=999)
+    max_players = forms.IntegerField(label="Max no. of players", required=True, min_value=1, max_value=500)
+    rules = forms.CharField(label="Rules", widget=CKEditorWidget(), max_length=1000, required=False)
 
     def clean_access_code(self):
         access_code = self.cleaned_data["access_code"].upper()
@@ -153,11 +155,6 @@ class ChangeGameDetailsForm(PrettyForm):
             raise ValidationError("Someone already registered with that email")
         return email
 
-    def clean_open_duration(self):
-        open_duration = self.cleaned_data['open_duration']
-        if open_duration <= 0:
-            raise ValidationError("Open duration must be a minimum of 1 hour")
-        return open_duration
 
 class ChangePlayerDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
@@ -217,8 +214,12 @@ class PlayerRegistrationForm(RegistrationForm):
         access_code = cleaned_data["access_code"]
         first_name = cleaned_data["first_name"].lower().capitalize()
         game = Game.objects.filter(access_code=access_code)
+
         if game:
             game = game[0]
+            if len(game.players()) >= game.max_players:
+                raise ValidationError("Sorry, this game has reached its maximum number of players")
+
             if game.players().filter(user__first_name=first_name, user__last_name=last_name):
                 raise ValidationError("Sorry, someone in the game has the same name! Change it slightly please :)")
         
