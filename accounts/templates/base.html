@@ -16,7 +16,7 @@
                 </button>
                 {% with request.resolver_match.view_name as url_name %}
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <div class="navbar-nav m-auto"> 
+                    <div class="navbar-nav mr-auto"> 
                         <a class="nav-item nav-link {% if url_name == 'accounts:guide' %}active{% endif %}" href="{% url 'accounts:guide' %}">Guide</a>
                         {% if user.is_authenticated and user.is_superuser == False %}
                         <a class="nav-item nav-link {% if url_name == 'accounts:rules' %}active{% endif %}" href="{% url 'accounts:rules' %}">Rules</a>
