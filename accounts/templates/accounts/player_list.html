@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% block title %}Player list{% endblock %}
 {% block content %}
 {% if game.winner %}
 <p>The last player standing is {{ game.winner }}!</p>
@@ -43,10 +43,12 @@
 </table>
 {% endif %}
 {% if not game.has_sent_info %}
-<table>
-    <tr>
-        <th>Registered players</th>
-    </tr>
+<table class="player_list table">
+    <thead class="thead-light">
+        <tr>
+            <th>Registered players</th>
+        </tr>
+    </thead>
     {% for player in new_players %}
     <tr>
         <td>{{ player }}</td>

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Change details{% endblock %}
 {% block content %}
 <form action="{% url 'accounts:change_details' %}" method="post">
     {% csrf_token %}

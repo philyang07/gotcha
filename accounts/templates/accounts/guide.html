@@ -1,4 +1,36 @@
 {% extends 'base.html' %}
+{% block title %}Guide{% endblock %}
 {% block content %}
+<h2 class="">The basic rules of 'Assassin'</h2>
+The simple premise of the game
+<ul class="list-styled">
+    <li>All players are assigned a target (one-to-one) that they need to 'eliminate'</li>
+    <li>Once a player eliminates their target, they get a new target: the target of their original target</li>
+    <li>The winner is the last person standing (or whoever has the most eliminations by the end of a given time frame etc.)</li>
+</ul>
+<p>The method of elimination is up to the decision of the game organiser and its players, but it must be completely harmless.</p>
+<p>An 'open list' contains players that can be eliminated by any other player, and is useful for speeding up the progress of the game. 
+    A common rule is that if a player is inactive for 24 hours, they will be put onto the open list.</p>
+
+<h2>How to use the manager?</h2>
+<p>Firstly, the organiser of the game <a href="{% url 'accounts:create_game' %}">creates a game</a>. There are 3 stages to running a game.</p>
+<ol>
+    <li>The registration stage: new players <a href="{% url 'accounts:register' %}">register</a> for the game via an <b>access code</b> set by the game organiser</li>
+    <li>Target assignment: the players will be assigned their targets and the players can now check who their target is</li>
+    <li>The elimination stage: players can now eliminate their target and submit their completed assignment</li>
+</ol>
+
+<h3>What tools are provided by the manager?</h3>
+<ol>
+    <li>Open list management
+        <ul>
+            <li>Set a custom duration for how long players can be inactive before being put onto the open list</li>
+            <li>Manually putting players onto the open list regardless of their inactivity</li>
+        </ul>
+    </li>
+    <li>Manual eliminations of players, including revival if necessary</li>
+    <li>Scrambling of targets, if you want to spice things up</li>
+    <li>A visual representation of the player-target chain</li>
+</ol>
 
 {% endblock %}

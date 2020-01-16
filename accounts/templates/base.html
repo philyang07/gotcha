@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-4.4.1-dist/css/bootstrap.css' %}?{% now 'U' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}?{% now 'U' %}">
+        <title>Assassin Manager: {% block title %}{% endblock %}</title>
     </head>
     <body>
         <main class="container-fluid">
@@ -45,8 +46,8 @@
             {% endblock %}
         </main>
         <footer class="footer">
-            <div class="container">
-                <span class="text-muted">&copy; Copyright 2020 Phil Yang</span>
+            <div class="container-fluid">
+                <span class="text-muted">&copy; 2019<a href="https://pyang.herokuapp.com/"><img class="portfolio-site-icon" src="{% static 'portfolio-site-icon.ico' %}"></a></span>
             </div>
         </footer>
         <script src="{% static 'jquery-3.4.1.min.js' %}"></script>

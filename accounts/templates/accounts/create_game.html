@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Create game{% endblock %}
 {% block content %}
 <form action="{% url 'accounts:create_game' %}" method="post">
     {% csrf_token %}

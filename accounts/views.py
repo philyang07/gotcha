@@ -302,7 +302,7 @@ def delete_player(request):
         game.in_progress = False
         game.save()
     if not request.user.has_perm('accounts.game_admin'):
-        return HttpResponseRedirect(reverse('accounts:login'))
+        return HttpResponseRedirect(reverse('accounts:home'))
     return HttpResponseRedirect(reverse('accounts:player_list'))
     
 
