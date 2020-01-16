@@ -145,6 +145,8 @@ CKEDITOR_CONFIGS = {
                         'JustifyRight', 'JustifyBlock'],
                         ["Table", "Link", "Unlink", "Anchor", "SectionLink", "Subscript", "Superscript"], ['Undo', 'Redo'], ["Source"],
                         ["Maximize"]],
+        'width': 'auto',
+        'height': 'auto',
         'extraPlugins': ','.join(
             [
                'autocorrect',
