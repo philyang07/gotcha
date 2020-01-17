@@ -18,43 +18,47 @@
 {% endif %}
 {% if players %}
 <h2>Player list</h2>
-<table class="player_list table table-responsive">
-    <thead class="thead-light">
-        <tr>
-            <th>Player</th>
-            {% if game.in_progress == True %}
-            <th>Eliminations</th>
-            <th>Time since last assignment</th>
-            <th>Open</th>
+<div class="table-reponsive">
+    <table class="player_list table">
+        <thead class="thead-light">
+            <tr>
+                <th>Player</th>
+                {% if game.in_progress == True %}
+                <th>Eliminations</th>
+                <th>Time since last assignment</th>
+                <th>Open</th>
+                {% endif %}
+            </tr>
+        </thead>
+        {% for player in players %}
+        <tr class="{% if player.is_open == True %}is_open{% elif player.alive == False %}dead{% endif %}">
+            <td>{{ player }}</td>
+            {% if player.game.in_progress == True %}
+            <td>{{ player.kills }}</td>
+            <td>{{ player.inactivity_duration }}</td>
+            <td>{% if player.is_open == True %}OPEN{% endif %}</td>
             {% endif %}
         </tr>
-    </thead>
-    {% for player in players %}
-    <tr class="{% if player.is_open == True %}is_open{% elif player.alive == False %}dead{% endif %}">
-        <td>{{ player }}</td>
-        {% if player.game.in_progress == True %}
-        <td>{{ player.kills }}</td>
-        <td>{{ player.inactivity_duration }}</td>
-        <td>{% if player.is_open == True %}OPEN{% endif %}</td>
-        {% endif %}
-    </tr>
-    
-    {% endfor %}
-</table>
+        
+        {% endfor %}
+    </table>
+</div>
 {% endif %}
 {% if not game.has_sent_info %}
-<table class="player_list table table-responsive">
-    <thead class="thead-light">
+<div class="table-responsive">
+    <table class="player_list table">
+        <thead class="thead-light">
+            <tr>
+                <th>Registered players</th>
+            </tr>
+        </thead>
+        {% for player in new_players %}
         <tr>
-            <th>Registered players</th>
+            <td>{{ player }}</td>
         </tr>
-    </thead>
-    {% for player in new_players %}
-    <tr>
-        <td>{{ player }}</td>
-    </tr>
-    {% endfor %}
-</table>
+        {% endfor %}
+    </table>
+</div>
 {% endif %}
 <br>
 <a href="{% url 'accounts:profile' %}">Go back</a>
