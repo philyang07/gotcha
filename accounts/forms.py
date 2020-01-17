@@ -135,7 +135,7 @@ class ChangeGameDetailsForm(PrettyForm):
     email = forms.EmailField(label="Email", max_length=100)
     access_code = forms.CharField(label="Access code", max_length=5, required=False)
     open_duration = forms.IntegerField(label="Open duration", required=True, min_value = 1, max_value=999)
-    max_players = forms.IntegerField(label="Max no. of players", required=True, min_value=1, max_value=500)
+    max_players = forms.IntegerField(label="Max no. of players", required=True, min_value=2, max_value=500)
     rules = forms.CharField(label="Rules", widget=CKEditorWidget(), max_length=1000, required=False)
 
     def clean_access_code(self):
