@@ -57,7 +57,7 @@
 <!-- <a href="{% url 'accounts:logout' %}">Logout</a> -->
 {% endblock %}
 {% block scripts %}
-{% if game.in_progress_no_winner == False or player.alive == False %}
+{% if game.in_elimination_stage == False or player.alive == False %}
 <script>
     $('#assignment-card').find('*').attr('disabled', true);
 </script>

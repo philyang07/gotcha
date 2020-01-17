@@ -94,7 +94,7 @@ class Game(models.Model):
         return self.players().filter(secret_code__isnull=False) and not self.in_progress
 
     @property
-    def in_progress_no_winner(self):
+    def in_elimination_stage(self):
         return self.in_progress and not self.winner
 
     def reset(self, to_start=False): # resets the players after registration stage

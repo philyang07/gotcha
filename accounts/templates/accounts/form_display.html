@@ -1,12 +1,4 @@
 {% include 'accounts/form_errors.html' with form=form %}
-<!-- <table>
-{% for field in form %}
-    <tr>
-        <td>{{ field.label }}</td>
-        <td>{{ field }}</td>
-    </tr>
-{% endfor %}
-</table> -->
 {% for field in form %}
 {{ form.media }}
 <div class="form-group">

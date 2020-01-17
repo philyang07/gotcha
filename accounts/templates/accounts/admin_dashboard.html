@@ -16,7 +16,7 @@
     <div class="col-lg-7">
         <div class="card">
             <div class="card-header text-monospace">
-                Status: <strong>{% if game.in_registration %}registration stage{% elif game.in_target_sending %}targets assigned{% elif game.in_progress_no_winner %}elimination stage{% else %}complete{% endif %}</strong>
+                Status: <strong>{% if game.in_registration %}registration stage{% elif game.in_target_sending %}targets assigned{% elif game.in_elimination_stage %}elimination stage{% else %}complete{% endif %}</strong>
             </div>
             <div class="card-body">
                 <div class="row align-items-center rounded ml-2 mr-2 {% if game.in_registration %}bg-lightgreen {% endif %}p-2">
@@ -43,7 +43,7 @@
                     </div>  
                 </div>
                 
-                {% if game.winner or game.in_progress_no_winner %}
+                {% if game.winner or game.in_elimination_stage %}
                 <div class="row align-items-center rounded ml-2 mt-3 mr-2 {% if game.winner %}bg-lightgreen {% endif %} p-2">
                     {% if game.winner %}
                     <div class="col-sm-5">
@@ -55,7 +55,7 @@
                             <button type="submit"class="btn btn-secondary btn-block">Restart</button>
                         </form>
                     </div>  
-                    {% elif game.in_progress_no_winner %}
+                    {% elif game.in_elimination_stage %}
                     <div class = "col-sm-12 alert alert-success mb-0">Game in progress</div>
                     {% endif %}
                 </div>    
