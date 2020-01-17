@@ -43,6 +43,7 @@
                     </div>  
                 </div>
                 
+                {% if game.winner or game.in_progress_no_winner %}
                 <div class="row align-items-center rounded ml-2 mt-3 mr-2 {% if game.winner %}bg-success {% endif %} p-2">
                     {% if game.winner %}
                     <div class="col-sm-5">
@@ -57,7 +58,8 @@
                     {% elif game.in_progress_no_winner %}
                     <div class = "col-sm-12 alert alert-success mb-0">Game in progress</div>
                     {% endif %}
-                </div>            
+                </div>    
+                {% endif %}        
             </div>
         </div>
     </div>
