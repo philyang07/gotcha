@@ -29,3 +29,7 @@ body {
     margin-bottom: 3px;
     opacity: 0.6;
 }
+
+.bg-lightgreen {
+    background-color: lightgreen;
+}

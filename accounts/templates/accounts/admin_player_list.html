@@ -25,12 +25,11 @@
     {% csrf_token %}
     <button type="submit" class="btn btn-success">Start a new game?</button>
 </form>
-<br><br>
 {% elif game.in_progress %}
 <p class="alert alert-success">Game in progress</p>
 {% endif %}
 {% if players %}
-<h2>Player list</h2>
+<h2 class="mt-4">Player list</h2>
 <table class="player_list table table-hover">
     <thead class="thead-light">
         <tr>
@@ -67,7 +66,7 @@
             {% if player.alive == True %}
             <form action="{% url 'accounts:manual_open' %}" method="POST">
                 {% csrf_token %}
-                <button type="submit"class="btn btn-secondary">{% if player.manual_open %}Undo{% else %}Set manual open{% endif %}</button>
+                <button type="submit"class="btn btn-secondary btn-block">{% if player.manual_open %}Undo{% else %}Set manual open{% endif %}</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
             {% endif %}
@@ -75,7 +74,7 @@
         <td>
             <form action="{% url 'accounts:manual_kill' %}" method="POST" onsubmit="return confirm('Are you sure? Reviving a player will give them a random target');">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-secondary">{% if player.alive %}Manual kill{% else %}Revive{% endif %}</button>
+                <button type="submit" class="btn btn-secondary btn-block">{% if player.alive %}Manual kill{% else %}Revive{% endif %}</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
         </td>
@@ -85,7 +84,7 @@
         <td>
             <form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure? This can not be undone');">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Delete</button>
+                <button type="submit" class="btn btn-danger btn-block">Delete</button>
                 <input type="hidden" value="{{ player.pk }}" name="pk">
             </form>
         </td>

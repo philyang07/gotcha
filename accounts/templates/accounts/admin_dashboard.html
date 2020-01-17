@@ -7,7 +7,7 @@
             <div class="card-header">Information</div>
             <div class="card-body">
                 <p>Email: {{ user.email }}</p>
-                <p>Game access code (GIVE THIS TO NEW PLAYERS): {{ user.game.access_code }}</p>
+                <p>Game access code: {{ user.game.access_code }}</p>
                 <p>Players that have registered: {{ user.game.players.count }}</p>
             </div>
         </div>
@@ -15,11 +15,12 @@
     
     <div class="col-lg-7">
         <div class="card">
-            <div class="card-header">
-                Game 
+            <div class="card-header text-monospace">
+                Status: <strong>{% if game.in_registration %}registration stage{% elif game.in_target_sending %}targets assigned{% elif game.in_progress_no_winner %}elimination stage{% else %}complete{% endif %}</strong>
+
             </div>
             <div class="card-body">
-                <div class="row align-items-center rounded ml-2 mr-2 {% if game.in_registration %}bg-success {% endif %}p-2">
+                <div class="row align-items-center rounded ml-2 mr-2 {% if game.in_registration %}bg-lightgreen {% endif %}p-2">
                     <div class="col-sm-5">
                         1. Send out targets to players 
                     </div>
@@ -31,7 +32,7 @@
                     </div>  
                 </div>
                 
-                <div class="row align-items-center rounded  ml-2 mt-3 mr-2 {% if game.in_target_sending %}bg-success {% endif %} p-2">
+                <div class="row align-items-center rounded  ml-2 mt-3 mr-2 {% if game.in_target_sending %}bg-lightgreen {% endif %} p-2">
                     <div class="col-sm-5">
                         2. Begin the elimination round
                     </div>
@@ -44,7 +45,7 @@
                 </div>
                 
                 {% if game.winner or game.in_progress_no_winner %}
-                <div class="row align-items-center rounded ml-2 mt-3 mr-2 {% if game.winner %}bg-success {% endif %} p-2">
+                <div class="row align-items-center rounded ml-2 mt-3 mr-2 {% if game.winner %}bg-lightgreen {% endif %} p-2">
                     {% if game.winner %}
                     <div class="col-sm-5">
                         3. Start a new game
