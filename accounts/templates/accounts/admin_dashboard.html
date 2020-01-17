@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Game dashboard{% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-lg-5">
+<div class="row mb-5">
+    <div class="col-lg-5 mb-3">
         <div class="card">
             <div class="card-header">Information</div>
             <div class="card-body">
@@ -19,7 +19,7 @@
                 Game 
             </div>
             <div class="card-body">
-                <div class="row mb-3 align-items-center rounded {% if game.in_registration %}bg-info {% endif %}p-2">
+                <div class="row align-items-center rounded ml-2 mr-2 {% if game.in_registration %}bg-success {% endif %}p-2">
                     <div class="col-sm-5">
                         1. Send out targets to players 
                     </div>
@@ -31,7 +31,7 @@
                     </div>  
                 </div>
                 
-                <div class="row align-items-center rounded {% if game.in_target_sending %}bg-info {% endif %} p-2">
+                <div class="row align-items-center rounded  ml-2 mt-3 mr-2 {% if game.in_target_sending %}bg-success {% endif %} p-2">
                     <div class="col-sm-5">
                         2. Begin the elimination round
                     </div>
@@ -43,7 +43,7 @@
                     </div>  
                 </div>
                 
-                <div class="row align-items-center rounded mt-3 {% if game.winner %}bg-info {% endif %} p-2">
+                <div class="row align-items-center rounded ml-2 mt-3 mr-2 {% if game.winner %}bg-success {% endif %} p-2">
                     {% if game.winner %}
                     <div class="col-sm-5">
                         3. Start a new game
@@ -64,7 +64,7 @@
 </div>
 
 
-<a href="{% url 'accounts:change_details' %}" class="btn btn-primary">Change details</a>
+<a href="{% url 'accounts:change_details' %}" class="btn btn-secondary">Change details</a>
 
 <a href="{% url 'accounts:delete_game' %}" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete game</a>
 
