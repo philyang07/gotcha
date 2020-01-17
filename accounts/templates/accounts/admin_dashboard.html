@@ -1,15 +1,71 @@
 {% extends 'base.html' %}
 {% block title %}Game dashboard{% endblock %}
 {% block content %}
-<p>Email: {{ user.email }}</p>
-<p>Game access code: {{ user.game.access_code }}</p>
-<!-- <a href="{% url 'accounts:player_list' %}">Player list</a>
-{% if user.game.in_progress %}
-<a href="{% url 'accounts:graveyard' %}">Graveyard</a>
-{% endif %} -->
+<div class="row">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header">Information</div>
+            <div class="card-body">
+                <p>Email: {{ user.email }}</p>
+                <p>Game access code (GIVE THIS TO NEW PLAYERS): {{ user.game.access_code }}</p>
+                <p>Players that have registered: {{ user.game.players.count }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                Game 
+            </div>
+            <div class="card-body">
+                <div class="row mb-3 align-items-center rounded {% if game.in_registration %}bg-info {% endif %}p-2">
+                    <div class="col-sm-5">
+                        1. Send out targets to players 
+                    </div>
+                    <div class="col-sm-7">
+                        <form action="{% url 'accounts:reset_player_data' %} " style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
+                            {% csrf_token %}
+                            <button type="submit"class="btn btn-secondary btn-block" {% if not game.in_registration %}disabled{% endif %}>Assign targets</button>
+                        </form>
+                    </div>  
+                </div>
+                
+                <div class="row align-items-center rounded {% if game.in_target_sending %}bg-info {% endif %} p-2">
+                    <div class="col-sm-5">
+                        2. Begin the elimination round
+                    </div>
+                    <div class="col-sm-7">
+                        <form action="{% url 'accounts:start_game' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
+                            {% csrf_token %}
+                            <button type="submit"class="btn btn-secondary btn-block" {% if not game.in_target_sending %}disabled{% endif %}>Start game</button>
+                        </form>
+                    </div>  
+                </div>
+                
+                <div class="row align-items-center rounded mt-3 {% if game.winner %}bg-info {% endif %} p-2">
+                    {% if game.winner %}
+                    <div class="col-sm-5">
+                        3. Start a new game
+                    </div>
+                    <div class="col-sm-7">
+                        <form action="{% url 'accounts:reset_game_to_start' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
+                            {% csrf_token %}
+                            <button type="submit"class="btn btn-secondary btn-block">Restart</button>
+                        </form>
+                    </div>  
+                    {% elif game.in_progress_no_winner %}
+                    <div class = "col-sm-12 alert alert-success mb-0">Game in progress</div>
+                    {% endif %}
+                </div>            
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <a href="{% url 'accounts:change_details' %}" class="btn btn-primary">Change details</a>
 
 <a href="{% url 'accounts:delete_game' %}" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete game</a>
 
-<!-- <a href="{% url 'accounts:logout' %}">Logout</a> -->
 {% endblock %}

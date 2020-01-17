@@ -157,14 +157,55 @@ def game_in_progress(user):
         return user.player.game.in_progress
     return not user.is_superuser and not user.game 
 
+def complete_assignment(current_player, target_code):
+    # regardless, the player submitting in the legit codes will get a kill
+    game = current_player.game
+    current_player.kills += 1
+    current_player.manual_open = False
 
+    """ 
+    killing a player on the open list means
+        1. the open player's original killer gets a new target; the open player's target 
+    """
+    open_codes = [p.secret_code for p in current_player.game.open_players()]
+
+    # always prioritise actual target; or won't get credit for kill!
+    if target_code == current_player.target.secret_code: # target is the actual target
+        old_target = current_player.target
+        if current_player == old_target.target:
+            current_player.target = None
+        else:
+            current_player.target = old_target.target
+        old_target.alive = False
+        old_target.target = None
+        current_player.last_active = old_target.last_active = timezone.now()
+        old_target.save()
+        current_player.save()
+    else: # open otherwise
+        open_player = Player.objects.get(game=game, secret_code=target_code)
+        open_player_killer = Player.objects.get(game=game, target__secret_code=target_code)
+        open_player_killer.target = open_player.target
+        open_player.target = None
+        open_player.alive = False
+        current_player.last_active = open_player.last_active = timezone.now()
+        current_player.save()
+        open_player.save()
+        open_player_killer.save()
 
 @user_passes_test(not_superuser, login_url="accounts:login")
 @login_required(login_url="accounts:login")
 def profile(request):
     if request.user.has_perm("accounts.game_admin"):
-        return render(request, 'accounts/admin_dashboard.html')
-    return render(request, 'accounts/profile.html')
+        return render(request, 'accounts/admin_dashboard.html', {'game': request.user.game})
+
+    form = AssignmentForm(request.POST, request=request)
+    if request.method == "POST":
+        if form.is_valid():
+            complete_assignment(request.user.player, form.cleaned_data['target_code'])
+            return HttpResponseRedirect(reverse('accounts:profile'))
+    else:
+        form = AssignmentForm()
+    return render(request, 'accounts/profile.html', {'game': request.user.player.game, 'form': form,})
 
 @user_passes_test(not_superuser, login_url="accounts:login")
 @login_required(login_url="accounts:login")
@@ -214,11 +255,10 @@ def assignment(request):
                 current_player.save()
                 open_player.save()
                 open_player_killer.save()
-
             return HttpResponseRedirect(reverse('accounts:profile'))
     else:
         form = AssignmentForm()
-    return render(request, 'accounts/assignment.html', {'form': form})
+    return render(request, 'accounts/profile.html', {'form': form})
 
 @user_passes_test(not_superuser, login_url="accounts:login")
 @login_required(login_url="accounts:login")

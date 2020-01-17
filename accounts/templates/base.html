@@ -23,9 +23,6 @@
                         <a class="nav-item nav-link {% if url_name == 'accounts:rules' %}active{% endif %}" href="{% url 'accounts:rules' %}">Rules</a>
                         <a class="nav-item nav-link {% if url_name == 'accounts:profile' %}active{% endif %}" href="{% url 'accounts:profile' %}">{% if user.game %}Game dashboard{% else %}Player profile{% endif %}</a>
                         <a class="nav-item nav-link {% if url_name == 'accounts:player_list' %}active{% endif %}" href="{% url 'accounts:player_list' %}">Player List</a>
-                        {% if user.player.game.in_progress == True and user.player.secret_code and user.player.alive == True and not user.player.game.winner %}
-                        <a class="nav-item nav-link {% if url_name == 'accounts:assignment' %}active{% endif %}" href="{% url 'accounts:assignment' %}">Assignment</a>
-                        {% endif %}   
                         {% if user.player.game.in_progress == True or user.game and user.game.in_progress == True %}
                         <a class="nav-item nav-link {% if url_name == 'accounts:graveyard' %}active{% endif %}" href="{% url 'accounts:graveyard' %}">Graveyard</a>
                         {% endif %}   
@@ -61,5 +58,6 @@
                 $('[data-toggle="tooltip"]').tooltip()
             })
         </script>
+        {% block scripts %}{% endblock %}
     </body>
 </html>

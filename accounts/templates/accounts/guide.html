@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Guide{% endblock %}
 {% block content %}
-<h2 class="">The basic rules of 'Assassin'</h2>
-The simple premise of the game
+<p class="h4 text-muted">Assassin is a popular game often played with large groups of people with the simple premise:</p>
 <ul class="list-styled">
     <li>All players are assigned a target (one-to-one) that they need to 'eliminate'</li>
     <li>Once a player eliminates their target, they get a new target: the target of their original target</li>
@@ -12,15 +11,19 @@ The simple premise of the game
 <p>An 'open list' contains players that can be eliminated by any other player, and is useful for speeding up the progress of the game. 
     A common rule is that if a player is inactive for 24 hours, they will be put onto the open list.</p>
 
-<h2>How to use the manager?</h2>
+<p class="h4 text-muted">How to use the manager?</p class="lead">
 <p>Firstly, the organiser of the game <a href="{% url 'accounts:create_game' %}">creates a game</a>. There are 3 stages to running a game.</p>
 <ol>
-    <li>The registration stage: new players <a href="{% url 'accounts:register' %}">register</a> for the game via an <b>access code</b> set by the game organiser</li>
-    <li>Target assignment: the players will be assigned their targets and the players can now check who their target is</li>
-    <li>The elimination stage: players can now eliminate their target and submit their completed assignment</li>
+    <li><strong>The registration stage</strong>: new players <a href="{% url 'accounts:register' %}">register</a> for the game via an <b>access code</b> set by the game organiser</li>
+    <li><strong>Target assignment</strong>: the players will be assigned their targets and the players can now check who their target is</li>
+    <li><strong>The elimination stage</strong>: players can now eliminate their target and submit their completed assignment
+        <ul>
+            <li>Submission requires acquiring the target's <strong>secret code</strong> and submitting it on the website for validation</li>
+        </ul>
+    </li>
 </ol>
 
-<h3>What tools are provided by the manager?</h3>
+<p class="h4 text-muted">What tools are provided by the manager?</p>
 <ol>
     <li>Open list management
         <ul>

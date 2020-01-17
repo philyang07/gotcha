@@ -84,6 +84,20 @@ class Game(models.Model):
             player.initialize(with_code=with_code)
 
 
+
+    # game phase properties
+    @property
+    def in_registration(self):
+        return not self.players().filter(secret_code__isnull=False)
+
+    @property
+    def in_target_sending(self):
+        return self.players().filter(secret_code__isnull=False) and not self.in_progress
+
+    @property
+    def in_progress_no_winner(self):
+        return self.in_progress and not self.winner
+
     def reset(self, to_start=False): # resets the players after registration stage
         if to_start:
             # the self.in_progress shouldn't matter; as the players not in the game don't have codes anyway
