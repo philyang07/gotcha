@@ -1,4 +1,5 @@
 from django.shortcuts import render, reverse
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Permission
@@ -334,13 +335,16 @@ def delete_player(request):
         else:
             return HttpResponseRedirect(reverse('accounts:player_list'))
         player.manual_delete()
+        messages.add_message(request, messages.INFO, 'Deleted ' + str(player))
     else:
         if not request.user.has_perm("accounts.game_admin"):
             request.user.player.manual_delete()
+            messages.add_message(request, messages.INFO, 'Your account was deleted')
             logout(request)
     if not game.players().filter(secret_code__isnull=False): # if this deletes the last player of the game, run it back to the start!
         game.in_progress = False
         game.save()
+        messages.add_message(request, messages.INFO, 'The last player was deleted so the game was reset back to registration')
     if not request.user.has_perm('accounts.game_admin'):
         return HttpResponseRedirect(reverse('accounts:home'))
     return HttpResponseRedirect(reverse('accounts:player_list'))
@@ -356,8 +360,10 @@ def manual_open(request):
         player = Player.objects.get(pk=request.POST["pk"])
         if player.manual_open:
             player.manual_open = False
+            messages.add_message(request, messages.INFO, 'Set ' + str(player) + " to not manually open")
         else:
             player.manual_open = True
+            messages.add_message(request, messages.INFO, 'Set ' + str(player) + " to manually open")
         player.save()
         return HttpResponseRedirect(reverse('accounts:player_list'))
     return HttpResponseRedirect(reverse('accounts:login'))
@@ -371,8 +377,10 @@ def manual_kill(request):
         player = Player.objects.get(pk=request.POST["pk"])
         if not player.alive:
             player.manual_add()
+            messages.add_message(request, messages.INFO, 'Revived ' + str(player) + " with random target")
         else:
             player.manual_kill()
+            messages.add_message(request, messages.INFO, 'Manually killed ' + str(player))
     else:
         if not request.user.has_perm("accounts.game_admin"):
             request.user.player.manual_kill()
@@ -395,26 +403,38 @@ def manual_add(request):
 @login_required(login_url="accounts:login")
 def reset_player_data(request):
     request.user.game.reset()
+    if request.POST.get('reset'):
+        messages.add_message(request, messages.INFO, "Reset players' kills and targets")
+    else:
+        messages.add_message(request, messages.INFO, 'Sent targets to players')
     return HttpResponseRedirect(reverse('accounts:player_list'))
 
-@login_required(login_url="accounts:delete_game")
+@login_required(login_url="accounts:login")
 def delete_game(request):
     request.user.game.delete_game()
+    messages.add_message(request, messages.INFO, 'Game deleted')
     return HttpResponseRedirect(reverse('accounts:login'))
 
 @login_required(login_url="accounts:login")
 def reset_game_to_start(request):
     request.user.game.reset(to_start=True)
+    messages.add_message(request, messages.INFO, 'Reset back to registration stage')
     return HttpResponseRedirect(reverse('accounts:player_list'))
 
 @login_required(login_url="accounts:login")
 def reassign_targets(request):
+    messages.add_message(request, messages.INFO, 'Reassigned targets')
     request.user.game.reassign_targets()
     return HttpResponseRedirect(reverse('accounts:player_list'))
 
 @login_required(login_url="accounts:login")
 def start_game(request):
     game = request.user.game
+
+    if len(game.players().filter(secret_code__isnull=False)) < 2:
+        messages.add_message(request, messages.WARNING, "Can only start a game with 2 players or more!")
+        return HttpResponseRedirect(reverse('accounts:profile'))
+
     game.in_progress = True
     game.save()
 
@@ -422,4 +442,5 @@ def start_game(request):
         player.last_active = timezone.now()
         player.save()
 
+    messages.add_message(request, messages.INFO, 'Elimination stage has begun')
     return HttpResponseRedirect(reverse('accounts:player_list'))

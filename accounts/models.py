@@ -23,7 +23,6 @@ class Game(models.Model):
     in_progress = models.BooleanField('in progess', default=False)
     rules = RichTextField(blank=True, null=True, default=None)
     max_players = models.IntegerField('max players', default=50)
-    # rules = models.TextField('rules', max_length=1000, default=None)
 
 
     class Meta:

@@ -2,7 +2,6 @@
 {% block title %}Player list{% endblock %}
 {% block content %}
 {% if game.in_progress == False and players %}
-    <p class="alert alert-info">Targets and secret codes sent to players</p>
     <form action="{% url 'accounts:start_game' %}" method="POST">
         {% csrf_token %}
         <button type="submit" class="btn btn-success">Start game</button>
@@ -31,7 +30,7 @@
 {% if players %}
 <h2 class="mt-4">Player list</h2>
 <div class="table-responsive">
-    <table class="player_list table table-hover">
+    <table class="player_list table">
         <thead class="thead-light">
             <tr>
                 <th>Player</th>
@@ -151,12 +150,13 @@
 <form action="{% url 'accounts:reset_player_data' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
     <button type="submit"class="btn btn-secondary">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
+    {% if players %}<input type="hidden" name="reset" value="reset">{% endif %}
 </form>
 {% endif %}
 {% if game.has_sent_info %}
 <form action="{% url 'accounts:reassign_targets' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
-    <button type="submit"class="btn btn-secondary">Reassign targets</button>
+    <button type="submit" class="btn btn-secondary">Reassign targets</button>
 </form>
 {% endif %}
 {% endif %}

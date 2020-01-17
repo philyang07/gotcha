@@ -2,22 +2,24 @@
 {% block title %}Graveyard{% endblock %}
 {% block content %}
 {% if dead_players %}
-<table class="table table-responsive">
-    <thead class="thead-light">
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th>Player</th>
+                <th>Time of death</th>
+                <th>Death message</th>
+            </tr>
+        </thead>
+        {% for player in dead_players %}
         <tr>
-            <th>Player</th>
-            <th>Time of death</th>
-            <th>Death message</th>
+            <td>{{ player }}</td>
+            <td>{{ player.last_active }}</td>
+            <td>{{ player.death_message }}</td>
         </tr>
-    </thead>
-    {% for player in dead_players %}
-    <tr>
-        <td>{{ player }}</td>
-        <td>{{ player.last_active }}</td>
-        <td>{{ player.death_message }}</td>
-    </tr>
-    {% endfor %}
-</table>
+        {% endfor %}
+    </table>
+</div>
 {% else %}
 <p>No-one has been eliminated yet</p>
 {% endif %}
