@@ -396,6 +396,7 @@ def manual_add(request):
             return HttpResponseRedirect(reverse('accounts:player_list'))
         player = Player.objects.get(pk=request.POST["pk"])
         player.manual_add()
+        messages.add_message(request, messages.INFO, "Added " + str(player) + " into the arena")
     if request.user.has_perm("accounts.game_admin"):
         return HttpResponseRedirect(reverse('accounts:player_list'))
     return HttpResponseRedirect(reverse('accounts:profile'))
