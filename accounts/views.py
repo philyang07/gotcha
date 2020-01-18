@@ -341,7 +341,7 @@ def delete_player(request):
             request.user.player.manual_delete()
             messages.add_message(request, messages.INFO, 'Your account was deleted')
             logout(request)
-    if not game.players().filter(secret_code__isnull=False): # if this deletes the last player of the game, run it back to the start!
+    if not game.players().filter(secret_code__isnull=False) and not game.in_registration: # if this deletes the last player of the game, run it back to the start!
         game.in_progress = False
         game.save()
         messages.add_message(request, messages.INFO, 'The last player was deleted so the game was reset back to registration')
@@ -407,8 +407,9 @@ def reset_player_data(request):
         request.user.game.reset()
         messages.add_message(request, messages.INFO, "Reset players' kills and targets")
     else:
-        if len(game.players()) < 2:
+        if len(request.user.game.players()) < 2:
             messages.add_message(request, messages.INFO, "Can't assign targets with less than two players!")
+            return HttpResponseRedirect(reverse('accounts:profile'))
         else:
             request.user.game.reset()
             messages.add_message(request, messages.INFO, 'Sent targets to players')

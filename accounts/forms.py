@@ -109,6 +109,7 @@ class AssignmentForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
         super(AssignmentForm, self).__init__(*args, **kwargs)
+        self.fields['target_code'].help_text = "Once you complete an elimination, you must ask the target for their secret code"
 
     target_code = forms.IntegerField(label="Target code")
 

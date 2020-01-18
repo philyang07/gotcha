@@ -149,14 +149,14 @@
 {% if new_players or players %}
 <form action="{% url 'accounts:reset_player_data' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
-    <button type="submit"class="btn btn-secondary">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
+    <button type="submit" class="btn btn-secondary" data-toggle="tooltip" title="{% if players %}Give all players in the arena new secret codes, new targets{% else %}Assign targets to players in arena{% endif %}">{% if players %}Reset player data{% else %}Generate secret codes and assign targets{% endif %}</button>
     {% if players %}<input type="hidden" name="reset" value="reset">{% endif %}
 </form>
 {% endif %}
 {% if game.has_sent_info %}
 <form action="{% url 'accounts:reassign_targets' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}
-    <button type="submit" class="btn btn-secondary">Reassign targets</button>
+    <button type="submit" class="btn btn-secondary" data-toggle="tooltip" title="This assigns targets for the players in the arena">Reassign targets</button>
 </form>
 {% endif %}
 {% endif %}
@@ -167,5 +167,5 @@
     <input type="hidden" name="pk" value="{{ game.pk }}">
 </form>
 {% endif %}
-<div><a href="{% url 'accounts:profile' %}" class="btn btn-link">Go back</a></div>
+<div class="mt-5"><a href="{% url 'accounts:profile' %}" class="btn btn-link">Go back</a></div c>
 {% endblock %}

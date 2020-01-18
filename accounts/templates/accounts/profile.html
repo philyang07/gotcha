@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-header">Information</div>
             <div class="card-body">
-                <p>Welcome {{ user.first_name }}!</p>
+                <p>Welcome {{ user.first_name }}!</p >
                 <p>Your registered email is {{ user.email }}</p>
                 {% if user.player.secret_code %}
                 <p>Your secret code is <strong>{{ user.player.secret_code }}</strong></p>
@@ -18,12 +18,28 @@
                 {% if user.player.secret_code %}
                 <p>You {% if user.player.alive %}have{% else %}had{% endif %} {{ user.player.kills }} elimination{{ user.player.kills|pluralize:"s" }}.</p>
                 {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header text-monospace">Game status</div>
+            <div class="card-body text-monospace">
+                {% if game.in_registration %}
+                <p class="mb-0" data-toggle="tooltip" title="Waiting for more players to register">In registration</p>
+                {% elif game.in_target_sending %}
+                <p class="mb-0" data-toggle="tooltip" title="Players can check their target but can't eliminate them yet">Targets assigned</p>
+                {% elif game.in_elimination_stage %}
+                <p class="mb-0" data-toggle="tooltip" {% if player.alive %}title="You can now eliminate your target (or 'open' players)"{% endif %}>Elimination stage</p>
+                {% if user.player.alive == False %}
+                <p class="alert alert-secondary mt-3 mb-0">You have been eliminated</p>
+                {% elif user.player.is_open == True %}
+                <p class="alert alert-danger mt-3 mb-0" data-toggle="tooltip" title="Anyone can eliminate you!">You are on the open list!</p>
+                {% endif %}
+                {% else %}
                 {% if user.player == user.player.game.winner %}
-                <p>Congratulations, you are the last player standing!</p>
+                <p class="alert alert-success mt-3 mb-0">Congratulations! You are the last person standing!</p>
                 {% elif game.winner %}
-                <p>The game has ended. {{ game.winner }} is the last person standing</p>
-                {% elif user.player.alive == False %}
-                <p>You were eliminated</p>
+                <p class="alert alert-success mt-3 mb-0">The game has finished! The last person standing is {{ game.winner }}</p>
                 {% endif %}
                 {% endif %}
             </div>
@@ -31,7 +47,12 @@
     </div>   
     <div class="col-lg-5">
         <div class="card" id="assignment-card">
-            <div class="card-header" disabled>Completed an elimination?</div>
+            <div class="card-header" disabled>
+                Completed an elimination? Submit it below.
+                {% if game.in_elimination_stage == False or player.alive == False %} 
+                <div class="text-muted"><small>(this is unavailable since the game hasn't started yet)</small></div>
+                {% endif %}
+            </div>
             <div class="card-body">
                 <form action="{% url 'accounts:profile' %}" method="post">
                     {% csrf_token %}
@@ -57,7 +78,7 @@
 <!-- <a href="{% url 'accounts:logout' %}">Logout</a> -->
 {% endblock %}
 {% block scripts %}
-{% if game.in_elimination_stage == False or player.alive == False %}
+{% if game.in_elimination_stage == False or user.player.alive == False %}
 <script>
     $('#assignment-card').find('*').attr('disabled', true);
 </script>
