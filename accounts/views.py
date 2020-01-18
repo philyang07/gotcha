@@ -403,11 +403,15 @@ def manual_add(request):
 
 @login_required(login_url="accounts:login")
 def reset_player_data(request):
-    request.user.game.reset()
     if request.POST.get('reset'):
+        request.user.game.reset()
         messages.add_message(request, messages.INFO, "Reset players' kills and targets")
     else:
-        messages.add_message(request, messages.INFO, 'Sent targets to players')
+        if len(game.players()) < 2:
+            messages.add_message(request, messages.INFO, "Can't assign targets with less than two players!")
+        else:
+            request.user.game.reset()
+            messages.add_message(request, messages.INFO, 'Sent targets to players')
     return HttpResponseRedirect(reverse('accounts:player_list'))
 
 @login_required(login_url="accounts:login")
