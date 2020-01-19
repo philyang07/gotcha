@@ -4,8 +4,8 @@
 <form action="{% url 'accounts:change_details' %}" method="post">
     {% csrf_token %}
     {% include 'accounts/form_display.html' with form=form %}
-    <input type="submit" value="Save changes" class="btn btn-primary">
-    <a href="{% url 'accounts:password_change' %}" class="btn btn-secondary">Change password</a>
-    <a href="{% url 'accounts:profile' %}" class="btn btn-link">Go back</a>
+    <input type="submit" value="Save changes" class="btn btn-primary mr-3 mb-3">
+    <a href="{% url 'accounts:password_change' %}" class="btn btn-secondary mr-3 mb-3">Change password</a>
+    <a href="{% url 'accounts:profile' %}" class="btn btn-link mb-3">Go back</a>
 </form>
 {% endblock %}

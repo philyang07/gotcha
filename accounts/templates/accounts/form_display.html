@@ -1,9 +1,15 @@
+{% load myfilters %}
+
 {% include 'accounts/form_errors.html' with form=form %}
 {% for field in form %}
 {{ form.media }}
 <div class="form-group">
     <label>{{ field.label }}</label>
+    {% if field.field.widget|is_ckeditor_field %}
+    <div>{{ field }}</div>
+    {% else %}
     {{ field }}
+    {% endif %}
     <small class="form-text text-muted">{{ field.help_text }}</small>
 </div>
 {% endfor %}

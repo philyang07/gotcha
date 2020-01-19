@@ -131,8 +131,6 @@ class ChangeGameDetailsForm(PrettyForm):
         self.fields['max_players'].help_text = "Limit to the number of players that can register for this game"
         self.fields['rules'].help_text = "Let the players know about any special rules e.g. safezones"
 
-
-
     email = forms.EmailField(label="Email", max_length=100)
     access_code = forms.CharField(label="Access code", max_length=5, required=False)
     open_duration = forms.IntegerField(label="Open duration", required=True, min_value = 1, max_value=999)
