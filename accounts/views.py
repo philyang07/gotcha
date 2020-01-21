@@ -10,6 +10,7 @@ from .models import Player, Game
 from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
+from .tasks import start_elimination_round, send_targets_and_codes
 
 # Create your views here.
 def not_superuser(user):
@@ -67,6 +68,8 @@ def change_details(request):
         initial['max_players'] = user.game.max_players
         initial['access_code'] = user.game.access_code
         initial['rules'] = user.game.rules
+        initial['target_assignment_time'] = user.game.target_assignment_time
+        initial['start_elimination_time'] = user.game.start_elimination_time
     else:
         form = ChangePlayerDetailsForm(request.POST, request=request)
         template = 'accounts/change_player_details.html'
@@ -82,11 +85,24 @@ def change_details(request):
                 request.user.player.death_message = form.cleaned_data['death_message']
                 request.user.player.save()
             else:
-                request.user.game.open_duration = form.cleaned_data['open_duration']
-                request.user.game.access_code = form.cleaned_data['access_code']
-                request.user.game.max_players = form.cleaned_data['max_players']
-                request.user.game.rules = form.cleaned_data['rules']
-                request.user.game.save()
+                tat = form.cleaned_data['target_assignment_time']
+                selt = form.cleaned_data['start_elimination_time']
+                game = request.user.game
+                game.open_duration = form.cleaned_data['open_duration']
+                game.access_code = form.cleaned_data['access_code']
+                game.max_players = form.cleaned_data['max_players']
+                game.rules = form.cleaned_data['rules']
+
+
+                if tat != game.target_assignment_time and tat:
+                    send_targets_and_codes.apply_async((game.pk, ), eta=tat)
+
+                if selt != game.start_elimination_time and selt:
+                    start_elimination_round.apply_async((game.pk, ), eta=selt)
+                
+                game.target_assignment_time = tat
+                game.start_elimination_time = selt
+                game.save()
 
             request.user.email = form.cleaned_data['email']
             request.user.username = form.cleaned_data['email']
@@ -410,8 +426,13 @@ def reset_player_data(request):
         if len(request.user.game.players()) < 2:
             messages.add_message(request, messages.INFO, "Can't assign targets with less than two players!")
             return HttpResponseRedirect(reverse('accounts:profile'))
+        elif not request.user.game.in_registration:
+            if request.user.game.in_target_sending:
+                messages.add_message(request, messages.INFO, "Already assigned targets!")
+            return HttpResponseRedirect(reverse('accounts:player_list'))               
         else:
             request.user.game.reset()
+            request.user.game.target_assignment_time = None
             messages.add_message(request, messages.INFO, 'Sent targets to players')
     return HttpResponseRedirect(reverse('accounts:player_list'))
 
@@ -437,11 +458,17 @@ def reassign_targets(request):
 def start_game(request):
     game = request.user.game
 
+    if not game.in_target_sending:
+        if game.in_elimination_stage:
+            messages.add_message(request, messages.INFO, "Already started game!")
+        return HttpResponseRedirect(reverse('accounts:player_list'))
+    
     if len(game.players().filter(secret_code__isnull=False)) < 2:
         messages.add_message(request, messages.WARNING, "Can only start a game with 2 players or more!")
         return HttpResponseRedirect(reverse('accounts:profile'))
 
     game.in_progress = True
+    game.start_elimination_time = None
     game.save()
 
     for player in game.players().filter(secret_code__isnull=False):
