@@ -58,6 +58,6 @@ def send_targets_and_codes(game_pk):
     
 @task()
 def test():
-    print("pog")
+    print("test")
 
 
