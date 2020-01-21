@@ -22,6 +22,9 @@
                 <div class="row align-items-center rounded ml-2 mr-2 {% if game.in_registration %}bg-lightgreen {% endif %}p-2">
                     <div class="col-sm-5">
                         1. Send out targets to players 
+                        {% if game.target_assignment_time %}
+                        <div class="text-monospace"><small>Scheduled at {{ game.target_assignment_time }}</small></div>
+                        {% endif %}
                     </div>
                     <div class="col-sm-7">
                         <form action="{% url 'accounts:reset_player_data' %} " style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
@@ -33,7 +36,10 @@
                 
                 <div class="row align-items-center rounded  ml-2 mt-3 mr-2 {% if game.in_target_sending %}bg-lightgreen {% endif %} p-2">
                     <div class="col-sm-5">
-                        2. Begin the elimination round
+                        2. Begin the elimination round 
+                        {% if game.start_elimination_time %}
+                        <div class="text-monospace"><small>Scheduled at {{ game.start_elimination_time }}</small></div>
+                        {% endif %}
                     </div>
                     <div class="col-sm-7">
                         <form action="{% url 'accounts:start_game' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
@@ -66,8 +72,8 @@
 </div>
 
 
-<a href="{% url 'accounts:change_details' %}" class="btn btn-secondary mb-3 mr-3">Change details</a>
+<a href="{% url 'accounts:change_details' %}" class="btn btn-secondary mb-3 mr-3" data-toggle="tooltip" title="All important configuration settings for the game">Settings</a>
 
-<a href="{% url 'accounts:delete_game' %}" onclick="return confirm('Are you sure?')" class="btn btn-danger mb-3">Delete game</a>
+<a href="{% url 'accounts:delete_game' %}" onclick="return confirm('Are you sure?')" class="btn btn-danger mb-3" data-toggle="tooltip" title="Permanently deletes game and all user/player data">Delete game</a>
 
 {% endblock %}

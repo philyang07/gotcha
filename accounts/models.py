@@ -23,7 +23,8 @@ class Game(models.Model):
     in_progress = models.BooleanField('in progess', default=False)
     rules = RichTextField(blank=True, null=True, default=None)
     max_players = models.IntegerField('max players', default=50)
-
+    target_assignment_time = models.DateTimeField('target assignment time', null=True, blank=True)
+    start_elimination_time = models.DateTimeField('start elimination time', null=True, blank=True)
 
     class Meta:
         permissions = [
@@ -95,7 +96,7 @@ class Game(models.Model):
 
     @property
     def in_elimination_stage(self):
-        return self.in_progress and not self.winner
+        return self.in_progress and not self.winner 
 
     def reset(self, to_start=False): # resets the players after registration stage
         if to_start:

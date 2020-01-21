@@ -6,6 +6,10 @@ from django.core.exceptions import ValidationError
 from ckeditor.widgets import CKEditorWidget
 # from djrichtextfield.models import RichTextWidget
 from .models import Player, Game
+from tempus_dominus.widgets import DateTimePicker
+
+from django.utils import timezone
+import datetime
 
 class PrettyPasswordResetForm(PasswordResetForm):
     def __init__(self, *args, **kwargs):
@@ -130,12 +134,42 @@ class ChangeGameDetailsForm(PrettyForm):
         self.fields['access_code'].help_text = "Give this to new players so that they can join your game"
         self.fields['max_players'].help_text = "Limit to the number of players that can register for this game"
         self.fields['rules'].help_text = "Let the players know about any special rules e.g. safezones"
+        if not self.request.user.game.in_registration:
+            self.fields['target_assignment_time'].disabled = True
+            self.fields['target_assignment_time'].help_text = "Already past registration"
+        if not self.request.user.game.in_registration and not self.request.user.game.in_target_sending:
+            self.fields['start_elimination_time'].disabled = True  
+            self.fields['start_elimination_time'].help_text = "Already sent targets"  
 
     email = forms.EmailField(label="Email", max_length=100)
     access_code = forms.CharField(label="Access code", max_length=5, required=False)
     open_duration = forms.IntegerField(label="Open duration", required=True, min_value = 1, max_value=999)
     max_players = forms.IntegerField(label="Max no. of players", required=True, min_value=2, max_value=500)
     rules = forms.CharField(label="Rules", widget=CKEditorWidget(), max_length=1000, required=False)
+    target_assignment_time = forms.DateTimeField(label='Target assignment time',         
+        widget=DateTimePicker(
+            options = {
+                'format':  "MM/DD/YYYY HH:mm",
+                'useCurrent': True,
+                'collapse': False,
+            },
+            attrs={
+                'append': 'fa fa-calendar',
+                'icon_toggle': True,
+            }
+        ), required=False)
+    start_elimination_time = forms.DateTimeField(label='Start elimination time', 
+        widget=DateTimePicker(
+            options = {
+                'format':  "MM/DD/YYYY HH:mm",
+                'useCurrent': True,
+                'collapse': False,
+            },
+            attrs={
+                'append': 'fa fa-calendar',
+                'icon_toggle': True,
+            }
+        ), required=False)
 
     def clean_access_code(self):
         access_code = self.cleaned_data["access_code"].upper()
@@ -154,6 +188,19 @@ class ChangeGameDetailsForm(PrettyForm):
             raise ValidationError("Someone already registered with that email")
         return email
 
+    def clean(self):
+        cleaned_data = super(ChangeGameDetailsForm, self).clean()
+
+        if cleaned_data['start_elimination_time']: 
+            if cleaned_data['target_assignment_time'] and cleaned_data['start_elimination_time'] < cleaned_data['target_assignment_time']:
+                raise ValidationError("Elimination start time must be after target assignment time")
+            elif cleaned_data['start_elimination_time'] <= timezone.now():
+                raise ValidationError("Start elimination time must be after now!")
+
+        if cleaned_data['target_assignment_time'] and cleaned_data['target_assignment_time'] <= timezone.now():
+            raise ValidationError("Target assignment time must be after now!")
+
+        return cleaned_data
 
 class ChangePlayerDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object

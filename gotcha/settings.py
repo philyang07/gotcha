@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'ckeditor',
+    'tempus_dominus',
 ]
 
 MIDDLEWARE = [
@@ -134,6 +135,7 @@ if os.environ.get('DEBUG'):
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
+
 # DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 
 AUTH_PASSWORD_VALIDATORS = []
@@ -153,7 +155,16 @@ CKEDITOR_CONFIGS = {
             ]
         ),
     },
-
 }
+
+# Celery settings
+# CELERY_BROKER_URL = 'pyamqp://guest@localhost//'
+# CELERY_BROKER_URL = 'redis://localhost/'
+# CELERY_TASK_ALWAYS_EAGER = True
+# BROKER_URL=os.environ['REDIS_URL']
+CELERY_BROKER_URL=os.environ['REDIS_URL']
+CELERY_RESULT_BACKEND=os.environ['REDIS_URL']
+
+TEMPUS_DOMINUS_LOCALIZE = True
 
 django_heroku.settings(locals())
