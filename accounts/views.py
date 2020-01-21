@@ -10,7 +10,7 @@ from .models import Player, Game
 from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
-from .tasks import start_elimination_round, send_targets_and_codes
+from .tasks import *
 
 # Create your views here.
 def not_superuser(user):
@@ -95,10 +95,13 @@ def change_details(request):
 
 
                 if tat != game.target_assignment_time and tat:
-                    send_targets_and_codes.apply_async((game.pk, ), eta=tat)
+                    # send_targets_and_codes.apply_async((game.pk, ), eta=tat)
+                    test.delay()
 
                 if selt != game.start_elimination_time and selt:
-                    start_elimination_round.apply_async((game.pk, ), eta=selt)
+                    # start_elimination_round.apply_async((game.pk, ), eta=selt)
+                    test.delay()
+
                 
                 game.target_assignment_time = tat
                 game.start_elimination_time = selt

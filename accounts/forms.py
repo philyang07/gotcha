@@ -197,7 +197,7 @@ class ChangeGameDetailsForm(PrettyForm):
             elif cleaned_data['start_elimination_time'] <= timezone.now():
                 raise ValidationError("Start elimination time must be after now!")
 
-        if cleaned_data['target_assignment_time'] and cleaned_data['target_assignment_time'] <= timezone.now():
+        if cleaned_data.get('target_assignment_time') and cleaned_data['target_assignment_time'] <= timezone.now():
             raise ValidationError("Target assignment time must be after now!")
 
         return cleaned_data

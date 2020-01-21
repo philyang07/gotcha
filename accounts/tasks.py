@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from .models import Game
 
-from celery import shared_task
+from celery import shared_task, task
 
 @shared_task
 def start_elimination_round(game_pk):
@@ -56,3 +56,8 @@ def send_targets_and_codes(game_pk):
     if game.in_registration:
         game.reset()
     
+@task()
+def test():
+    print("pog")
+
+
