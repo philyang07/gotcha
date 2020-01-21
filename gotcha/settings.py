@@ -158,12 +158,12 @@ CKEDITOR_CONFIGS = {
 }
 
 # Celery settings
-CELERY_BROKER_URL = 'pyamqp://guest@localhost//'
+# CELERY_BROKER_URL = 'pyamqp://guest@localhost//'
 # CELERY_BROKER_URL = 'redis://localhost/'
 # CELERY_TASK_ALWAYS_EAGER = True
 # BROKER_URL=os.environ['REDIS_URL']
-# CELERY_BROKER_URL=os.environ['CLOUDAMQP_URL']
-# CELERY_RESULT_BACKEND=os.environ['CLOUDAMQP_URL']
+CELERY_BROKER_URL=os.environ['REDIS_URL']
+CELERY_RESULT_BACKEND=os.environ['REDIS_URL']
 
 TEMPUS_DOMINUS_LOCALIZE = True
 
