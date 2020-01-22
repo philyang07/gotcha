@@ -171,6 +171,9 @@ CKEDITOR_CONFIGS = {
 # CELERY_TASK_ALWAYS_EAGER = True
 # CELERY_BROKER_URL=os.environ['REDIS_URL']
 CELERY_BROKER_URL="redis://127.0.0.1/"
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
 # CELERY_RESULT_BACKEND=os.environ['REDIS_URL']
 # CELERY_RESULT_BACKEND="amqp://dyfobtkj:YsAQDCL9MtX8dNjL7a91-fdlhJzaR9H2@vulture.rmq.cloudamqp.com/dyfobtkj"
 

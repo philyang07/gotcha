@@ -1,2 +1,2 @@
-web: gunicorn gotcha.wsgi --log-level DEBUG
+web: gunicorn gotcha.wsgi 
 worker: celery -A gotcha worker -l info
