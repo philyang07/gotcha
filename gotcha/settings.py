@@ -160,6 +160,7 @@ CKEDITOR_CONFIGS = {
 # Celery settings
 # CELERY_BROKER_URL = 'pyamqp://guest@localhost//'
 CELERY_BROKER_URL = os.environ['CLOUDAMQP_URL']
+CELERY_BROKER_POOL_LIMIT = 1
 # CELERY_TASK_ALWAYS_EAGER = True
 # BROKER_URL=os.environ['REDIS_URL']
 # CELERY_BROKER_URL=os.environ['REDIS_URL']
