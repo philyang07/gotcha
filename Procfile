@@ -1,2 +1,2 @@
 web: gunicorn gotcha.wsgi 
-worker: celery -A gotcha worker -l info
+clock: python accounts/scheduler.py

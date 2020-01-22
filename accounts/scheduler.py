@@ -1,12 +1,29 @@
-from __future__ import absolute_import, unicode_literals
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 
-from datetime import datetime, timedelta
+import sys, os, django
+sys.path.append(os.path.abspath(os.path.join('..', 'gotcha')))
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gotcha.settings')
+django.setup()
+from accounts.models import Game
 from django.utils import timezone
-from .models import Game
+from time import sleep
 
-from celery import shared_task, task
+scheduler = BackgroundScheduler()
 
-@shared_task
+def loop_job():
+    for game in Game.objects.filter(target_assignment_time__isnull=False):
+        if timezone.now() > game.target_assignment_time:
+            send_targets_and_codes(game.pk)
+    
+    for game in Game.objects.filter(start_elimination_time__isnull=False):
+        if timezone.now() > game.start_elimination_time:
+            start_elimination_round(game.pk)
+
+# def say_hello_job():
+#     for game in Game.objects.all():
+#         if Game.
+
 def start_elimination_round(game_pk):
     if not Game.objects.filter(pk=game_pk):
         return # just in case the game doesn't exist anymore!
@@ -38,7 +55,6 @@ def start_elimination_round(game_pk):
         player.last_active = timezone.now()
         player.save()
 
-@shared_task
 def send_targets_and_codes(game_pk):
     if not Game.objects.filter(pk=game_pk):
         return
@@ -55,9 +71,11 @@ def send_targets_and_codes(game_pk):
     game.save()
     if game.in_registration:
         game.reset()
-    
-@shared_task
-def test():
-    print("test")
 
+scheduler.add_job(loop_job, 'interval', seconds=3)
+
+scheduler.start()
+
+while True:
+    sleep(60)
 

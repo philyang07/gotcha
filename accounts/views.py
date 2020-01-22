@@ -10,7 +10,9 @@ from .models import Player, Game
 from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
+import sys, os
 from .tasks import *
+
 
 # Create your views here.
 def not_superuser(user):
@@ -93,15 +95,11 @@ def change_details(request):
                 game.max_players = form.cleaned_data['max_players']
                 game.rules = form.cleaned_data['rules']
 
+                # if tat != game.target_assignment_time and tat:
+                #     send_targets_and_codes.apply_async((game.pk, ), eta=tat)
 
-                if tat != game.target_assignment_time and tat:
-                    send_targets_and_codes.apply_async((game.pk, ), eta=tat)
-                    # test.delay()
-
-                if selt != game.start_elimination_time and selt:
-                    start_elimination_round.apply_async((game.pk, ), eta=selt)
-                    # test.delay()
-
+                # if selt != game.start_elimination_time and selt:
+                #     start_elimination_round.apply_async((game.pk, ), eta=selt)
                 
                 game.target_assignment_time = tat
                 game.start_elimination_time = selt
