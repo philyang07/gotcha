@@ -1,2 +1,2 @@
 web: gunicorn gotcha.wsgi 
-worker: celery -A tasks worker -l info
+worker: celery -A gotcha worker -l info

@@ -6,6 +6,14 @@ from .models import Game
 
 from celery import shared_task, task
 
+# from celery import Celery
+
+# app = Celery('tasks', backend='amqp://dyfobtkj:YsAQDCL9MtX8dNjL7a91-fdlhJzaR9H2@vulture.rmq.cloudamqp.com/dyfobtkj', broker="pyamqp://dyfobtkj:YsAQDCL9MtX8dNjL7a91-fdlhJzaR9H2@vulture.rmq.cloudamqp.com/dyfobtkj")
+
+@shared_task
+def add(x, y):
+    return x + y
+
 @shared_task
 def start_elimination_round(game_pk):
     if not Game.objects.filter(pk=game_pk):
@@ -56,7 +64,7 @@ def send_targets_and_codes(game_pk):
     if game.in_registration:
         game.reset()
     
-@task()
+@shared_task
 def test():
     print("test")
 
