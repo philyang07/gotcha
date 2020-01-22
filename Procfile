@@ -1,2 +1,2 @@
 web: gunicorn gotcha.wsgi 
-clock: python accounts/scheduler.py
+clock: python manage.py process_tasks

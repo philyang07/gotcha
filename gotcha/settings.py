@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'ckeditor',
     'tempus_dominus',
+    'background_task',
 ]
 
 MIDDLEWARE = [
