@@ -159,12 +159,20 @@ CKEDITOR_CONFIGS = {
 
 # Celery settings
 # CELERY_BROKER_URL = 'pyamqp://guest@localhost//'
-CELERY_BROKER_URL = os.environ['CLOUDAMQP_URL']
-CELERY_BROKER_POOL_LIMIT = 1
+# CELERY_BROKER_URL = "amqp://czlylfvc:OpVgWdDlLhll2skdsqapF0c8AWZr5eOs@fox.rmq.cloudamqp.com/czlylfvc"
+# CELERY_BROKER_URL = os.environ['CLOUDAMQP_URL']
+# CELERY_BROKER_URL = "pyamqp://dyfobtkj:YsAQDCL9MtX8dNjL7a91-fdlhJzaR9H2@vulture.rmq.cloudamqp.com/dyfobtkj" # self-made
+# CELERY_BROKER_URL = "redis://rediscloud:HwvYf4EUPwSi6WmGEiC49K28ZCymmUSp@redis-18821.c90.us-east-1-3.ec2.cloud.redislabs.com:18821"
+# CELERY_BROKER_POOL_LIMIT = 3
+# CELERY_WORKER_CONCURRENCY = 1
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
 # CELERY_TASK_ALWAYS_EAGER = True
-# BROKER_URL=os.environ['REDIS_URL']
 # CELERY_BROKER_URL=os.environ['REDIS_URL']
+CELERY_BROKER_URL="redis://127.0.0.1/"
 # CELERY_RESULT_BACKEND=os.environ['REDIS_URL']
+# CELERY_RESULT_BACKEND="amqp://dyfobtkj:YsAQDCL9MtX8dNjL7a91-fdlhJzaR9H2@vulture.rmq.cloudamqp.com/dyfobtkj"
 
 TEMPUS_DOMINUS_LOCALIZE = True
 

@@ -95,12 +95,12 @@ def change_details(request):
 
 
                 if tat != game.target_assignment_time and tat:
-                    # send_targets_and_codes.apply_async((game.pk, ), eta=tat)
-                    test.delay()
+                    send_targets_and_codes.apply_async((game.pk, ), eta=tat)
+                    # test.delay()
 
                 if selt != game.start_elimination_time and selt:
-                    # start_elimination_round.apply_async((game.pk, ), eta=selt)
-                    test.delay()
+                    start_elimination_round.apply_async((game.pk, ), eta=selt)
+                    # test.delay()
 
                 
                 game.target_assignment_time = tat
