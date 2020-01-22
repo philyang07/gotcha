@@ -24,7 +24,13 @@
     {% csrf_token %}
     <button type="submit" class="btn btn-success">Start a new game?</button>
 </form>
-{% elif game.in_progress %}
+{% elif game.force_ended %}
+<p>The game has been force ended.</p>
+<form action="{% url 'accounts:reset_game_to_start' %}" method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Start a new game?</button>
+</form>
+{% elif game.in_elimination_stage %}
 <p class="alert alert-success">Game in progress</p>
 {% endif %}
 {% if players %}

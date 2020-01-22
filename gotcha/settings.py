@@ -180,4 +180,6 @@ CELERY_BROKER_POOL_LIMIT = 3
 
 TEMPUS_DOMINUS_LOCALIZE = True
 
+BACKGROUND_TASK_RUN_ASYNC = True
+
 django_heroku.settings(locals())

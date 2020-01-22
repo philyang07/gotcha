@@ -67,11 +67,13 @@ def change_details(request):
         form = ChangeGameDetailsForm(request.POST, request=request)
         template = 'accounts/change_game_details.html'
         initial['open_duration'] = user.game.open_duration
+        initial['respawn_time'] = user.game.respawn_time
         initial['max_players'] = user.game.max_players
         initial['access_code'] = user.game.access_code
         initial['rules'] = user.game.rules
         initial['target_assignment_time'] = user.game.target_assignment_time
         initial['start_elimination_time'] = user.game.start_elimination_time
+        initial['game_end_time'] = user.game.game_end_time
     else:
         form = ChangePlayerDetailsForm(request.POST, request=request)
         template = 'accounts/change_player_details.html'
@@ -89,22 +91,35 @@ def change_details(request):
             else:
                 tat = form.cleaned_data['target_assignment_time']
                 selt = form.cleaned_data['start_elimination_time']
+                gendt = form.cleaned_data['game_end_time']
+                resp = form.cleaned_data['respawn_time']
                 game = request.user.game
                 game.open_duration = form.cleaned_data['open_duration']
                 game.access_code = form.cleaned_data['access_code']
                 game.max_players = form.cleaned_data['max_players']
                 game.rules = form.cleaned_data['rules']
 
+                if resp != game.respawn_time:
+                    Task.objects.filter(task_name="accounts.tasks.respawn_players", creator_object_id=game.pk).delete()
+                    if resp > 0:
+                        respawn_players(game.pk, resp, repeat=10, repeat_until=gendt, creator=game) 
+
                 if tat != game.target_assignment_time and tat:
                     # send_targets_and_codes.apply_async((game.pk, ), eta=tat)
-                    send_targets_and_codes(game.pk, schedule=tat)
+                    send_targets_and_codes(game.pk, schedule=tat, creator=game)
 
                 if selt != game.start_elimination_time and selt:
                     # start_elimination_round.apply_async((game.pk, ), eta=selt)
-                    start_elimination_round(game.pk, schedule=selt)
+                    start_elimination_round(game.pk, schedule=selt, creator=game)
                 
+                if gendt != game.game_end_time and gendt:
+                    end_game(game.pk, schedule=gendt, creator=game)
+
                 game.target_assignment_time = tat
                 game.start_elimination_time = selt
+                game.game_end_time = gendt
+                game.respawn_time = resp
+
                 game.save()
 
             request.user.email = form.cleaned_data['email']
@@ -446,9 +461,18 @@ def delete_game(request):
     return HttpResponseRedirect(reverse('accounts:login'))
 
 @login_required(login_url="accounts:login")
+def force_end_game(request):
+    if request.method == "POST":
+        request.user.game.force_ended = True
+        request.user.game.save()
+        messages.add_message(request, messages.INFO, 'Game has been force ended')
+    return HttpResponseRedirect(reverse('accounts:profile'))
+
+@login_required(login_url="accounts:login")
 def reset_game_to_start(request):
-    request.user.game.reset(to_start=True)
-    messages.add_message(request, messages.INFO, 'Reset back to registration stage')
+    if request.method == "POST":
+        request.user.game.reset(to_start=True)
+        messages.add_message(request, messages.INFO, 'Reset back to registration stage')
     return HttpResponseRedirect(reverse('accounts:player_list'))
 
 @login_required(login_url="accounts:login")

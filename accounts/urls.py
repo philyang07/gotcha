@@ -32,6 +32,7 @@ urlpatterns = [
     path('start_game/', views.start_game, name="start_game"),
     path('delete_game/', views.delete_game, name="delete_game"),
     path('reset_game_to_start/', views.reset_game_to_start, name="reset_game_to_start"),
+    path('force_end_game/', views.force_end_game, name="force_end_game"),
 
 
     path('password_change/', auth_views.PasswordChangeView.as_view(

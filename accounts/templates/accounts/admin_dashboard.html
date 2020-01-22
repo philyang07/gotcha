@@ -49,9 +49,9 @@
                     </div>  
                 </div>
                 
-                {% if game.winner or game.in_elimination_stage %}
+                {% if game.winner or game.force_ended or game.in_elimination_stage%}
                 <div class="row align-items-center rounded ml-2 mt-3 mr-2 {% if game.winner %}bg-lightgreen {% endif %} p-2">
-                    {% if game.winner %}
+                    {% if game.winner or game.force_ended %}
                     <div class="col-sm-5">
                         3. Start a new game
                     </div>
@@ -62,7 +62,13 @@
                         </form>
                     </div>  
                     {% elif game.in_elimination_stage %}
-                    <div class = "col-sm-12 alert alert-success mb-0">Game in progress</div>
+                    <div class = "col-sm-5 alert alert-success mb-2">Game in progress {% if game.game_end_time %}<div class="text-monospace">(scheduled to end at {{ game.game_end_time }})</div>{% endif %}</div>
+                    <div class="col-sm-7">
+                        <form action="{% url 'accounts:force_end_game' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
+                            {% csrf_token %}
+                            <button type="submit"class="btn btn-secondary btn-block mb-2">Force end</button>
+                        </form>
+                    </div>
                     {% endif %}
                 </div>    
                 {% endif %}        

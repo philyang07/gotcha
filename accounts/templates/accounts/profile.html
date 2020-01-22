@@ -28,7 +28,7 @@
                 <p class="mb-0" data-toggle="tooltip" title="Waiting for more players to register">In registration</p>
                 {% elif game.in_target_sending %}
                 <p class="mb-0" data-toggle="tooltip" title="Players can check their target but can't eliminate them yet">Targets assigned</p>
-                {% elif game.in_elimination_stage %}
+                {% elif game.in_elimination_stage and not game.winner and not game.force_ended %}
                 <p class="mb-0" data-toggle="tooltip" {% if player.alive %}title="You can now eliminate your target (or 'open' players)"{% endif %}>Elimination stage</p>
                 {% if user.player.alive == False %}
                 <p class="alert alert-secondary mt-3 mb-0">You have been eliminated</p>
@@ -40,6 +40,8 @@
                 <p class="alert alert-success mt-3 mb-0">Congratulations! You are the last person standing!</p>
                 {% elif game.winner %}
                 <p class="alert alert-success mt-3 mb-0">The game has finished! The last person standing is {{ game.winner }}</p>
+                {% elif game.force_ended %}
+                <p class="alert alert-info mt-3 mb-0">The game has concluded without a last person standing. Refer to the player list for stats.</p>
                 {% endif %}
                 {% endif %}
             </div>

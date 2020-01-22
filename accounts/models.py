@@ -20,11 +20,14 @@ class Game(models.Model):
     access_code = models.CharField('access code', max_length=5, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
     open_duration = models.IntegerField('open duration', default=24) # in hours
-    in_progress = models.BooleanField('in progess', default=False)
+    in_progress = models.BooleanField('in progress', default=False)
     rules = RichTextField(blank=True, null=True, default=None)
     max_players = models.IntegerField('max players', default=50)
     target_assignment_time = models.DateTimeField('target assignment time', null=True, blank=True)
     start_elimination_time = models.DateTimeField('start elimination time', null=True, blank=True)
+    force_ended = models.BooleanField('force ended', default=False)
+    game_end_time = models.DateTimeField('game end time', null=True, blank=True)
+    respawn_time = models.IntegerField('respawn time', default=0)
 
     class Meta:
         permissions = [
@@ -61,7 +64,7 @@ class Game(models.Model):
     def populate_players(self):
         for i in range(5):
             if len(self.players()) >= self.max_players:
-                break;
+                break
 
             email = Game.generate_access_code().lower() + "@gmail.com"
             first_name = Game.generate_access_code().lower().capitalize()
@@ -96,13 +99,14 @@ class Game(models.Model):
 
     @property
     def in_elimination_stage(self):
-        return self.in_progress and not self.winner 
+        return self.in_progress and not self.winner and not self.force_ended
 
     def reset(self, to_start=False): # resets the players after registration stage
         if to_start:
             # the self.in_progress shouldn't matter; as the players not in the game don't have codes anyway
             self.initialize_players(in_game=self.in_progress, with_code=False)
             self.in_progress = False
+            self.force_ended = False
             self.save()
         else:
             self.initialize_players(in_game=self.in_progress, with_code=True)
@@ -288,7 +292,7 @@ class Player(models.Model):
             random_alive.save()
             self.target = random_alive_target
         
-        if self.secret_code: # 
+        if self.secret_code:
             self.initialize(with_code=True, keep_kills=True)
         else:
             self.initialize(with_code=True)

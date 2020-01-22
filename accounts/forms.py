@@ -131,6 +131,7 @@ class ChangeGameDetailsForm(PrettyForm):
         self.request = kwargs.pop('request', None)
         super(ChangeGameDetailsForm, self).__init__(*args, **kwargs)   
         self.fields['open_duration'].help_text = "This is the timeframe in hours in which an elimination must be completed within before getting put on the open list"
+        self.fields['respawn_time'].help_text = "How long a player is dead for before respawning in hours. Set to 0 for no respawning."
         self.fields['access_code'].help_text = "Give this to new players so that they can join your game"
         self.fields['max_players'].help_text = "Limit to the number of players that can register for this game"
         self.fields['rules'].help_text = "Let the players know about any special rules e.g. safezones"
@@ -140,36 +141,56 @@ class ChangeGameDetailsForm(PrettyForm):
         if not self.request.user.game.in_registration and not self.request.user.game.in_target_sending:
             self.fields['start_elimination_time'].disabled = True  
             self.fields['start_elimination_time'].help_text = "Already sent targets"  
+        if self.request.user.game.winner or self.request.user.game.force_ended:
+            self.fields['game_end_time'].disabled = True  
+            self.fields['game_end_time'].help_text = "Game already ended"             
 
     email = forms.EmailField(label="Email", max_length=100)
     access_code = forms.CharField(label="Access code", max_length=5, required=False)
     open_duration = forms.IntegerField(label="Open duration", required=True, min_value = 1, max_value=999)
     max_players = forms.IntegerField(label="Max no. of players", required=True, min_value=2, max_value=500)
     rules = forms.CharField(label="Rules", widget=CKEditorWidget(), max_length=1000, required=False)
+
     target_assignment_time = forms.DateTimeField(label='Target assignment time',         
         widget=DateTimePicker(
             options = {
                 'format':  "MM/DD/YYYY HH:mm",
                 'useCurrent': True,
-                'collapse': False,
+                'collapse': True,
             },
             attrs={
                 'append': 'fa fa-calendar',
                 'icon_toggle': True,
             }
         ), required=False)
+
     start_elimination_time = forms.DateTimeField(label='Start elimination time', 
         widget=DateTimePicker(
             options = {
                 'format':  "MM/DD/YYYY HH:mm",
                 'useCurrent': True,
-                'collapse': False,
+                'collapse': True,
             },
             attrs={
                 'append': 'fa fa-calendar',
                 'icon_toggle': True,
             }
         ), required=False)
+
+    game_end_time = forms.DateTimeField(label='Game end time', 
+        widget=DateTimePicker(
+            options = {
+                'format':  "MM/DD/YYYY HH:mm",
+                'useCurrent': True,
+                'collapse': True,
+            },
+            attrs={
+                'append': 'fa fa-calendar',
+                'icon_toggle': True,
+            }
+        ), required=False)
+
+    respawn_time = forms.IntegerField(label="Respawn time", min_value=0, max_value=999)
 
     def clean_access_code(self):
         access_code = self.cleaned_data["access_code"].upper()
@@ -191,7 +212,15 @@ class ChangeGameDetailsForm(PrettyForm):
     def clean(self):
         cleaned_data = super(ChangeGameDetailsForm, self).clean()
 
-        if cleaned_data['start_elimination_time']: 
+        if cleaned_data.get('game_end_time'):
+            if cleaned_data['start_elimination_time'] and cleaned_data['game_end_time'] < cleaned_data['start_elimination_time']:
+                raise ValidationError("Game end time must be after start elimination time")
+            elif cleaned_data['target_assignment_time'] and cleaned_data['game_end_time'] < cleaned_data['target_assignment_time']:
+                raise ValidationError("Game end time must be after target assignment time")
+            elif cleaned_data['game_end_time'] <= timezone.now():
+                raise ValidationError("Game end time must be after now!")
+
+        if cleaned_data.get('start_elimination_time'): 
             if cleaned_data['target_assignment_time'] and cleaned_data['start_elimination_time'] < cleaned_data['target_assignment_time']:
                 raise ValidationError("Elimination start time must be after target assignment time")
             elif cleaned_data['start_elimination_time'] <= timezone.now():

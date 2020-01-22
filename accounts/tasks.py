@@ -63,6 +63,8 @@
 
 from django.utils import timezone
 from background_task import background
+from background_task.models import Task
+from datetime import timedelta
 from .models import Game
 
 @background
@@ -115,3 +117,43 @@ def send_targets_and_codes(game_pk):
     if game.in_registration:
         game.reset()
  
+@background
+def end_game(game_pk):
+    if not Game.objects.filter(pk=game_pk):
+        return
+    
+    game = Game.objects.get(pk=game_pk)
+    if not game.game_end_time:
+        return
+
+    if timezone.now() < game.game_end_time:
+        return     
+
+    game.game_end_time = None
+    game.save()
+    if game.in_elimination_stage:
+        game.force_ended = True
+        game.save()
+
+@background
+def delete_tasks(game_pk): # deletes the respawn tasks
+    Task.objects.filter(task_name="accounts.tasks.respawn_players", creator_object_id=game_pk).delete()
+
+@background
+def respawn_players(game_pk, resp):
+    if not Game.objects.filter(pk=game_pk):
+        return
+
+    game = Game.objects.get(pk=game_pk)
+  
+    if game.winner or game.force_ended:
+        delete_tasks(game_pk, schedule=timedelta(seconds=2))
+        game.respawn_time = 0
+        game.save()
+        return
+
+    if not game.in_elimination_stage:
+        return
+
+    for player in game.players().filter(secret_code__isnull=False, alive=False, last_active__lte=timezone.now()-timedelta(hours=resp)):
+        player.manual_add()
