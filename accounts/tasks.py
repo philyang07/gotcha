@@ -156,7 +156,7 @@ def schedule_respawn(game_pk, resp):
     if not Game.objects.filter(pk=game_pk):
         return
     game = Game.objects.get(pk=game_pk)
-    respawn_players(game_pk, resp, repeat=10, repeat_until=game.game_end_time, creator=game)
+    respawn_players(game_pk, resp, repeat=30, repeat_until=game.game_end_time, creator=game)
     
 
 @background

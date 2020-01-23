@@ -106,7 +106,7 @@ def change_details(request):
                         if selt: # if start elimination time specified
                             schedule_respawn(game.pk, resp, schedule=selt, creator=game)
                         elif game.in_elimination_stage:
-                            respawn_players(game.pk, resp, repeat=10, repeat_until=game.game_end_time, creator=game)
+                            respawn_players(game.pk, resp, repeat=30, repeat_until=game.game_end_time, creator=game)
                         elif game.winner or game.force_ended:
                             resp = 0
 
@@ -502,7 +502,7 @@ def start_game(request):
 
     game.in_progress = True
     if game.respawn_time > 0:
-        respawn_players(game.pk, game.respawn_time, repeat=10, repeat_until=game.game_end_time, creator=game)
+        respawn_players(game.pk, game.respawn_time, repeat=30, repeat_until=game.game_end_time, creator=game)
     
     game.start_elimination_time = None
     game.save()
