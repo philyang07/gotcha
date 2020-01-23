@@ -99,10 +99,16 @@ def change_details(request):
                 game.max_players = form.cleaned_data['max_players']
                 game.rules = form.cleaned_data['rules']
 
-                if resp != game.respawn_time:
+                if resp != game.respawn_time or selt != game.start_elimination_time:
                     Task.objects.filter(task_name="accounts.tasks.respawn_players", creator_object_id=game.pk).delete()
+                    Task.objects.filter(task_name="accounts.tasks.schedule_respawn", creator_object_id=game.pk).delete()
                     if resp > 0:
-                        respawn_players(game.pk, resp, repeat=10, repeat_until=gendt, creator=game) 
+                        if selt: # if start elimination time specified
+                            schedule_respawn(game.pk, resp, schedule=selt, creator=game)
+                        elif game.in_elimination_stage:
+                            respawn_players(game.pk, resp, repeat=10, repeat_until=game.game_end_time, creator=game)
+                        elif game.winner or game.force_ended:
+                            resp = 0
 
                 if tat != game.target_assignment_time and tat:
                     # send_targets_and_codes.apply_async((game.pk, ), eta=tat)
@@ -495,6 +501,9 @@ def start_game(request):
         return HttpResponseRedirect(reverse('accounts:profile'))
 
     game.in_progress = True
+    if game.respawn_time > 0:
+        respawn_players(game.pk, game.respawn_time, repeat=10, repeat_until=game.game_end_time, creator=game)
+    
     game.start_elimination_time = None
     game.save()
 

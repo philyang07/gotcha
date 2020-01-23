@@ -63,12 +63,17 @@
 
 from django.utils import timezone
 from background_task import background
-from background_task.models import Task
+from background_task.models import Task, CompletedTask
 from datetime import timedelta
 from .models import Game
 
+
+def delete_completed_tasks():
+    CompletedTask.objects.all().delete()
+    
 @background
 def start_elimination_round(game_pk):
+    delete_completed_tasks()
     if not Game.objects.filter(pk=game_pk):
         return # just in case the game doesn't exist anymore!
 
@@ -101,6 +106,7 @@ def start_elimination_round(game_pk):
 
 @background
 def send_targets_and_codes(game_pk):
+    delete_completed_tasks()
     if not Game.objects.filter(pk=game_pk):
         return
     
@@ -119,6 +125,7 @@ def send_targets_and_codes(game_pk):
  
 @background
 def end_game(game_pk):
+    delete_completed_tasks()
     if not Game.objects.filter(pk=game_pk):
         return
     
@@ -135,12 +142,26 @@ def end_game(game_pk):
         game.force_ended = True
         game.save()
 
+
 @background
 def delete_tasks(game_pk): # deletes the respawn tasks
     Task.objects.filter(task_name="accounts.tasks.respawn_players", creator_object_id=game_pk).delete()
+    Task.objects.filter(task_name="accounts.tasks.schedule_respawn", creator_object_id=game_pk).delete()
+    delete_completed_tasks()
+
+
+@background
+def schedule_respawn(game_pk, resp):
+    delete_completed_tasks()
+    if not Game.objects.filter(pk=game_pk):
+        return
+    game = Game.objects.get(pk=game_pk)
+    respawn_players(game_pk, resp, repeat=10, repeat_until=game.game_end_time, creator=game)
+    
 
 @background
 def respawn_players(game_pk, resp):
+    delete_completed_tasks()
     if not Game.objects.filter(pk=game_pk):
         return
 

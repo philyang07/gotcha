@@ -143,6 +143,7 @@ class ChangeGameDetailsForm(PrettyForm):
             self.fields['start_elimination_time'].help_text = "Already sent targets"  
         if self.request.user.game.winner or self.request.user.game.force_ended:
             self.fields['game_end_time'].disabled = True  
+            self.fields['respawn_time'].disabled = True  
             self.fields['game_end_time'].help_text = "Game already ended"             
 
     email = forms.EmailField(label="Email", max_length=100)
