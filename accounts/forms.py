@@ -130,7 +130,7 @@ class ChangeGameDetailsForm(PrettyForm):
     def __init__(self, *args, **kwargs): # to pass in the request object
         self.request = kwargs.pop('request', None)
         super(ChangeGameDetailsForm, self).__init__(*args, **kwargs)   
-        self.fields['open_duration'].help_text = "This is the timeframe in hours in which an elimination must be completed within before getting put on the open list"
+        self.fields['open_duration'].help_text = "This is the timeframe in hours in which an elimination must be completed within before automatically getting put onto the open list. Set to 0 to turn off."
         self.fields['respawn_time'].help_text = "How long a player is dead for before respawning in hours. Set to 0 for no respawning."
         self.fields['access_code'].help_text = "Give this to new players so that they can join your game"
         self.fields['max_players'].help_text = "Limit to the number of players that can register for this game"
@@ -148,7 +148,7 @@ class ChangeGameDetailsForm(PrettyForm):
 
     email = forms.EmailField(label="Email", max_length=100)
     access_code = forms.CharField(label="Access code", max_length=5, required=False)
-    open_duration = forms.IntegerField(label="Open duration", required=True, min_value = 1, max_value=999)
+    open_duration = forms.IntegerField(label="Open duration", required=True, min_value = 0, max_value=999)
     max_players = forms.IntegerField(label="Max no. of players", required=True, min_value=2, max_value=500)
     rules = forms.CharField(label="Rules", widget=CKEditorWidget(), max_length=1000, required=False)
 
@@ -191,7 +191,7 @@ class ChangeGameDetailsForm(PrettyForm):
             }
         ), required=False)
 
-    respawn_time = forms.IntegerField(label="Respawn time", min_value=0, max_value=999)
+    respawn_time = forms.IntegerField(label="Respawn time", min_value=0, max_value=999, required=False)
 
     def clean_access_code(self):
         access_code = self.cleaned_data["access_code"].upper()

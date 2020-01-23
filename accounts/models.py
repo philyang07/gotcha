@@ -8,6 +8,8 @@ from django.dispatch import receiver
 from datetime import timedelta
 from ckeditor.fields import RichTextField
 import string
+import json
+from random import choice
 
 # Create your models here.
 class GamePlayerManager(models.Manager):
@@ -62,13 +64,19 @@ class Game(models.Model):
         return self.access_code + " - " + self.admin.email
 
     def populate_players(self):
+        first_name_list = last_name_list = None
+        with open('accounts/first-names.json') as first:
+            first_name_list = json.load(first)
+        with open('accounts/last-names.json') as last:
+            last_name_list = json.load(last)
+
         for i in range(5):
             if len(self.players()) >= self.max_players:
                 break
-
-            email = Game.generate_access_code().lower() + "@gmail.com"
-            first_name = Game.generate_access_code().lower().capitalize()
-            last_name = Game.generate_access_code().lower().capitalize()
+            
+            first_name = choice(first_name_list).capitalize()
+            last_name = choice(last_name_list).capitalize()
+            email = first_name.lower() + last_name.lower() + "@mail.com"
 
             user = User.objects.create_user(email, email, 123, 
                                     first_name=first_name,
@@ -231,6 +239,10 @@ class Player(models.Model):
     def is_open(self):
         if not self.last_active:
             return False
+
+        if self.game.open_duration == 0:
+            return self.alive and self.manual_open
+
         return self.alive and (self.manual_open or timezone.now() - self.last_active > timedelta(hours=self.game.open_duration))
 
     def manual_delete(self):

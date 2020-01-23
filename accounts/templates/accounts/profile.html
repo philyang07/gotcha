@@ -29,7 +29,7 @@
                 {% elif game.in_target_sending %}
                 <p class="mb-0" data-toggle="tooltip" title="Players can check their target but can't eliminate them yet">Targets assigned</p>
                 {% elif game.in_elimination_stage and not game.winner and not game.force_ended %}
-                <p class="mb-0" data-toggle="tooltip" {% if player.alive %}title="You can now eliminate your target (or 'open' players)"{% endif %}>Elimination stage</p>
+                <p class="mb-0" data-toggle="tooltip" {% if player.alive %}title="You can now eliminate your target (or 'open' players)"{% endif %}>Elimination stage {% if game.game_end_time %}<div class="text-monospace">(scheduled to end at {{ game.game_end_time }})</div>{% endif %}</p>
                 {% if user.player.alive == False %}
                 <p class="alert alert-secondary mt-3 mb-0">You have been eliminated</p>
                 {% elif user.player.is_open == True %}
@@ -69,12 +69,12 @@
 
 {% if user.player.game.in_progress == True %}
 {% if user.player.alive == True and user.player.secret_code and user.player.game.in_elimination_stage %}
-<a href="{% url 'accounts:manual_kill' %}" onclick="return confirm('Are you sure?')" class="btn btn-secondary">Leave the game (your killer gets your target)</a>
+<a href="{% url 'accounts:manual_kill' %}" onclick="return confirm('Are you sure?')" class="btn btn-secondary mb-2" data-toggle="tooltip" title="You leave the game but your killer gets your target">Forfeit</a>
 {% endif %}
 {% endif %}
-<a href="{% url 'accounts:change_details' %}" class="btn btn-secondary">Change details</a>
+<a href="{% url 'accounts:change_details' %}" class="btn btn-secondary mb-2">Change details</a>
 {% if user.player.game.in_progress == False %} 
-<a href="{% url 'accounts:delete_player' %}" class="btn btn-secondary" onclick="return confirm('Are you sure? This can not be undone')" class="btn btn-secondary">Delete self</a>
+<a href="{% url 'accounts:delete_player' %}" class="btn btn-secondary mb-2" onclick="return confirm('Are you sure? This can not be undone')" class="btn btn-secondary">Leave the game</a>
 {% endif %}
 <br>
 <!-- <a href="{% url 'accounts:logout' %}">Logout</a> -->

@@ -47,12 +47,12 @@
                 <th>Eliminations</th>
                 <th>Open</th>
                 <th>Time since last assignment</th>
-                {% if not game.winner %}
+                {% if not game.winner and not game.force_ended %}
                 <th><a data-toggle="tooltip" title="This will put the player on the open list regardless of their duration of inactivity">Manual open</a></th>
                 <th><a data-toggle="tooltip" title="This will give the player's killer the player's target, and if revived, doesn't guaranetee the same target">Manual kill</a></th>
                 {% endif %}
                 {% endif %}
-                {% if not game.winner %}
+                {% if not game.winner and not game.force_ended %}
                 <th><a data-toggle="tooltip" title="This will delete the player's account permanently">Delete player</a></th>
                 {% endif %}
             </tr>
@@ -67,7 +67,7 @@
             <td>{{ player.kills }}</td>
             <td>{% if player.is_open == True %}OPEN{% endif %}</td>
             <td>{{ player.inactivity_duration }}</td>
-            {% if not game.winner %}        
+            {% if not game.winner and not game.force_ended %}        
             <td>
                 {% if player.alive == True %}
                 <form action="{% url 'accounts:manual_open' %}" method="POST">
@@ -86,7 +86,7 @@
             </td>
             {% endif %}
             {% endif %}
-            {% if not game.winner %}
+            {% if not game.winner and not game.force_ended %}
             <td>
                 <form action="{% url 'accounts:delete_player' %}" method="POST" onsubmit="return confirm('Are you sure? This can not be undone');">
                     {% csrf_token %}
@@ -109,7 +109,7 @@
             <tr>
                 <th>Player</th>
                 <th>Email</th>
-                {% if not game.winner %}
+                {% if not game.winner and not game.force_ended %}
                 {% if game.has_sent_info %}
                 <th>Add to arena</th>
                 {% endif %}
@@ -121,7 +121,7 @@
         <tr>
             <td>{{ player }}</td>
             <td>{{ player.user.email }}</td>
-            {% if not game.winner %}
+            {% if not game.winner and not game.force_ended %}
             {% if game.has_sent_info %}
             <td>
                 <form action="{% url 'accounts:manual_add' %}" method="POST" onsubmit="return confirm('Are you sure?');">
@@ -151,7 +151,7 @@
 <h2>Target ordering</h2>
 <p>{{ target_ordering|linebreaks }}</p>
 {% endif %}
-{% if not game.winner %}
+{% if not game.winner and not game.force_ended %}
 {% if new_players or players %}
 <form action="{% url 'accounts:reset_player_data' %}" style="display: inline" method="POST" onsubmit="return confirm('Are you sure?');">
     {% csrf_token %}

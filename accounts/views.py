@@ -242,7 +242,9 @@ def profile(request):
     form = AssignmentForm(request.POST, request=request)
     if request.method == "POST":
         if form.is_valid():
+            target_name = str(Player.objects.get(secret_code=form.cleaned_data['target_code']))
             complete_assignment(request.user.player, form.cleaned_data['target_code'])
+            messages.add_message(request, messages.SUCCESS, "You successfully eliminated " + target_name + "!")
             return HttpResponseRedirect(reverse('accounts:profile'))
     else:
         form = AssignmentForm()
@@ -266,6 +268,7 @@ def assignment(request):
             game = current_player.game
             current_player.kills += 1
             current_player.manual_open = False
+            target_name = None
 
             """ 
             killing a player on the open list means
@@ -277,6 +280,7 @@ def assignment(request):
             # always prioritise actual target; or won't get credit for kill!
             if target_code == current_player.target.secret_code: # target is the actual target
                 old_target = current_player.target
+                target_name = str(old_target)
                 if current_player == old_target.target:
                     current_player.target = None
                 else:
@@ -288,6 +292,7 @@ def assignment(request):
                 current_player.save()
             else: # open otherwise
                 open_player = Player.objects.get(game=game, secret_code=target_code)
+                target_name = str(open_player)
                 open_player_killer = Player.objects.get(game=game, target__secret_code=target_code)
                 open_player_killer.target = open_player.target
                 open_player.target = None
@@ -296,6 +301,7 @@ def assignment(request):
                 current_player.save()
                 open_player.save()
                 open_player_killer.save()
+            messages.add_message(request, messages.SUCCESS, "You successfully eliminated " + target_name + "!")
             return HttpResponseRedirect(reverse('accounts:profile'))
     else:
         form = AssignmentForm()

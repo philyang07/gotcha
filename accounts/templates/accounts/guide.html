@@ -11,29 +11,61 @@
 <p>An 'open list' contains players that can be eliminated by any other player, and is useful for speeding up the progress of the game. 
     A common rule is that if a player is inactive for 24 hours, they will be put onto the open list.</p>
 
-<p class="h4 text-muted">How to use the manager?</p class="lead">
+<p class="h4 text-muted mt-3">How to use the manager?</p class="lead">
 <p>Firstly, the organiser of the game <a href="{% url 'accounts:create_game' %}">creates a game</a>. There are 3 stages to running a game.</p>
-<ol>
-    <li><strong>The registration stage</strong>: new players <a href="{% url 'accounts:register' %}">register</a> for the game via an <b>access code</b> set by the game organiser</li>
-    <li><strong>Target assignment</strong>: the players will be assigned their targets and the players can now check who their target is</li>
-    <li><strong>The elimination stage</strong>: players can now eliminate their target and submit their completed assignment
-        <ul>
-            <li>Submission requires acquiring the target's <strong>secret code</strong> and submitting it on the website for validation</li>
-        </ul>
-    </li>
-</ol>
 
-<p class="h4 text-muted">What tools are provided by the manager?</p>
-<ol>
-    <li>Open list management
-        <ul>
-            <li>Set a custom duration for how long players can be inactive before being put onto the open list</li>
-            <li>Manually putting players onto the open list regardless of their inactivity</li>
-        </ul>
-    </li>
-    <li>Manual eliminations of players, including revival if necessary</li>
-    <li>Scrambling of targets, if you want to spice things up</li>
-    <li>A visual representation of the player-target chain</li>
-</ol>
+<div class="card-group">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">The registration stage</h5>
+            <p class="card-text">New players register using an <strong>access code</strong> provided by the organiser</p>
+        </div>
+    </div>
+    <div class="card">  
+        <div class="card-body">
+            <h5 class="card-title">Target assignment</h5>
+            <p class="card-text">Players are automatically randomly assigned targets, and can be viewed from the site.</p>
+        </div> 
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">The elimination stage</h5>
+            <p class="card-text">Players can now complete eliminations by submitting the <strong>secret code</strong> of their target onto this site.</p>
+        </div>
+    </div>
+</div>
 
+<p class="h4 text-muted mt-3 mb-3">What tools are provided by the manager?</p>
+<div class="card-group">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Open-list management</h5>
+            <p class="card-text">Automatically add players onto the certain list after being inactive for a given duration</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Player control</h5>
+            <p class="card-text">Players can manually be put on the open list, eliminated, revived.</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Scheduling</h5>
+            <p class="card-text">Schedule when the targets should be assigned, when the elimination stage should start, and/or when the game should end.</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Respawning</h5>
+            <p class="card-text">Automatically respawn players after they have been eliminated for a certain amount of time.</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Custom rule page</h5>
+            <p class="card-text">Write a rule page for your players, to let them know about special rules e.g. safezones</p>
+        </div>
+    </div>
+</div>
 {% endblock %}
