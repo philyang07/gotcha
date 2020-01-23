@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Profile{% endblock %}
 {% block content %}
-<div class="row mb-5">
+<div class="row mb-3">
     <div class="col-lg-6 mb-3">
         <div class="card">
             <div class="card-header">Information</div>
@@ -68,7 +68,7 @@
 
 
 {% if user.player.game.in_progress == True %}
-{% if user.player.alive == True and user.player.secret_code and not user.player.game.winner %}
+{% if user.player.alive == True and user.player.secret_code and user.player.game.in_elimination_stage %}
 <a href="{% url 'accounts:manual_kill' %}" onclick="return confirm('Are you sure?')" class="btn btn-secondary">Leave the game (your killer gets your target)</a>
 {% endif %}
 {% endif %}
