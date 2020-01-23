@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Guide{% endblock %}
 {% block content %}
 <p class="h4 text-muted">Assassin is a popular game often played with large groups of people with the simple premise:</p>
-<ul class="list-styled">
+<ul class="list-styled font-weight-light">
     <li>All players are assigned a target (one-to-one) that they need to 'eliminate'</li>
     <li>Once a player eliminates their target, they get a new target: the target of their original target</li>
     <li>The winner is the last person standing (or whoever has the most eliminations by the end of a given time frame etc.)</li>
 </ul>
-<p>The method of elimination is up to the decision of the game organiser and its players, but it must be completely harmless.</p>
+<p>The set method of elimination is up to the decision of the game organiser and its players, but it must be completely harmless.</p>
 <p>An 'open list' contains players that can be eliminated by any other player, and is useful for speeding up the progress of the game. 
     A common rule is that if a player is inactive for 24 hours, they will be put onto the open list.</p>
 
@@ -17,21 +18,24 @@
 <div class="card-group">
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">The registration stage</h5>
-            <p class="card-text">New players register using an <strong>access code</strong> provided by the organiser</p>
+            <h5 class="card-title">1. The registration stage</h5>
+            <p class="card-text">New players join the game via the <strong>access code</strong> provided by the organiser.</p>
         </div>
+        <img src="{% static 'accounts/images/registration.png' %}" class="card-img-bottom p-2">
     </div>
     <div class="card">  
         <div class="card-body">
-            <h5 class="card-title">Target assignment</h5>
-            <p class="card-text">Players are automatically randomly assigned targets, and can be viewed from the site.</p>
+            <h5 class="card-title">2. Target assignment</h5>
+            <p class="card-text">Players are automatically randomly assigned targets, which can be viewed from the site upon logging in.</p>
         </div> 
+        <img src="{% static 'accounts/images/assign-targets.png' %}" class="card-img-bottom p-2">
     </div>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">The elimination stage</h5>
+            <h5 class="card-title">3. The elimination stage</h5>
             <p class="card-text">Players can now complete eliminations by submitting the <strong>secret code</strong> of their target onto this site.</p>
         </div>
+        <img src="{% static 'accounts/images/elimination.png' %}" class="card-img-bottom p-2">
     </div>
 </div>
 
@@ -42,30 +46,35 @@
             <h5 class="card-title">Open-list management</h5>
             <p class="card-text">Automatically add players onto the certain list after being inactive for a given duration</p>
         </div>
+        <img src="{% static 'accounts/images/open-list.png' %}" class="card-img-bottom p-2">
     </div>
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Player control</h5>
             <p class="card-text">Players can manually be put on the open list, eliminated, revived.</p>
         </div>
+        <img src="{% static 'accounts/images/player-control.png' %}" class="card-img-bottom p-2">
     </div>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Scheduling</h5>
-            <p class="card-text">Schedule when the targets should be assigned, when the elimination stage should start, and/or when the game should end.</p>
+            <h5 class="card-title">Background scheduling</h5>
+            <p class="card-text">Specify the targets should be assigned, when the elimination stage should start, and even enable <strong>automatic respawning</strong> after a period of time.</p>
         </div>
+        <img src="{% static 'accounts/images/scheduling.png' %}" class="card-img-bottom p-2">
     </div>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Respawning</h5>
-            <p class="card-text">Automatically respawn players after they have been eliminated for a certain amount of time.</p>
+            <h5 class="card-title">A graveyard</h5>
+            <p class="card-text"></p>A page where the eliminated players are displayed, along with their own personalised message.</p>
         </div>
+        <img src="{% static 'accounts/images/graveyard.png' %}" class="card-img-bottom p-2">
     </div>
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Custom rule page</h5>
             <p class="card-text">Write a rule page for your players, to let them know about special rules e.g. safezones</p>
         </div>
+        <img src="{% static 'accounts/images/rules.png' %}" class="card-img-bottom">
     </div>
 </div>
 {% endblock %}
