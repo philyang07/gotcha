@@ -93,6 +93,8 @@ def change_details(request):
                 selt = form.cleaned_data['start_elimination_time']
                 gendt = form.cleaned_data['game_end_time']
                 resp = form.cleaned_data['respawn_time']
+                if not resp:
+                    resp = 0
                 game = request.user.game
                 game.open_duration = form.cleaned_data['open_duration']
                 game.access_code = form.cleaned_data['access_code']
