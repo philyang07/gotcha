@@ -163,12 +163,13 @@ def schedule_respawn(game_pk, resp):
 def respawn_players(game_pk, resp):
     delete_completed_tasks()
     if not Game.objects.filter(pk=game_pk):
+        delete_tasks(game_pk, schedule=timedelta(seconds=5))
         return
 
     game = Game.objects.get(pk=game_pk)
   
     if game.winner or game.force_ended:
-        delete_tasks(game_pk, schedule=timedelta(seconds=2))
+        delete_tasks(game_pk, schedule=timedelta(seconds=5))
         game.respawn_time = 0
         game.save()
         return
