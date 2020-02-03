@@ -14,13 +14,33 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, reverse
 from django.contrib.auth import views as auth_views
 from accounts import views as accounts_views
 
+from django.contrib.sitemaps.views import sitemap
+from django.contrib.sitemaps import GenericSitemap, Sitemap
 
+class StaticViewSitemap(Sitemap):
+    priority = 0.5
+    changefreq = 'daily'
+
+    def items(self):
+        return [
+            'accounts:home',
+            'accounts:guide',
+            'accounts:login',
+            'accounts:register',
+            'accounts:create_game',
+        ]
+
+    def location(self, item):
+        return reverse(item)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
+
+    path('sitemap.xml', sitemap, {'sitemaps': {'static': StaticViewSitemap}},
+        name='django.contrib.sitemaps.views.sitemap'),
 ]
