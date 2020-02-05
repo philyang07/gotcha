@@ -41,6 +41,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
 
-    path('sitemap.xml', sitemap, {'sitemaps': {'static': StaticViewSitemap}},
+    path('sitemap.xml/', sitemap, {'sitemaps': {'static': StaticViewSitemap}},
         name='django.contrib.sitemaps.views.sitemap'),
 ]
