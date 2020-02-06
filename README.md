@@ -1,5 +1,5 @@
 # gotcha
-Link to the app: Online Assassin game manager
+Link to the app: [Online Assassin game manager](https://gotchasite.herokuapp.com/)
 
 ## What's Assassin?
 Assassin is a game usually played with a large group of people with a very simple premise:
