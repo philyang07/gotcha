@@ -53,9 +53,9 @@ The key features to be added:
 * Scheduling the assignment of targets and the start of the elimination round
 * Providing automatic respawns e.g. if a player has been eliminated for 12 hours they respawn
 
-Firstly I experimented with using celery Python library to make these background tasks possible. However, there were many issues that came along with using Celery, starting with the fact that it doesn’t even support Windows anymore, requiring me to switch to Ubuntu for the rest of the project. The final straw came when it was working locally but exhibiting unusual behaviour when in use with a cloud hosted message broker (here is my Stack Overflow post), especially in production.
+Firstly I experimented with using celery Python library to make these background tasks possible. However, there were many issues that came along with using Celery, starting with the fact that it doesn’t even support Windows anymore, requiring me to switch to Ubuntu for the rest of the project. The final straw came when it was working locally but exhibiting unusual behaviour when in use with a cloud hosted message broker ([here is my Stack Overflow post](https://stackoverflow.com/questions/59844934/django-celery-application-on-heroku-works-locally-but-worker-timeout-when-depl)), especially in production.
 
-Finally, django-background-tasks (a database-oriented work queue) came to the rescue, which basically has a long-running process that executes the scheduled tasks (via python manage.py process_tasks). Being far simpler than Celery, and not requiring extra 3rd party addons in deployment made it much more ideal.
+Finally, django-background-tasks (a database-oriented work queue) came to the rescue, which basically has a long-running process that executes the scheduled tasks (via `python manage.py process_tasks`). Being far simpler than Celery, and not requiring extra 3rd party addons in deployment made it much more ideal.
 
 ### Front-end:
 Bootstrap 4.4.
