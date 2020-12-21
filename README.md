@@ -1,4 +1,6 @@
 # gotcha
+An online manager for the game Assassin.
+
 Link to the app: [Online Assassin game manager](https://gotchasite.herokuapp.com/)
 
 ## What's Assassin?
